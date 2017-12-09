@@ -6,6 +6,13 @@ Implementation of T gate optimization algorithm in reference https://arxiv.org/a
 Installation:
 Make sure GCC is installed and run "make all" in the TOpt directory. 
 
+Syntax:
+./TOpt <command name> {-<option character> <option argument>}
+
+e.g.
+./TOpt circuit test.tfc -a todd -o output.sqc
+The above command optimizes the circuit in file test.tfc using the TODD algorithm and saves the output circuit to output.sqc.
+
 Commands:
 
 circuit <filename>
