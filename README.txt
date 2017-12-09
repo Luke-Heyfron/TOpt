@@ -1,7 +1,10 @@
 TOpt
 ----
 
-Implementation of T gate optimization algorithm in reference <insert arXiv reference>.
+Implementation of T gate optimization algorithm in reference https://arxiv.org/abs/1712.01557.
+
+Installation:
+Make sure GCC is installed and run "make all" in the TOpt directory. 
 
 Commands:
 
