@@ -23,6 +23,12 @@ using namespace LCL_ConsoleOut;
 #include "WeightedPolynomial.h"
 #include "Utils.h"
 #include "TO_CircuitGenerators.h"
+#include "LCL_RealMatrix.h"
+#include "LCL_RealMatrix_imp1.h"
+#include "LCL_BooleanMatrix.h"
+#include "LCL_BooleanMatrix_imp1.h"
+#include "LCL_BoundedInt.h"
+#include "CNOTOptimize.h"
 
 #include <climits>
 #include <vector>
@@ -39,6 +45,28 @@ int main(int argc, char* argv[]) {
     g_csv_filename.clear();
 
     srand(time(NULL));
+
+
+    int n = 10;
+    int N = 200;
+    BMSparse A(n,n);
+    for(int i = 0; i < n; i++) A.E(i,i,1);
+    for(int i = 0; i < N; i++) {
+        int this_control = Utils::rand_i(0,n-1);
+        int this_target = Utils::rand_i(0,n-1);
+        while(this_control==this_target) {
+            this_control = Utils::rand_i(0,n-1);
+            this_target = Utils::rand_i(0,n-1);
+        }
+        A = A.addRows(this_target,this_control);
+    }
+    cout << "A:" << endl;
+    A.printFull();
+
+    SQC_Circuit out = CNOTOptimize::CNOT_Synth(A, n); // TODO: Debug this!
+    cout << "out:" << endl;
+    out.Print();
+
 
     if(argc>1) {
         string this_command = argv[1];

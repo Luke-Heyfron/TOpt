@@ -7,11 +7,13 @@
 #include "WeightedPolynomial.h"
 #include "Signature.h"
 #include "Matrix.h"
+#include "BMSparse.h"
 
 namespace TO_Maps {
     // PhasePolynomial <-> SQC_Circuit
     PhasePolynomial SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in);
     SQC_Circuit PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in);
+    SQC_Circuit PhasePolynomial_to_SQC_Circuit2(const PhasePolynomial& in);
 
     // PhasePolynomial <-> GateStringSparse
     GateStringSparse PhasePolynomial_to_GateStringSparse(const PhasePolynomial& in);
@@ -26,6 +28,9 @@ namespace TO_Maps {
 
     // SQC_Circuit -> Matrix
     Matrix SQC_Circuit_to_Matrix(const SQC_Circuit& in, int in_n = -1);
+
+    // SQC_Circuit(CNOTS ONLY) -> BMSparse
+    BMSparse SQC_Circuit_to_BMSparse(const SQC_Circuit& in);
 
 }
 

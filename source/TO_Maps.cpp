@@ -14,6 +14,8 @@ using namespace std;
 #include "LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
+#include "BMSparse.h"
+
 PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in) {
     int n = in.n;
     PhasePolynomial out(n);
@@ -124,6 +126,66 @@ SQC_Circuit TO_Maps::PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in) {
             }
         }
     }
+
+    return out;
+}
+
+SQC_Circuit TO_Maps::PhasePolynomial_to_SQC_Circuit2(const PhasePolynomial& in) {
+    int n = in.get_n();
+    int tau = in.T();
+
+    SQC_Circuit out(n+tau);
+
+    // For each term in in
+        // Implement Boolean function c_j.x on ancilla given by index n+1+j using CNOTs and place into subcircuit V
+        // Implement single qubit phase gate using at most one Z, S and T gate, place into subcircuit W
+    // (Optimize V using Patel, Markov and Hayes to yield circuit with O((n+tau)^2/log(n+tau)) CNOTs)
+    // Form output by concatenating V, W and V^\dagger
+
+    bool x[n];
+    bool m_b[3];
+    SQC_Circuit V(n+tau);
+    SQC_Circuit W(n+tau);
+    for(int t = 0; t < tau; t++) {
+        int this_m = in.get_m_at(t);
+        int this_a = in.get_a_at(t);
+        while(this_m<0) this_m += 8;
+        this_m %= 8;
+        if(this_m!=0) {
+            LCL_Bool::IntToBoolVec(x,this_a,n);
+            for(int i = 0; i < n; i++) {
+                if(x[i]) {
+                    // Add a CNOT to V: control = i+1; target = n+1+t
+                    int this_op[] = {SQC_OPERATOR_CNOT,n+1+t,i+1};
+                    V.AddOperator(this_op,3);
+                }
+            }
+            LCL_Bool::IntToBoolVec(m_b,this_m,3);
+
+            if(m_b[0])  {
+                // Add a T gate
+                int this_op[] = {SQC_OPERATOR_T,n+1+t};
+                W.AddOperator(this_op,2);
+            }
+            if(m_b[1])  {
+                // Add an S gate
+                int this_op[] = {SQC_OPERATOR_S,n+1+t};
+                W.AddOperator(this_op,2);
+            }
+            if(m_b[2])  {
+                // Add a Z gate
+                int this_op[] = {SQC_OPERATOR_Z,n+1+t};
+                W.AddOperator(this_op,2);
+            }
+        }
+    }
+
+    // Optimize Z
+
+    // Compose together V o W o V^\dagger
+    out += V;
+    out += W;
+    out += (!V);
 
     return out;
 }
@@ -443,6 +505,32 @@ Matrix TO_Maps::SQC_Circuit_to_Matrix(const SQC_Circuit& in, int in_n) {
     }
     LOut_Pad--;
     LOut() << "Conversion complete." << endl;
+
+    return out;
+}
+
+BMSparse TO_Maps::SQC_Circuit_to_BMSparse(const SQC_Circuit& in) {
+    int n = in.n;
+    BMSparse out(n,n);
+    for(int i = 0; i < n; i++) out.E(i,i,1);
+
+    for(int t = 0; t < in.m; t++) {
+        int* this_op = in.operator_list[t];
+        if(this_op[0]==SQC_OPERATOR_CNOT) {
+            int this_control = (this_op[2]-1);
+            int this_target = (this_op[1]-1);
+            BMSparse E(n,n);
+            for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                    E.E(i,j,((i==j) + (i==this_target)*(j==this_control))%2);
+                }
+            }
+            out = (E*out);
+            //out = out.addRows(this_target,this_control);
+        } else {
+            warning("Non-CNOT gates present.", "SQC_Circuit_to_BMSparse", "TO_Maps");
+        }
+    }
 
     return out;
 }

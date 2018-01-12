@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="TOpt" />
+		<Option makefile="makefile" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/TOpt" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/TOpt" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-std=c++11" />
+			<Add directory="include" />
+			<Add directory="source" />
+		</Compiler>
+		<Unit filename="include/BMSparse.h" />
+		<Unit filename="include/BoolMat.h" />
+		<Unit filename="include/Bool_Signature.h" />
+		<Unit filename="include/CNOTOptimize.h" />
+		<Unit filename="include/Complex.h" />
+		<Unit filename="include/GateSigInterface.h" />
+		<Unit filename="include/GateStringSparse.h" />
+		<Unit filename="include/GateSynthesisMatrix.h" />
+		<Unit filename="include/Hadamard.h" />
+		<Unit filename="include/Interface_BMSGSS.h" />
+		<Unit filename="include/Interface_SigBMS.h" />
+		<Unit filename="include/LCL_Bool.h" />
+		<Unit filename="include/LCL_BooleanMatrix.h" />
+		<Unit filename="include/LCL_BoundedInt.h" />
+		<Unit filename="include/LCL_ConsoleOut.h" />
+		<Unit filename="include/LCL_Int.h" />
+		<Unit filename="include/LCL_Mat_GF2.h" />
+		<Unit filename="include/LCL_Maths.h" />
+		<Unit filename="include/LCL_RealMatrix.h" />
+		<Unit filename="include/Matrix.h" />
+		<Unit filename="include/Menu.h" />
+		<Unit filename="include/MenuUtils.h" />
+		<Unit filename="include/PhasePolynomial.h" />
+		<Unit filename="include/SQC_Circuit.h" />
+		<Unit filename="include/Signature.h" />
+		<Unit filename="include/TO_CircuitGenerators.h" />
+		<Unit filename="include/TO_Decoder.h" />
+		<Unit filename="include/TO_Maps.h" />
+		<Unit filename="include/UniversalOptimize.h" />
+		<Unit filename="include/Utils.h" />
+		<Unit filename="include/WeightedPolynomial.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="source/BMSparse.cpp" />
+		<Unit filename="source/BoolMat.cpp" />
+		<Unit filename="source/Bool_Signature.cpp" />
+		<Unit filename="source/CNOTOptimize.cpp" />
+		<Unit filename="source/Complex.cpp" />
+		<Unit filename="source/GateSigInterface.cpp" />
+		<Unit filename="source/GateStringSparse.cpp" />
+		<Unit filename="source/GateSynthesisMatrix.cpp" />
+		<Unit filename="source/Interface_BMSGSS.cpp" />
+		<Unit filename="source/Interface_SigBMS.cpp" />
+		<Unit filename="source/LCL_Bool.cpp" />
+		<Unit filename="source/LCL_BooleanMatrix_imp1.h" />
+		<Unit filename="source/LCL_BoundedInt.cpp" />
+		<Unit filename="source/LCL_ConsoleOut.cpp" />
+		<Unit filename="source/LCL_Int.cpp" />
+		<Unit filename="source/LCL_Mat_GF2.cpp" />
+		<Unit filename="source/LCL_Maths.cpp" />
+		<Unit filename="source/LCL_RealMatrix_imp1.h" />
+		<Unit filename="source/Matrix.cpp" />
+		<Unit filename="source/Menu.cpp" />
+		<Unit filename="source/MenuUtils.cpp" />
+		<Unit filename="source/PhasePolynomial.cpp" />
+		<Unit filename="source/SQC_Circuit.cpp" />
+		<Unit filename="source/Signature.cpp" />
+		<Unit filename="source/TO_CircuitGenerators.cpp" />
+		<Unit filename="source/TO_Decoder.cpp" />
+		<Unit filename="source/TO_Maps.cpp" />
+		<Unit filename="source/UniversalOptimize.cpp" />
+		<Unit filename="source/Utils.cpp" />
+		<Unit filename="source/WeightedPolynomial.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

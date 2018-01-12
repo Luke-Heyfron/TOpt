@@ -1885,3 +1885,25 @@ double VerifyOptimization2(const SQC_Circuit& U1, const SQC_Circuit& U2) {
 
     return out;
 }
+
+SQC_Circuit& SQC_Circuit::operator+=(const SQC_Circuit& in) {
+    // Only works if number of qubits is the same
+    if(n==in.n) {
+        for(int t = 0; t < in.m; t++) {
+            AddOperator(in.operator_list[t]);
+        }
+    } else {
+        error("Number of qubits must match for circuit concatenation.", "operator+=", "SQC_Circuit");
+    }
+    return (*this);
+}
+
+SQC_Circuit SQC_Circuit::operator!() const {
+    SQC_Circuit out(n,d,p_hads);
+
+    for(int t = (m-1); t >=0; t--) {
+        out.AddOperator(operator_list[t]);
+    }
+
+    return out;
+}

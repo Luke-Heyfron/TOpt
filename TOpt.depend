@@ -1,0 +1,445 @@
+# depslib dependency file v1.0
+1515780415 source:c:\users\php16leh\documents\topt\current\topt-master\main.cpp
+	<iostream>
+	"TO_Decoder.h"
+	"Signature.h"
+	"GateStringSparse.h"
+	"GateSigInterface.h"
+	"LCL_Maths.h"
+	"LCL_Bool.h"
+	"BoolMat.h"
+	"BMSparse.h"
+	"Interface_SigBMS.h"
+	"Interface_BMSGSS.h"
+	"LCL_Int.h"
+	"Bool_Signature.h"
+	"LCL_Mat_GF2.h"
+	"GateSynthesisMatrix.h"
+	"SQC_Circuit.h"
+	"LCL_ConsoleOut.h"
+	"PhasePolynomial.h"
+	"TO_Maps.h"
+	"WeightedPolynomial.h"
+	"Utils.h"
+	"TO_CircuitGenerators.h"
+	"LCL_RealMatrix.h"
+	"LCL_RealMatrix_imp1.h"
+	"LCL_BooleanMatrix.h"
+	"LCL_BooleanMatrix_imp1.h"
+	"LCL_BoundedInt.h"
+	"CNOTOptimize.h"
+	<climits>
+	<vector>
+	<cmath>
+	<ctime>
+	<string>
+	<sstream>
+	<fstream>
+	<ctime>
+	<utility>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\to_decoder.h
+	<iostream>
+	"GateStringSparse.h"
+	"Signature.h"
+	"GateSigInterface.h"
+	"LCL_Bool.h"
+	"PhasePolynomial.h"
+	"Matrix.h"
+	"BMSparse.h"
+	"LCL_Int.h"
+	<cmath>
+	<ctime>
+	<cstdlib>
+	<string>
+	<sstream>
+	<fstream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\gatestringsparse.h
+	<iostream>
+	<unordered_set>
+	<vector>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\signature.h
+	<iostream>
+	<unordered_set>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\gatesiginterface.h
+	"GateStringSparse.h"
+	"Signature.h"
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_bool.h
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\phasepolynomial.h
+	<iostream>
+	<string>
+	<unordered_set>
+	<vector>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\matrix.h
+	"Complex.h"
+	<cstdlib>
+	<cmath>
+	<cstdlib>
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\complex.h
+	<string>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\bmsparse.h
+	<iostream>
+	<ostream>
+	<unordered_set>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_int.h
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_maths.h
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\boolmat.h
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\interface_sigbms.h
+	"Signature.h"
+	"BMSparse.h"
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\interface_bmsgss.h
+	<iostream>
+	"BMSparse.h"
+	"GateStringSparse.h"
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\bool_signature.h
+	<iostream>
+	<ostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_mat_gf2.h
+	<iostream>
+	<ostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\gatesynthesismatrix.h
+
+1515689250 c:\users\php16leh\documents\topt\current\topt-master\include\sqc_circuit.h
+	<iostream>
+	<ostream>
+	"Signature.h"
+	"GateStringSparse.h"
+	"BMSparse.h"
+	"Matrix.h"
+	"TO_Decoder.h"
+	"LCL_ConsoleOut.h"
+	"UniversalOptimize.h"
+
+1515765798 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_consoleout.h
+	<iostream>
+	<ostream>
+	<ctime>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\universaloptimize.h
+	"SQC_Circuit.h"
+
+1515777978 c:\users\php16leh\documents\topt\current\topt-master\include\to_maps.h
+	"PhasePolynomial.h"
+	"SQC_Circuit.h"
+	"GateStringSparse.h"
+	"WeightedPolynomial.h"
+	"Signature.h"
+	"Matrix.h"
+	"BMSparse.h"
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\weightedpolynomial.h
+	<istream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\utils.h
+	<cstdlib>
+	<cmath>
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\to_circuitgenerators.h
+	"Signature.h"
+
+1514989433 source:c:\users\php16leh\documents\topt\current\topt-master\source\bmsparse.cpp
+	"BMSparse.h"
+	<iostream>
+	<cmath>
+	<ostream>
+	<unordered_set>
+	<cstring>
+	<vector>
+	<ctime>
+	<fstream>
+	<sstream>
+	"LCL_Int.h"
+
+1514989433 source:c:\users\php16leh\documents\topt\current\topt-master\source\bool_signature.cpp
+	"Bool_Signature.h"
+	<iostream>
+	<ostream>
+	<cstdlib>
+
+1514989433 source:c:\users\php16leh\documents\topt\current\topt-master\source\boolmat.cpp
+	"BoolMat.h"
+	<iostream>
+	<cmath>
+	<fstream>
+	"LCL_Maths.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\complex.cpp
+	<iostream>
+	"Complex.h"
+	<cmath>
+	<sstream>
+	<string>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\gatesiginterface.cpp
+	"GateSigInterface.h"
+	<iostream>
+	"GateStringSparse.h"
+	"Signature.h"
+	"LCL_ConsoleOut.h"
+	<unordered_set>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\gatestringsparse.cpp
+	"GateStringSparse.h"
+	<iostream>
+	<unordered_set>
+	<cmath>
+	<vector>
+	<ctime>
+	<cstdlib>
+	"LCL_Maths.h"
+	"LCL_Bool.h"
+	"LCL_Int.h"
+	"BoolMat.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\gatesynthesismatrix.cpp
+	"GateSynthesisMatrix.h"
+	<iostream>
+	<cmath>
+	"LCL_Mat_GF2.h"
+	"LCL_ConsoleOut.h"
+	"LCL_Int.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\interface_bmsgss.cpp
+	"Interface_BMSGSS.h"
+	<iostream>
+	"BMSparse.h"
+	"GateStringSparse.h"
+	<unordered_set>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\interface_sigbms.cpp
+	"Interface_SigBMS.h"
+	<iostream>
+	"Signature.h"
+	"BMSparse.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_bool.cpp
+	"LCL_Bool.h"
+	<iostream>
+	<cmath>
+	<utility>
+	<cstring>
+
+1515765832 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_consoleout.cpp
+	"LCL_ConsoleOut.h"
+	<iostream>
+	<ostream>
+	<ctime>
+	<TO_Decoder.h>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_int.cpp
+	"LCL_Int.h"
+	<iostream>
+	<utility>
+	<cstdlib>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_mat_gf2.cpp
+	"LCL_Mat_GF2.h"
+	<iostream>
+	<ostream>
+	<cmath>
+	<cstdlib>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_maths.cpp
+	"LCL_Maths.h"
+	<iostream>
+	<cmath>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\matrix.cpp
+	"Matrix.h"
+	"Complex.h"
+	"Utils.h"
+	"LCL_Bool.h"
+	<iostream>
+	<cmath>
+	<fstream>
+	<sstream>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\menu.cpp
+	"Menu.h"
+	"MenuUtils.h"
+	<cstring>
+	<string>
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\menu.h
+	<cstring>
+	<string>
+	<iostream>
+
+1514989433 c:\users\php16leh\documents\topt\current\topt-master\include\menuutils.h
+	<string>
+	<iostream>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\menuutils.cpp
+	"MenuUtils.h"
+	<cstring>
+	<string>
+	<iostream>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\phasepolynomial.cpp
+	"PhasePolynomial.h"
+	<iostream>
+	<cmath>
+	<unordered_set>
+	"LCL_Bool.h"
+	"LCL_ConsoleOut.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\signature.cpp
+	"Signature.h"
+	<iostream>
+	<unordered_set>
+	<utility>
+	<iterator>
+	<fstream>
+	<cstring>
+	<cstdlib>
+	"LCL_Bool.h"
+	"LCL_Int.h"
+	"Bool_Signature.h"
+	"LCL_ConsoleOut.h"
+
+1515766346 source:c:\users\php16leh\documents\topt\current\topt-master\source\sqc_circuit.cpp
+	"SQC_Circuit.h"
+	<iostream>
+	<ostream>
+	<string>
+	<cstring>
+	<fstream>
+	<utility>
+	<cmath>
+	<cstdlib>
+	"Signature.h"
+	"BMSparse.h"
+	"LCL_Mat_GF2.h"
+	"Interface_SigBMS.h"
+	"GateSynthesisMatrix.h"
+	"GateStringSparse.h"
+	"GateSigInterface.h"
+	"Interface_BMSGSS.h"
+	"LCL_ConsoleOut.h"
+	"Matrix.h"
+	"TO_Maps.h"
+	"Utils.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\to_circuitgenerators.cpp
+	"TO_CircuitGenerators.h"
+	<iostream>
+	<sstream>
+	"Signature.h"
+	"TO_Decoder.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\to_decoder.cpp
+	"TO_Decoder.h"
+	<iostream>
+	"GateStringSparse.h"
+	"Signature.h"
+	"GateSigInterface.h"
+	"LCL_Bool.h"
+	"BMSparse.h"
+	"Interface_BMSGSS.h"
+	"Interface_SigBMS.h"
+	"PhasePolynomial.h"
+	"LCL_ConsoleOut.h"
+	"LCL_Mat_GF2.h"
+	"GateSynthesisMatrix.h"
+	"TO_Maps.h"
+	"WeightedPolynomial.h"
+	"Matrix.h"
+	<cmath>
+	<ctime>
+	<cstdlib>
+	<fstream>
+
+1515780377 source:c:\users\php16leh\documents\topt\current\topt-master\source\to_maps.cpp
+	"TO_Maps.h"
+	<iostream>
+	"PhasePolynomial.h"
+	"SQC_Circuit.h"
+	"GateStringSparse.h"
+	"WeightedPolynomial.h"
+	"BoolMat.h"
+	"LCL_Bool.h"
+	"LCL_Mat_GF2.h"
+	"LCL_ConsoleOut.h"
+	"BMSparse.h"
+
+1515603169 source:c:\users\php16leh\documents\topt\current\topt-master\source\universaloptimize.cpp
+	"SQC_Circuit.h"
+	"TO_Maps.h"
+	<iostream>
+	<ctime>
+	"LCL_ConsoleOut.h"
+	"TO_Decoder.h"
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\utils.cpp
+	"Utils.h"
+	<cstdlib>
+	<cmath>
+	<iostream>
+
+1514989434 source:c:\users\php16leh\documents\topt\current\topt-master\source\weightedpolynomial.cpp
+	"WeightedPolynomial.h"
+	<iostream>
+	<utility>
+	<cmath>
+
+1514990165 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_realmatrix.h
+	<iostream>
+	<ostream>
+
+1514991477 c:\users\php16leh\documents\topt\current\topt-master\source\lcl_realmatrix_imp1.h
+	"LCL_RealMatrix.h"
+	<iostream>
+	<ostream>
+	"LCL_ConsoleOut.h"
+
+1515434443 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_booleanmatrix.h
+	<iostream>
+	<ostream>
+	"LCL_BoundedInt.h"
+
+1515434494 c:\users\php16leh\documents\topt\current\topt-master\source\lcl_booleanmatrix_imp1.h
+	"LCL_BooleanMatrix.h"
+	<iostream>
+	<ostream>
+	"LCL_ConsoleOut.h"
+
+1515434518 source:c:\users\php16leh\documents\topt\current\topt-master\source\lcl_boundedint.cpp
+	<LCL_BoundedInt.h>
+	"LCL_ConsoleOut.h"
+
+1515434141 c:\users\php16leh\documents\topt\current\topt-master\include\lcl_boundedint.h
+
+1515780277 source:c:\users\php16leh\documents\topt\current\topt-master\source\cnotoptimize.cpp
+	"CNOTOptimize.h"
+	<iostream>
+	"SQC_Circuit.h"
+	"BMSparse.h"
+	"LCL_ConsoleOut.h"
+	"TO_Maps.h"
+
+1515779566 c:\users\php16leh\documents\topt\current\topt-master\include\cnotoptimize.h
+	<iostream>
+	"SQC_Circuit.h"
+	"BMSparse.h"
+

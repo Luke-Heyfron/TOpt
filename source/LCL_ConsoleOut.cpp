@@ -65,3 +65,21 @@ void LCL_ConsoleOut::error(const char* message, const char* function_name, const
     }
     LOut() << message << endl;
 }
+
+void LCL_ConsoleOut::comment(const char* message, const char* function_name, const char* class_name) {
+    LOut() << "COMMENT: ";
+    if(function_name||class_name) {
+        LOut() << "In `";
+        if(class_name) {
+            LOut() << class_name;
+            if(function_name) {
+                LOut() << "::";
+            }
+        }
+        if(function_name) {
+            LOut() << function_name;
+        }
+        LOut() << "'. ";
+    }
+    LOut() << message << endl;
+}

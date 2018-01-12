@@ -20,6 +20,7 @@ namespace LCL_ConsoleOut {
 
     void warning(const char* message, const char* function_name = NULL, const char* class_name = NULL);
     void error(const char* message, const char* function_name = NULL, const char* class_name = NULL);
+    void comment(const char* message, const char* function_name = NULL, const char* class_name = NULL);
 
     double secs(clock_t tic, clock_t toc);
 }

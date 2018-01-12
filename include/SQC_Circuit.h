@@ -141,6 +141,9 @@ struct SQC_Circuit {
     bool CancelAdjacentHadamards();
     bool CancelAdjacentTs();
 
+    SQC_Circuit& operator+=(const SQC_Circuit& in); // Append circuit in to this circuit
+    SQC_Circuit operator!() const; // Returns reverse circuit
+
     void PrintOperatorDistribution(ostream* in_OS = &cout) const;
 
     void AllocateAncillas(const SQC_Circuit& in_C); // Constructs new circuit with automatically allocated ancillas
