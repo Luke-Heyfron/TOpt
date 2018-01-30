@@ -1,0 +1,5 @@
+The computer used to obtain all results in this folder is the following.
+
+Processor: Intel Core i7-4700MQ CPU @  2.40GHz
+RAM: 12.0GB
+System: Windows 10 Home 64-bit, x64-based processor

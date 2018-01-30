@@ -1,0 +1,249 @@
+Find T-Count optimal circuit decomposition for {Clifford,T}
+
+Input filename = ./circuits/benchmarks/btoff/btoff_4.tfc
+
+Algorithm = lx
+
+Input circuit:
+n 4
+n_x 4
+n_y 0
+n_z 0
+m 1
+[0] = t 4 2 3 1
+
+Output circuit:
+n 7
+n_x 4
+n_y 0
+n_z 3
+m 301
+[0] = H 5
+[1] = H 4
+[2] = H 6
+[3] = H 7
+[4] = T 6
+[5] = S 6
+[6] = CNOT 1 4
+[7] = T 1
+[8] = S 1
+[9] = CNOT 1 4
+[10] = CNOT 1 5
+[11] = CNOT 1 6
+[12] = CNOT 1 7
+[13] = T 1
+[14] = CNOT 1 2
+[15] = CNOT 1 3
+[16] = T 1
+[17] = CNOT 1 7
+[18] = CNOT 1 5
+[19] = CNOT 1 3
+[20] = CNOT 1 2
+[21] = T 4
+[22] = CNOT 1 4
+[23] = T 1
+[24] = CNOT 1 4
+[25] = CNOT 4 6
+[26] = T 4
+[27] = S 4
+[28] = CNOT 4 6
+[29] = CNOT 1 3
+[30] = CNOT 1 5
+[31] = CNOT 1 7
+[32] = T 1
+[33] = CNOT 1 7
+[34] = CNOT 1 6
+[35] = CNOT 1 5
+[36] = CNOT 1 3
+[37] = T 1
+[38] = S 1
+[39] = Z 1
+[40] = CNOT 1 2
+[41] = CNOT 1 3
+[42] = CNOT 1 6
+[43] = T 1
+[44] = CNOT 1 3
+[45] = CNOT 1 5
+[46] = CNOT 1 7
+[47] = T 1
+[48] = CNOT 1 7
+[49] = CNOT 1 5
+[50] = CNOT 1 2
+[51] = CNOT 1 3
+[52] = T 1
+[53] = Z 1
+[54] = CNOT 1 3
+[55] = CNOT 1 2
+[56] = T 1
+[57] = Z 1
+[58] = CNOT 1 6
+[59] = Z 2
+[60] = Z 3
+[61] = S 5
+[62] = S 7
+[63] = S 1
+[64] = Z 1
+[65] = CNOT 1 2
+[66] = CNOT 1 3
+[67] = S 1
+[68] = Z 1
+[69] = CNOT 1 3
+[70] = CNOT 2 3
+[71] = S 2
+[72] = Z 2
+[73] = CNOT 2 3
+[74] = CNOT 2 6
+[75] = S 2
+[76] = Z 2
+[77] = CNOT 2 6
+[78] = CNOT 3 6
+[79] = S 3
+[80] = Z 3
+[81] = CNOT 3 6
+[82] = CNOT 5 6
+[83] = S 5
+[84] = CNOT 5 6
+[85] = CNOT 6 7
+[86] = S 6
+[87] = CNOT 6 7
+[88] = CNOT 1 2
+[89] = CNOT 1 3
+[90] = S 1
+[91] = Z 1
+[92] = CNOT 1 3
+[93] = CNOT 1 5
+[94] = S 1
+[95] = Z 1
+[96] = CNOT 1 5
+[97] = CNOT 1 7
+[98] = S 1
+[99] = Z 1
+[100] = CNOT 1 7
+[101] = CNOT 1 2
+[102] = CNOT 1 3
+[103] = CNOT 1 5
+[104] = S 1
+[105] = Z 1
+[106] = CNOT 1 5
+[107] = CNOT 1 7
+[108] = S 1
+[109] = Z 1
+[110] = CNOT 1 7
+[111] = CNOT 1 3
+[112] = CNOT 1 5
+[113] = CNOT 1 6
+[114] = Z 1
+[115] = CNOT 1 6
+[116] = CNOT 1 7
+[117] = Z 1
+[118] = CNOT 1 5
+[119] = CNOT 1 6
+[120] = Z 1
+[121] = CNOT 1 7
+[122] = CNOT 1 6
+[123] = CNOT 2 3
+[124] = CNOT 2 6
+[125] = S 2
+[126] = Z 2
+[127] = CNOT 2 3
+[128] = CNOT 2 5
+[129] = S 2
+[130] = Z 2
+[131] = CNOT 2 6
+[132] = CNOT 2 7
+[133] = S 2
+[134] = Z 2
+[135] = CNOT 2 5
+[136] = CNOT 2 6
+[137] = S 2
+[138] = Z 2
+[139] = CNOT 2 7
+[140] = CNOT 2 6
+[141] = CNOT 3 5
+[142] = CNOT 3 6
+[143] = S 3
+[144] = Z 3
+[145] = CNOT 3 6
+[146] = CNOT 3 7
+[147] = S 3
+[148] = Z 3
+[149] = CNOT 3 5
+[150] = CNOT 3 6
+[151] = S 3
+[152] = Z 3
+[153] = CNOT 3 7
+[154] = CNOT 3 6
+[155] = CNOT 5 6
+[156] = CNOT 5 7
+[157] = Z 5
+[158] = CNOT 5 7
+[159] = CNOT 5 6
+[160] = CNOT 6 5
+[161] = CNOT 5 6
+[162] = CNOT 6 5
+[163] = CNOT 7 5
+[164] = CNOT 5 7
+[165] = CNOT 7 5
+[166] = H 6
+[167] = M 6
+[168] = H 7
+[169] = M 7
+[170] = H 5
+[171] = H 4
+
+Gate distributions:
+Input:
+Operator distribution:
+n = 4
+d = 4
+T count = 21
+Cost = 10506
+	id	Count
+	0	0
+	1	0
+	2	0
+	3	0
+	4	0
+	5	0
+	6	0
+	7	0
+	8	0
+	9	0
+	10	0
+	11	0
+	12	0
+	13	0
+	14	0
+	15	0
+	16	1
+	17	0
+	18	0
+
+Output:
+Operator distribution:
+n = 7
+d = 4
+T count = 13
+Cost = 6660
+	id	Count
+	0	0
+	1	0
+	2	0
+	3	8
+	4	98
+	5	13
+	6	0
+	7	0
+	8	0
+	9	0
+	10	0
+	11	25
+	12	0
+	13	26
+	14	0
+	15	0
+	16	0
+	17	0
+	18	2
+
+Executed in 0 seconds.

@@ -1,0 +1,235 @@
+Find T-Count optimal circuit decomposition for {Clifford,T}
+
+Input filename = ./circuits/benchmarks/NmodK/mod5_4.qc
+
+Algorithm = lx
+
+Input circuit:
+n 5
+n_x 5
+n_y 0
+n_z 0
+m 101
+[0] = X 5
+[1] = H 5
+[2] = CCZ 1 4 5
+[3] = CCZ 3 4 5
+[4] = H 5
+[5] = t 5 4
+[6] = H 5
+[7] = CCZ 2 3 5
+[8] = H 5
+[9] = t 5 3
+[10] = H 5
+[11] = CCZ 1 2 5
+[12] = H 5
+[13] = t 5 2
+[14] = t 5 1
+
+Output circuit:
+n 10
+n_x 5
+n_y 0
+n_z 5
+m 201
+[0] = H 5
+[1] = H 6
+[2] = H 7
+[3] = H 8
+[4] = H 9
+[5] = H 10
+[6] = CNOT 3 4
+[7] = T 3
+[8] = S 3
+[9] = CNOT 3 4
+[10] = CNOT 2 7
+[11] = T 2
+[12] = S 2
+[13] = CNOT 2 7
+[14] = CNOT 3 5
+[15] = T 3
+[16] = S 3
+[17] = CNOT 3 4
+[18] = T 3
+[19] = CNOT 3 5
+[20] = CNOT 3 4
+[21] = CNOT 2 9
+[22] = T 2
+[23] = S 2
+[24] = CNOT 2 9
+[25] = CNOT 2 3
+[26] = CNOT 2 7
+[27] = T 2
+[28] = CNOT 2 7
+[29] = CNOT 2 3
+[30] = CNOT 1 9
+[31] = T 1
+[32] = S 1
+[33] = CNOT 1 9
+[34] = T 9
+[35] = CNOT 1 2
+[36] = T 1
+[37] = S 1
+[38] = CNOT 1 2
+[39] = CNOT 1 4
+[40] = CNOT 1 5
+[41] = T 1
+[42] = CNOT 1 5
+[43] = CNOT 3 7
+[44] = T 3
+[45] = S 3
+[46] = CNOT 3 7
+[47] = T 1
+[48] = S 1
+[49] = CNOT 1 4
+[50] = T 7
+[51] = CNOT 1 5
+[52] = T 1
+[53] = S 1
+[54] = CNOT 1 5
+[55] = CNOT 2 3
+[56] = T 2
+[57] = S 2
+[58] = CNOT 2 3
+[59] = CNOT 1 2
+[60] = CNOT 1 9
+[61] = T 1
+[62] = CNOT 1 9
+[63] = CNOT 1 2
+[64] = S 1
+[65] = S 2
+[66] = S 3
+[67] = Z 3
+[68] = S 4
+[69] = S 6
+[70] = S 8
+[71] = S 10
+[72] = Z 10
+[73] = CNOT 3 8
+[74] = S 3
+[75] = CNOT 3 8
+[76] = CNOT 3 9
+[77] = Z 3
+[78] = CNOT 3 9
+[79] = CNOT 4 5
+[80] = S 4
+[81] = CNOT 4 5
+[82] = CNOT 4 6
+[83] = S 4
+[84] = CNOT 4 6
+[85] = CNOT 4 7
+[86] = Z 4
+[87] = CNOT 4 7
+[88] = CNOT 5 6
+[89] = S 5
+[90] = CNOT 5 6
+[91] = CNOT 6 7
+[92] = Z 6
+[93] = CNOT 6 7
+[94] = CNOT 7 8
+[95] = S 7
+[96] = CNOT 7 8
+[97] = CNOT 8 9
+[98] = Z 8
+[99] = CNOT 8 9
+[100] = CNOT 9 10
+[101] = S 9
+[102] = CNOT 9 10
+[103] = CNOT 3 8
+[104] = CNOT 3 9
+[105] = S 3
+[106] = Z 3
+[107] = CNOT 3 9
+[108] = CNOT 3 8
+[109] = CNOT 4 6
+[110] = CNOT 4 7
+[111] = S 4
+[112] = Z 4
+[113] = CNOT 4 7
+[114] = CNOT 4 6
+[115] = CNOT 6 5
+[116] = CNOT 5 6
+[117] = CNOT 6 5
+[118] = CNOT 5 4
+[119] = CNOT 7 5
+[120] = CNOT 5 7
+[121] = CNOT 7 5
+[122] = CNOT 8 5
+[123] = CNOT 5 8
+[124] = CNOT 8 5
+[125] = CNOT 5 3
+[126] = CNOT 9 5
+[127] = CNOT 5 9
+[128] = CNOT 9 5
+[129] = CNOT 10 5
+[130] = CNOT 5 10
+[131] = CNOT 10 5
+[132] = CNOT 5 2
+[133] = CNOT 5 1
+[134] = H 6
+[135] = M 6
+[136] = H 7
+[137] = M 7
+[138] = H 8
+[139] = M 8
+[140] = H 9
+[141] = M 9
+[142] = H 10
+[143] = M 10
+
+Gate distributions:
+Input:
+Operator distribution:
+n = 5
+d = 5
+T count = 28
+Cost = 14011
+	id	Count
+	0	0
+	1	1
+	2	0
+	3	6
+	4	4
+	5	0
+	6	0
+	7	0
+	8	0
+	9	0
+	10	4
+	11	0
+	12	0
+	13	0
+	14	0
+	15	0
+	16	0
+	17	0
+	18	0
+
+Output:
+Operator distribution:
+n = 10
+d = 5
+T count = 16
+Cost = 8130.5
+	id	Count
+	0	0
+	1	0
+	2	0
+	3	11
+	4	79
+	5	16
+	6	0
+	7	0
+	8	0
+	9	0
+	10	0
+	11	25
+	12	0
+	13	8
+	14	0
+	15	0
+	16	0
+	17	0
+	18	5
+
+Executed in 0.016 seconds.

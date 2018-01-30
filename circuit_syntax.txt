@@ -1,0 +1,37 @@
+Circuit syntax
+---------------
+n	<Total number of qubits>
+n_x	<Number of data qubits>
+n_y	<Deprocated>
+n_z	<Number of ancilla qubits. Implicitely initialized to |0> and traced out after circuit termination>
+m	<Max number of gates>
+# Time-ordered list of quantum gates with k inputs of the form:
+[<time-step index>] = <Gate symbol> <qubit index 1> <qubit index 2> ... <qubit index k>
+
+Quantum gates
+-------------
+The following table lists all available quantum gates, each of which has a unique index value (id), symbol used in output files and a list of qubits to which it is applied.
+
+id	Gate			Symbol		Qubit indices
+---------------------------------------------------------------------------------------
+0	Identity		I		<target>
+1	Pauli-X			X		<target>
+2	Pauli-Y			Y		<target>
+3	Hadamard		H		<target>
+4	Controlled-NOT		CNOT		<target> <control>
+5	T (a.k.a pi/8 phase)	T		<target>
+6	adjoint(T)		T'		<target>
+7	Control-phase		CS		<target> <control>
+8	adjoint(Control-phase)	CS'		<target> <control>
+9	Control-Z		CZ		<target> <control>
+10	Control-Control-Z	CCZ		<target> <control 1> <control 2>
+11	S (a.k.a pi/4 phase)	S		<target>
+12	adjoint(S)		S'		<target>
+13	Pauli-Z			Z		<target>
+14	Toffoli			Toffoli		<target> <control 1> <control 2>
+15	Toffoli_4 (Deprocated)	Toffoli-4	<target> <control 1> <control 2> <control 3>
+16	Toffoli_N		t		<target> <control 1> <control 2> ... <control (N-1)>
+17	Partition (Deprocated)	P		<qubit 1> <qubit 2> ... <qubit k>
+18	Post-selecting gate*	M		<target>
+
+* Post-selecting gate M applies the projector c|0><0| (where c is a normalising constant) to a single qubit given by index <target> (identity is applied to all other qubits).

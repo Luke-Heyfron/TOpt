@@ -1,0 +1,152 @@
+Find T-Count optimal circuit decomposition for {Clifford,T}
+
+Input filename = ./circuits/benchmarks/NmodK/mod5d4.tfc
+
+Algorithm = lx
+
+Input circuit:
+n 5
+n_x 5
+n_y 0
+n_z 0
+m 101
+[0] = t 3 1
+[1] = t 4 2
+[2] = t 5 4 3
+[3] = t 4 3
+[4] = t 5 4
+
+Output circuit:
+n 6
+n_x 5
+n_y 0
+n_z 1
+m 101
+[0] = H 5
+[1] = H 6
+[2] = CNOT 3 4
+[3] = CNOT 3 5
+[4] = T 3
+[5] = CNOT 3 5
+[6] = CNOT 3 4
+[7] = CNOT 2 3
+[8] = T 2
+[9] = S 2
+[10] = CNOT 2 5
+[11] = T 2
+[12] = CNOT 2 5
+[13] = CNOT 2 3
+[14] = CNOT 3 4
+[15] = T 3
+[16] = S 3
+[17] = CNOT 3 4
+[18] = CNOT 1 2
+[19] = CNOT 1 5
+[20] = T 1
+[21] = CNOT 1 5
+[22] = CNOT 1 2
+[23] = CNOT 1 4
+[24] = T 1
+[25] = S 1
+[26] = CNOT 1 4
+[27] = CNOT 1 2
+[28] = T 1
+[29] = S 1
+[30] = CNOT 1 2
+[31] = CNOT 1 4
+[32] = CNOT 1 5
+[33] = T 1
+[34] = CNOT 1 5
+[35] = CNOT 1 4
+[36] = S 1
+[37] = Z 1
+[38] = S 2
+[39] = Z 2
+[40] = S 3
+[41] = Z 3
+[42] = S 4
+[43] = Z 4
+[44] = S 5
+[45] = S 6
+[46] = Z 6
+[47] = CNOT 1 5
+[48] = S 1
+[49] = CNOT 1 5
+[50] = CNOT 2 5
+[51] = S 2
+[52] = CNOT 2 5
+[53] = CNOT 3 5
+[54] = S 3
+[55] = CNOT 3 5
+[56] = CNOT 4 5
+[57] = S 4
+[58] = CNOT 4 5
+[59] = CNOT 5 6
+[60] = S 5
+[61] = CNOT 5 6
+[62] = CNOT 3 1
+[63] = CNOT 4 2
+[64] = CNOT 6 5
+[65] = CNOT 5 6
+[66] = CNOT 6 5
+[67] = CNOT 4 3
+[68] = CNOT 5 4
+[69] = H 6
+[70] = M 6
+
+Gate distributions:
+Input:
+Operator distribution:
+n = 5
+d = 5
+T count = 7
+Cost = 3508
+	id	Count
+	0	0
+	1	0
+	2	0
+	3	0
+	4	4
+	5	0
+	6	0
+	7	0
+	8	0
+	9	0
+	10	0
+	11	0
+	12	0
+	13	0
+	14	1
+	15	0
+	16	0
+	17	0
+	18	0
+
+Output:
+Operator distribution:
+n = 6
+d = 5
+T count = 8
+Cost = 4063.5
+	id	Count
+	0	0
+	1	0
+	2	0
+	3	3
+	4	39
+	5	8
+	6	0
+	7	0
+	8	0
+	9	0
+	10	0
+	11	15
+	12	0
+	13	5
+	14	0
+	15	0
+	16	0
+	17	0
+	18	1
+
+Executed in 0.016 seconds.
