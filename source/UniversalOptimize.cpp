@@ -101,11 +101,12 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 
         tic = clock();
         SQC_Circuit step10 = SQC_Circuit::optimize_D3(*this_D3, decoder);
+        // After implementing new version of optimize_D3, update final_n according to site of step10.n
 
         toc = clock();
         step10_time += secs(tic,toc);
 
-        step10s[p] = new SQC_Circuit(this_Pp->n,this_Pp->d,this_Pp->p_hads);
+        step10s[p] = new SQC_Circuit(this_Pp->n,this_Pp->d,this_Pp->p_hads); // step10->n instead of this_Pp->n
         for(int i = 0; i < this_L->m; i++) step10s[p]->AddOperator(this_L->operator_list[i],this_L->n+1);
         for(int i = 0; i < step10.m; i++) step10s[p]->AddOperator(step10.operator_list[i]);
         for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
