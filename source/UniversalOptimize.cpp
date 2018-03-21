@@ -66,9 +66,25 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     int step6_N_Hs, step6_N_Ps;
     SQC_Circuit::decompose_into_Hadamard_partitions(step5, step6_Hs, step6_N_Hs, step6_Ps, step6_N_Ps);
     toc = clock();
+
+    /*cout << "Pre partition" << endl;
+    step5.Print();
+    step5.Save("step5.log");
+    cout << endl;*/
+
     //LOut() << "Number of partitions = " << step6_N_Ps << endl;
+    /*for(int i = 0; i < step6_N_Hs; i++) {
+        cout << "H-part " << i << endl;
+        step6_Hs[i]->Print();
+        cout << endl;
+    }*/
 
     //LOut() << "Number of Hadamard partitions = " << step6_N_Hs << endl;
+    /*for(int i = 0; i < step6_N_Ps; i++) {
+        cout << "D3-part " << i << endl;
+        step6_Ps[i]->Print();
+        cout << endl;
+    }*/
 
     //LOut() << "Step 7 end. Executed in " << secs(tic,toc) << "s" << endl;
     accounted_time += secs(tic,toc);
@@ -543,35 +559,48 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
     int N_H = 0;
     N_Hs = 0;
     N_Ps = 0;
+    // Calculate number of Hadamards
     for(int t = 0; t < in.m; t++) {
         int* this_op = in.operator_list[t];
         if(this_op[0]==SQC_OPERATOR_HADAMARD) N_H++;
     }
+    // Calculate maximum number of D3 partitions
     int max_N_P = 0;
     if(g_Hadamard_ancillas>0) max_N_P = ceil((double)N_H/(double)g_Hadamard_ancillas);
     else if(g_Hadamard_ancillas==0) max_N_P = (N_H-1);
     if(!max_N_P) max_N_P = 1;
 
+    // Allocate arrays to store the two types of partitions
     inPs = new SQC_Circuit*[max_N_P];
     for(int i = 0; i < max_N_P; i++) inPs[i] = NULL;
     inHs = new SQC_Circuit*[max_N_P+1];
     for(int i = 0; i < (max_N_P+1); i++) inHs[i] = NULL;
+
+    // Copy the input circuit to this_C, which is the "remaining gates" partition
     SQC_Circuit this_C(in);
 
+    // Each Hadamard partitions is a H-then-D3 pair. We need to know if a final H partition is needed so we track it with Boolean variable final_H.
     bool final_H = 1;
+
+    // Loop until no gates are left in "remaining gates" partition
     while(this_C.m>0) {
 
+        // Strip away the left-most Hadamards from "remaining gates" and put into next H-partition
         if(this_C.m>0) {
             inHs[N_Hs] = new SQC_Circuit(n,in.d);
 
             bool exit = 0;
+
+            // For each qubit line, we need to track whether the left-to-right search for Hadamards is blocked by a CNOT or T^n gate. To do this we store whether we have found such a gate in q_blocked.
             bool q_blocked[n];
             for(int i = 0; i < n; i++) q_blocked[i] = 0;
 
+            // Search left-to-right through circuit and exit if we reach then end or if all qubit lines are blocked
             for(int t = 0; (!exit)&&(t < this_C.m); t++) {
 
                 int* this_op = this_C.operator_list[t];
                 switch(this_op[0]) {
+                    // If we find a Hadamard, check whether the qubit line it acts upon has `seen' a CNOT or T^k gate. If not, add the H gate to the next H-part.
                     case SQC_OPERATOR_HADAMARD:
                         {
                             if(!q_blocked[this_op[1]-1]) {
@@ -581,6 +610,7 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                             }
                         }
                         break;
+                    // If we find a CNOT or T^k gate, block the lines it acts upon.
                     case SQC_OPERATOR_Z:
                     case SQC_OPERATOR_S:
                     case SQC_OPERATOR_T:
@@ -602,7 +632,7 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
             }
             N_Hs++;
         }
-        // Find next partition
+        // Find next D3 partition. Similar process as for H-parts but (roughly) swapped roles for H's and {CNOT,T^k}'s.
         if(this_C.m>0) {
             if(g_Hadamard_ancillas==-1) {
                 inPs[N_Ps] = new SQC_Circuit(this_C);
@@ -623,14 +653,14 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                     this_C.DeleteOperator(0);
                 }
                 bool exit = 0;
-                bool q_blocked[n];
-                for(int i = 0; i < n; i++) q_blocked[i] = 0;
+                bool seen_hadamard[n],seen_D3[n],seen_CNOT_target[n], seen_CNOT_control[n];
+                for(int i = 0; i < n; i++) seen_hadamard[i] = seen_D3[i] = seen_CNOT_target[i] = seen_CNOT_control[i] = 0;
                 for(int t = 0; (!exit)&&(t < this_C.m); t++) {
                     int* this_op = this_C.operator_list[t];
                     switch(this_op[0]) {
                         case SQC_OPERATOR_HADAMARD:
                             {
-                                q_blocked[this_op[1]-1] = 1;
+                                seen_hadamard[this_op[1]-1] = 1;
 
                             }
                             break;
@@ -638,26 +668,32 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                         case SQC_OPERATOR_S:
                         case SQC_OPERATOR_T:
                             {
-                                if(!q_blocked[this_op[1]-1]) {
+                                if(!(seen_hadamard[this_op[1]-1]||seen_CNOT_target[this_op[1]-1])) {
                                     inPs[N_Ps]->AddOperator(this_op);
                                     this_C.DeleteOperator(t);
                                     t--;
+                                } else {
+                                    // We only `see' gates if we fail to move them to a partition.
+                                    seen_D3[this_op[1]-1] = 1;
                                 }
                             }
                             break;
                         case SQC_OPERATOR_CNOT:
                             {
-                                if((!q_blocked[this_op[1]-1])&&(!q_blocked[this_op[2]-1])) {
+                                if(!(seen_hadamard[this_op[1]-1]||seen_hadamard[this_op[2]-1]||seen_CNOT_control[this_op[1]-1]||seen_CNOT_target[this_op[2]-1]||seen_D3[this_op[1]-1])) {
                                     inPs[N_Ps]->AddOperator(this_op);
                                     this_C.DeleteOperator(t);
                                     t--;
+                                } else {
+                                    seen_CNOT_target[this_op[1]-1] = 1;
+                                    seen_CNOT_control[this_op[2]-1] = 1;
                                 }
                             }
                             break;
                     }
                     exit = 1;
                     for(int i = 0; i < n; i++) {
-                        exit *= q_blocked[i];
+                        exit *= (seen_hadamard[i])||((seen_D3[i]||seen_CNOT_control)*seen_CNOT_target[i]);
                     }
                 }
                 N_Ps++;
