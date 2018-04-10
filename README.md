@@ -43,6 +43,8 @@ circuit <filename>
 			If argument is 1, TOpt will verify the functional equivalence of the input and output circuits using a brute force simulation of the quantum circuit.
 		-h <integer>
 			Sets cap on number of Hadamard ancillas to <integer>.
+		-c <filename>
+			If set, TOpt will add a row to the .csv file specified by the option value that contains data for the input circuit, optimization algorithm and output circuit. The row format is decribed in file "doc/csv_output_format.txt".
 
 signature <filename>
 	Optimizes a signature tensor. Takes as input .sig file with path given by argument <filename>. A .sig file is a sparse representation of the signature tensor with syntax as follows.
