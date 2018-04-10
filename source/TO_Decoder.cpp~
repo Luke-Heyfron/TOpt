@@ -37,7 +37,6 @@ int g_Hadamard_ancillas = -1;
 double g_matrix_precision = 1.0e-16;
 ofstream* g_output_file = NULL;
 LempelSelector g_lempel_selector = LempelSelector_Random;
-int g_out_no_partitions = -1;
 
 GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     int n = inS.get_n();
@@ -191,7 +190,7 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
         out_BMS.printFull(my_file);
         my_file.close();
     }
-    if(false&&(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::REED_MULLER))&&(!g_csv_filename.empty())&&(g_random_circuit_seed!=0)) {
+    if((!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::REED_MULLER))&&(!g_csv_filename.empty())&&(g_random_circuit_seed!=0)) {
         ofstream csv_out_file(g_csv_filename.c_str(), iostream::app);
         //CSV format: "2, <#qubits>, <seed#>, <T-count>\n"
 
@@ -273,7 +272,7 @@ GateStringSparse TODD(const Signature& inS) {
     LOut() << "Total time: " << secs(start,finish) << "s" << endl;
     LOut_Pad--;
     LOut() << "Gate synthesis end." << endl;
-    if(false&&!g_csv_filename.empty()) {
+    if(!g_csv_filename.empty()) {
         ofstream my_csv(g_csv_filename.c_str(),iostream::app);
         int n = inS.get_n();
         my_csv << SYNTHESIS_ALGORITHM_ID::DAFT_GUESS << "," << n << "," << g_random_circuit_seed << "," << A_GSS.weight(true) << endl;

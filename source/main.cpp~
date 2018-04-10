@@ -91,10 +91,6 @@ int main(int argc, char* argv[]) {
                             //n_RM
                             g_Reed_Muller_max = atoi(this_value.c_str());
                             break;
-						case 'c':
-							// csv filename
-							g_csv_filename = this_value;
-							break;
                     }
                     i++;
                 }
@@ -148,69 +144,46 @@ int main(int argc, char* argv[]) {
                 LOut() << "Output:" << endl;
                 result.PrintOperatorDistribution();
 
-		LOut() << endl;
-
-		LOut() << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
-
                 if(this_verify) {
                     VerifyOptimization2(*this_circuit,result);
                 }
                 if(!g_output_filename.empty()) {
-					ofstream my_file(g_output_filename.c_str(), iostream::out);
-					my_file << "Circuit filename: " << circuit_filename << endl << endl;
+		    ofstream my_file(g_output_filename.c_str(), iostream::out);
+		    my_file << "Circuit filename: " << circuit_filename << endl << endl;
 
-					my_file << "Input circuit:" << endl;
-					my_file.close();
-					this_circuit->Save(g_output_filename.c_str(), ios_base::app);
-					my_file.open(g_output_filename.c_str(), iostream::app);
-					my_file << endl;
+		    my_file << "Input circuit:" << endl;
+		    my_file.close();
+		    this_circuit->Save(g_output_filename.c_str(), ios_base::app);
+		    my_file.open(g_output_filename.c_str(), iostream::app);
+		    my_file << endl;
 
-					my_file << "Algorithm used: " << g_algorithm << endl;
-					if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl;
+		    my_file << "Algorithm used: " << g_algorithm << endl;
+		    if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl;
 
-					my_file << endl;
+		    my_file << endl;
 
-					my_file << "Output circuit:" << endl;
-					my_file.close();
-							result.Save(g_output_filename.c_str(),ios_base::app);
-					my_file.open(g_output_filename.c_str(), iostream::app);
-					
+		    my_file << "Output circuit:" << endl;
+		    my_file.close();
+                    result.Save(g_output_filename.c_str(),ios_base::app);
+		    my_file.open(g_output_filename.c_str(), iostream::app);
+		    
 
-					my_file << endl;
+		    my_file << endl;
 
-					my_file << "Input operator distribution:" << endl;
-					this_circuit->PrintOperatorDistribution(&my_file);
+		    my_file << "Input operator distribution:" << endl;
+		    this_circuit->PrintOperatorDistribution(&my_file);
 
-					my_file << endl;
+		    my_file << endl;
 
-					my_file << "Output operator distribution:" << endl;
-					result.PrintOperatorDistribution(&my_file);
+		    my_file << "Output operator distribution:" << endl;
+		    result.PrintOperatorDistribution(&my_file);
 
-					my_file << endl;
+		    my_file << endl;
 
-					my_file << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
-					
-					my_file.close();
+		    my_file << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
+		    
+		    my_file.close();
                 }
-				if(!g_csv_filename.empty()) {
-					ofstream my_file(g_csv_filename.c_str(), iostream::app);
-					if(my_file.good()) {
-						my_file << circuit_filename << ",";
-						my_file << this_circuit->d << ",";
-						my_file << (this_circuit->n-this_circuit->d-this_circuit->p_hads) << ",";
-						my_file << this_circuit->p_hads << ",";
-						my_file << this_circuit->TCount() << ",";
-						my_file << g_algorithm;
-						if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << ":" << (this_tool_feedback?"f":"nf") << "_" << this_tool_selector  << "_rm=" << g_Reed_Muller_max;
-						my_file << ",";
-						my_file << g_Hadamard_ancillas << ",";
-						my_file << result.d << ",";
-						my_file << (result.n - result.d - result.p_hads) << ",";
-						my_file << result.p_hads << ",";
-						my_file << result.TCount() << endl;
-						my_file.close();
-					}
-				}
             }
 
 
@@ -305,7 +278,7 @@ int main(int argc, char* argv[]) {
             cout << "Output phase polynomial:" << endl;
             out.print();
         } else if(!this_command.compare("help")) {
-            ifstream myfile("README.md");
+            ifstream myfile("README.txt");
             while(!myfile.eof()) {
                 char this_line[1000];
                 myfile.getline(this_line,1000);

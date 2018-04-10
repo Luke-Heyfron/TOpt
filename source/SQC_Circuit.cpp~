@@ -1766,12 +1766,12 @@ void SQC_Circuit::PrintOperatorDistribution(ostream* in_OS) const {
     if(in_OS) (*in_OS) << "Operator distribution:" << endl;
     if(in_OS) (*in_OS) << "Total number of qubits = " << n << endl;
     if(in_OS) (*in_OS) << "Number of `data' qubits = " << d << endl;
-    if(in_OS) (*in_OS) << "Number of `Toff_n' ancillas = " << (n-d-p_hads) << endl;
-    if(in_OS) (*in_OS) << "Number of Hadamard ancillas = " << p_hads << endl;
-    if(in_OS) (*in_OS) << "Hadamard ancilla cap = ";    
+    if(in_OS) (*in_OS) << "Number of `Toff_n' ancillas = " << (n-d-hist[SQC_OPERATOR_POST_0]) << endl;
+    if(in_OS) (*in_OS) << "Number of Hadamard ancillas = " << hist[SQC_OPERATOR_POST_0] << endl;
+    if(in_OS) (*in_OS) << "Hadamard ancilla cap = ";
+    if(in_OS) (*in_OS) << "Number of {CNOT,T} partitions = " << g_out_no_partitions << endl;
     if(in_OS) (g_Hadamard_ancillas==(-1))?((*in_OS) << "infinite"):((*in_OS) << g_Hadamard_ancillas);
     if(in_OS) (*in_OS) << endl;
-    if(in_OS) (*in_OS) << "Number of {CNOT,T} partitions = " << g_out_no_partitions << endl;
     if(in_OS) (*in_OS) << "T count = " << T_Count << endl;
     if(in_OS) (*in_OS) << "Cost estimation = " << this_cost << endl;
     
@@ -1779,51 +1779,6 @@ void SQC_Circuit::PrintOperatorDistribution(ostream* in_OS) const {
     for(int i = 0; i < SQC_OPERATOR_N; i++) {
         if(in_OS) (*in_OS) << "\t" << i << "\t" << hist[i] << endl;
     }
-}
-
-int SQC_Circuit::GateCount(SQC_Operator_Label in_g) const {
-	int gate_count = 0;
-	for(int t = 0; t < m; t++) {
-		gate_count += (operator_list[t][0]==in_g);
-	}
-	return gate_count;
-}
-
-int SQC_Circuit::TCount() const {
-	int T_count = 0;
-	for(int t = 0; t < m; t++) {
-		switch(operator_list[t][0]) {
-			case SQC_OPERATOR_T:
-			case SQC_OPERATOR_T_DAG:
-				T_count++;
-				break;
-			case SQC_OPERATOR_CS:
-			case SQC_OPERATOR_CS_DAG:
-				T_count += 3;
-				break;
-			case SQC_OPERATOR_CCZ:
-			case SQC_OPERATOR_TOFFOLI:
-				T_count += 7;
-				break;
-			case SQC_OPERATOR_TOFFOLI_4:
-				T_count += 21;
-				break;
-			case SQC_OPERATOR_TOFFOLI_N:
-				{
-					int this_nargs = GetNArgs(t);
-					switch(this_nargs) {
-						case 3:
-							T_count += 7;
-							break;
-						default:							
-							T_count += 14*(this_nargs-3)+7;
-							break;
-					}
-				}
-				break;
-		}
-	}
-	return T_count;
 }
 
 double VerifyOptimization(const SQC_Circuit& U1, const SQC_Circuit& U2) {

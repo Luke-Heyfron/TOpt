@@ -115,7 +115,7 @@ struct SQC_Circuit {
     void Print(ostream* in_OS = &cout, int start_i = 0, int print_n = -1,bool with_t = true) const;
 
     void Load(const char* in_filename);
-    void Save(const char* in_filename, ios_base::openmode in_mode = ios_base::out) const;
+    void Save(const char* in_filename, bool in_app) const;
     void Clear();
     void Resize(int in_max_m);
     void AddAncilla(int anc_inc = 1);
@@ -142,8 +142,6 @@ struct SQC_Circuit {
     bool CancelAdjacentTs();
 
     void PrintOperatorDistribution(ostream* in_OS = &cout) const;
-	int GateCount(SQC_Operator_Label in_g) const;
-	int TCount() const;
 
     void AllocateAncillas(const SQC_Circuit& in_C); // Constructs new circuit with automatically allocated ancillas
     int GetNArgs(int i) const;

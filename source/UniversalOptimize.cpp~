@@ -93,11 +93,10 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     double step9_time = 0.0;
     double step10_time = 0.0;
 
-    g_out_no_partitions = step6_N_Ps;
+    g_no_partitions_out = step6_N_Ps;
 
     SQC_Circuit** step10s = new SQC_Circuit*[step6_N_Ps];
     int final_n = in.n;
-	int final_p_hads = 0;
     for(int p = 0; p < step6_N_Ps; p++) {
         SQC_Circuit* this_part = step6_Ps[p];
         SQC_Circuit* this_L = NULL;
@@ -108,8 +107,6 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         SQC_Circuit::Hadamards_to_Gadgets(*this_part,this_L,this_Pp,this_R);
         toc = clock();
         step8_time += secs(tic,toc);
-		
-		if(this_Pp->p_hads>final_p_hads) final_p_hads = this_Pp->p_hads;
 
         if(this_Pp->n>final_n) final_n = this_Pp->n;
         SQC_Circuit* this_CNOT = NULL;
@@ -135,8 +132,8 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 
 
     }
-    SQC_Circuit out(final_n, in.d, final_p_hads);
-	
+    SQC_Circuit out(final_n, in.d, final_n-in.d);
+
     for(int p = 0; p < step6_N_Ps; p++) {
         for(int i = 0; i < step6_Hs[p]->m; i++) out.AddOperator(step6_Hs[p]->operator_list[i],step6_Hs[p]->n+1);
         for(int i = 0; i < step10s[p]->m; i++) out.AddOperator(step10s[p]->operator_list[i],step10s[p]->n+1);

@@ -39,7 +39,6 @@ extern int g_Hadamard_ancillas;
 extern double g_matrix_precision;
 extern ofstream* g_output_file;
 extern LempelSelector g_lempel_selector;
-extern int g_out_no_partitions;
 
 namespace SYNTHESIS_ALGORITHM_TAG {
     const string DAFT_GUESS = "re";
