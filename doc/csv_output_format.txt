@@ -1,2 +1,2 @@
 # Input circuit, Input properties, Compilation algorithm, Algorithm parameters, Output circuit, Output properties
-<Input circuit filename>,<n_data_in>,<n_toff_in>,<n_had_in>,<T_in>,<algorithm used>,<hcap>,<n_data_out>,<n_toff_out>,<n_had_out>,<T_out>
+<Input circuit filename>,<n_data_in>,<n_toff_in>,<n_had_in>,<T_in>,<algorithm used>,<hcap>,<n_data_out>,<n_toff_out>,<n_had_out>,<T_out>,<execution time>
