@@ -193,6 +193,17 @@ int main(int argc, char* argv[]) {
 					my_file.close();
                 }
 				if(!g_csv_filename.empty()) {
+					// Check if csv output file exists. If not, create it an add table header line.
+					{
+						ifstream my_infile(g_csv_filename.c_str(), iostream::in);
+						if(!my_infile.good()) {
+							ofstream my_outfile(g_csv_filename.c_str(), iostream::out);
+							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time" << endl;
+							my_outfile.close();
+						}
+						my_infile.close();
+					}
+					// Open csv output file and append a row for this run of TOpt
 					ofstream my_file(g_csv_filename.c_str(), iostream::app);
 					if(my_file.good()) {
 						my_file << circuit_filename << ",";
@@ -207,7 +218,9 @@ int main(int argc, char* argv[]) {
 						my_file << result.d << ",";
 						my_file << (result.n - result.d - result.p_hads) << ",";
 						my_file << result.p_hads << ",";
-						my_file << result.TCount() << endl;
+						my_file << result.TCount() << ",";
+						my_file << g_out_no_partitions << ",";
+						my_file << LCL_ConsoleOut::secs(tic,toc) << endl;
 						my_file.close();
 					}
 				}

@@ -280,6 +280,7 @@ GateStringSparse TODD(const Signature& inS) {
         my_csv << SYNTHESIS_ALGORITHM_ID::LEMPEL_X << "," << n << "," << g_random_circuit_seed << "," << out.weight(true) << endl;
         my_csv.close();
     }
+	//result_analysis(inS, out);
     return out;
 }
 

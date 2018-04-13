@@ -133,13 +133,17 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
     bool** A_ext = LCL_Mat_GF2::construct(n_ext,m+1);
 
     bool found = 1;
-    int round = 0;
+    int round = 0;	
     while(found&&(round<m)) {
         found = 0;
         LOut(); cout << "Round = " << round << endl;
         LCL_Mat_GF2::copy(A,n,this_m,A_ext);
-        for(int j1 = 0; (!found)&&(j1 < (this_m-1)); j1++) {
-            for(int j2 = (j1+1); (!found)&&(j2 < this_m); j2++) {
+		int col_perm[this_m]; for(int i = 0; i < this_m; i++) col_perm[i]=i;
+		LCL_Int::randperm(col_perm,this_m);
+        for(int j1_ind = 0; (!found)&&(j1_ind < (this_m-1)); j1_ind++) {
+            for(int j2_ind = (j1_ind+1); (!found)&&(j2_ind < this_m); j2_ind++) {
+				int j1 = col_perm[j1_ind];
+				int j2 = col_perm[j2_ind];
                 for(int i = 0; i < n; i++) {
                     x[i][0] = (A[i][j1] + A[i][j2])%2;
                 }
