@@ -1159,6 +1159,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 		int line_no = 1;
         while(!my_file.eof()) {
             my_file.getline(this_line,max_line);
+			//cout << "Line " << line_no << " = " << this_line << endl;
             //cout << file_state << ": " << this_line << endl;
             for(int i = 0; i < strlen(this_line); i++) {
                 if(this_line[i]=='\'') error("Contains negated variables.","LoadTFCFile","SQC_Circuit");
@@ -1233,10 +1234,37 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 								this_tok = strtok(this_line," ,\t");								
 								if(this_tok&&strlen(this_tok)) {
 									string this_tok_str(this_tok);
-									if(this_tok[0]=='t') {
-										this_tok++;
+									if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {										
+										int this_gate[n+1];
+										this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
+										for(int i = 0; i < n; i++) this_gate[i+1] = 0;
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(this_tok&&strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count>0) {
+											swap(this_gate[1],this_gate[q_count]);
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+										}										
+									} else if(this_tok[0]=='t') {
 										int toff_n = 0;
-										toff_n = atoi(this_tok);
+										toff_n = atoi(this_tok+1);
 										if(toff_n>0) {
 											int this_gate[n+1];
 											this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
@@ -1268,34 +1296,6 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 												//cout << "SQC_OPERATOR_N = " << SQC_OPERATOR_N << endl;
 											}
 										}
-									} else if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {
-										int this_gate[n+1];
-										this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
-										for(int i = 0; i < n; i++) this_gate[i+1] = 0;
-										int q_count = 0;
-										while(this_tok=strtok(NULL," ,\t")) {
-											if(strlen(this_tok)) {
-												int this_q = 0;
-												for(int i = 0; (this_q==0)&&(i < n); i++) {
-													if(!qubit_strings[i].compare(this_tok)) {
-														this_q = (i+1);
-													}
-												}
-												if(this_q>0) {
-													this_gate[q_count+1] = this_q;
-													q_count++;
-												}
-												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
-											}
-										}
-										if(q_count>0) {
-											swap(this_gate[1],this_gate[q_count]);
-											out->AddOperator(this_gate);
-											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
-										} else {
-											// Unknown gate
-											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
-										}										
 									} else if((!this_tok_str.compare("Z"))||(!this_tok_str.compare("z"))) {
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
