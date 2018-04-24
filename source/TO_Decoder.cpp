@@ -17,6 +17,7 @@ using namespace std;
 #include "TO_Maps.h"
 #include "WeightedPolynomial.h"
 #include "Matrix.h"
+#include "LCL_Matrix_Heap_Sparse.h"
 using namespace LCL_ConsoleOut;
 #include <cmath>
 #include <ctime>
@@ -38,6 +39,9 @@ double g_matrix_precision = 1.0e-16;
 ofstream* g_output_file = NULL;
 LempelSelector g_lempel_selector = LempelSelector_Random;
 int g_out_no_partitions = -1;
+bool g_print_load_tfc_debug = true;
+int* g_gate_hist = NULL;
+int* g_qubit_hist = NULL;
 
 GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     int n = inS.get_n();

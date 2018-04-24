@@ -24,6 +24,7 @@ using namespace std;
 using namespace LCL_ConsoleOut;
 #include "Utils.h"
 using namespace Utils;
+#include "TO_Decoder.h"
 
 
 SQC_Circuit::SQC_Circuit() {
@@ -1133,6 +1134,13 @@ void SQC_Circuit::Resize(int in_max_m) {
 }
 
 SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
+	if(g_print_load_tfc_debug) {
+		if(g_gate_hist) delete [] g_gate_hist;
+		if(g_qubit_hist) delete [] g_qubit_hist;
+		g_gate_hist = new int[SQC_OPERATOR_N+1];
+		for(int i = 0; i < (SQC_OPERATOR_N + 1); i++) g_gate_hist[i] = 0;
+	}
+	
     SQC_Circuit* out = NULL;
     ifstream my_file(inFilename);
     if(my_file.good()) {
@@ -1148,273 +1156,402 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
         string o_line = "";
         string c_line = "";
         int file_state = 0; // 0-before .v; 1-between .v and BEGIN; 2-between BEGIN and END; 3-After END before eof;
+		int line_no = 1;
         while(!my_file.eof()) {
             my_file.getline(this_line,max_line);
             //cout << file_state << ": " << this_line << endl;
             for(int i = 0; i < strlen(this_line); i++) {
                 if(this_line[i]=='\'') error("Contains negated variables.","LoadTFCFile","SQC_Circuit");
             }
-            if(strlen(this_line)) switch(file_state) {
-                case 0: //before .v
-                    {
-                        if((strlen(this_line)>=2)&&(this_line[0]=='.')) {
-                            switch(this_line[1]) {
-                                case 'v':
-                                    {
-                                        v_line = this_line;
-                                        if(v_line.length()) {
-                                            char v_line_c[max_line];
-                                            strcpy(v_line_c,v_line.c_str());
-                                            char* this_tok = NULL;
-                                            this_tok = strtok(v_line_c," ,\t");
-                                            do {
-                                                this_tok = strtok(NULL," ,\t");
-                                                if(this_tok) {
-                                                    qubit_strings[n] = this_tok;
-                                                    n++;
-                                                }
-                                            } while(this_tok);
-                                        }
-                                        if(n) out = new SQC_Circuit(n,n);
-                                        file_state = 1;
-                                    }
-                                    break;
-                                case 'i':
-                                    {
+            if(this_line&&strlen(this_line)) {
+				switch(file_state) {
+					case 0: //before .v
+						{
+							if((strlen(this_line)>=2)&&(this_line[0]=='.')) {
+								switch(this_line[1]) {
+									case 'v':
+										{
+											v_line = this_line;
+											if(v_line.length()) {
+												char v_line_c[max_line];
+												strcpy(v_line_c,v_line.c_str());
+												char* this_tok = NULL;
+												this_tok = strtok(v_line_c," ,\t");
+												do {
+													this_tok = strtok(NULL," ,\t");
+													if(this_tok) {
+														qubit_strings[n] = this_tok;
+														n++;
+													}
+												} while(this_tok);
+											}
+											if(n) out = new SQC_Circuit(n,n);
+											if(g_print_load_tfc_debug) {
+												g_qubit_hist = new int[n+1];
+												for(int i = 0; i < (n+1); i++) g_qubit_hist[i] = 0;
+											}
+											file_state = 1;
+										}
+										break;
+									case 'i':
+										{
 
-                                    }
-                                    break;
-                                case 'o':
-                                    {
+										}
+										break;
+									case 'o':
+										{
 
-                                    }
-                                    break;
-                                case 'c':
-                                    {
+										}
+										break;
+									case 'c':
+										{
 
-                                    }
-                                    break;
-                                default:
-                                    {
+										}
+										break;
+									default:
+										{
 
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-                case 1: //between .v and BEGIN
-                    {
-                        if(!strcmp(this_line,"BEGIN")) {
-                            file_state = 2;
-                        }
-                    }
-                    break;
-                case 2: // between BEGIN and END
-                    {
-                        if(!strcmp(this_line,"END")) {
-                            file_state = 3;
-                        } else {
-                            char* this_tok = NULL;
-                            this_tok = strtok(this_line," ,\t");
-                            if(strlen(this_tok)) {
-                                switch(this_tok[0]) {
-                                    case 't':
-                                        {
-                                            this_tok++;
-                                            int toff_n = 0;
-                                            toff_n = atoi(this_tok);
-                                            if(toff_n>0) {
-                                                int this_gate[n+1];
-                                                this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
-                                                for(int i = 0; i < n; i++) this_gate[i+1] = 0;
-                                                int q_count = 0;
-                                                while(this_tok=strtok(NULL," ,\t")) {
-                                                    if(strlen(this_tok)) {
-                                                        int this_q = 0;
-                                                        for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                            if(!qubit_strings[i].compare(this_tok)) {
-                                                                this_q = (i+1);
-                                                            }
-                                                        }
-                                                        if(this_q>0) {
-                                                            this_gate[q_count+1] = this_q;
-                                                            q_count++;
-                                                        }
-                                                    }
-                                                }
-                                                if(q_count==toff_n) {
-                                                    swap(this_gate[1],this_gate[toff_n]);
-                                                    out->AddOperator(this_gate);
-                                                }
+										}
+										break;
+								}
+							}
+						}
+						break;
+					case 1: //between .v and BEGIN
+						{
+							if(!strcmp(this_line,"BEGIN")) {
+								file_state = 2;
+							}
+						}
+						break;
+					case 2: // between BEGIN and END
+						{
+							if(!strcmp(this_line,"END")) {
+								file_state = 3;
+							} else {
+								char* this_tok = NULL;
+								this_tok = strtok(this_line," ,\t");								
+								if(this_tok&&strlen(this_tok)) {
+									string this_tok_str(this_tok);
+									if(this_tok[0]=='t') {
+										this_tok++;
+										int toff_n = 0;
+										toff_n = atoi(this_tok);
+										if(toff_n>0) {
+											int this_gate[n+1];
+											this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
+											for(int i = 0; i < n; i++) this_gate[i+1] = 0;
+											int q_count = 0;
+											while(this_tok=strtok(NULL," ,\t")) {
+												if(strlen(this_tok)) {
+													int this_q = 0;
+													for(int i = 0; (this_q==0)&&(i < n); i++) {
+														if(!qubit_strings[i].compare(this_tok)) {
+															this_q = (i+1);														
+														}
+													}
+													if(this_q>0) {
+														this_gate[q_count+1] = this_q;
+														q_count++;
+													}
+													if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+												}
+											}
+											if(q_count==toff_n) {
+												swap(this_gate[1],this_gate[toff_n]);
+												out->AddOperator(this_gate);												
+												if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+												//cout << "this_gate[0] = " << this_gate[0] << endl;
+											} else {
+												// Unknown gate
+												if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;												
+												//cout << "SQC_OPERATOR_N = " << SQC_OPERATOR_N << endl;
+											}
+										}
+									} else if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {
+										int this_gate[n+1];
+										this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
+										for(int i = 0; i < n; i++) this_gate[i+1] = 0;
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count>0) {
+											swap(this_gate[1],this_gate[q_count]);
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+										}										
+									} else if((!this_tok_str.compare("Z"))||(!this_tok_str.compare("z"))) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_CCZ;
 
-                                            }
-                                        }
-                                        break;
-                                    case 'Z':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            this_gate[0] = SQC_OPERATOR_CCZ;
+										int this_nops = 0;
+										while(this_tok = strtok(NULL," ,\t")) {
+											int this_q = 0;
+											for(int i = 0; (this_q==0)&&(i < n); i++) {
+												if(!qubit_strings[i].compare(this_tok)) {
+													this_q = (i+1);
+													this_gate[1+this_nops] = this_q;
+													this_nops++;
+												}
+											}
+											if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+										}
+										if(this_nops==3) {
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else if(this_nops==2) {
+											this_gate[0] = SQC_OPERATOR_CZ;
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else if(this_nops==1){
+											this_gate[0] = SQC_OPERATOR_Z;
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
+										}
+									} else if(!this_tok_str.compare("H")) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_HADAMARD;
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {										
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+										}
+									} else if(!this_tok_str.compare("T")) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_T;									
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {										
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+										}
+									}  else if(!this_tok_str.compare("T*")) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_T_DAG;									
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {										
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
+									}  else if((!this_tok_str.compare("S"))||(!this_tok_str.compare("P"))) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_S;									
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
+									} else if((!this_tok_str.compare("S*"))||(!this_tok_str.compare("P*"))) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_S_DAG;									
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
+									} else if(!this_tok_str.compare("X")) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_X;
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} // Possibly add swap gate for nops==2
+										else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
+									}  else if(!this_tok_str.compare("Y")) {
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_Y;
+										int q_count = 0;
+										while(this_tok=strtok(NULL," ,\t")) {
+											if(strlen(this_tok)) {
+												int this_q = 0;
+												for(int i = 0; (this_q==0)&&(i < n); i++) {
+													if(!qubit_strings[i].compare(this_tok)) {
+														this_q = (i+1);
+													}
+												}
+												if(this_q>0) {
+													this_gate[q_count+1] = this_q;
+													q_count++;
+												}
+												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+											}
+										}
+										if(q_count==1) {										
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
+									} else {
+										// Unknown gate
+										if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+									}
+								}
+							}
+						}
+						break;
+					case 3: // After END before eof;
+						{
 
-                                            int this_nops = 0;
-                                            while(this_tok = strtok(NULL," ,\t")) {
-                                                int this_q = 0;
-                                                for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                    if(!qubit_strings[i].compare(this_tok)) {
-                                                        this_q = (i+1);
-                                                        this_gate[1+this_nops] = this_q;
-                                                        this_nops++;
-                                                    }
-                                                }
-                                            }
-
-                                            if(this_nops==3) {
-                                                out->AddOperator(this_gate);
-                                            } else if(this_nops==1){
-                                                this_gate[0] = SQC_OPERATOR_Z;
-                                                out->AddOperator(this_gate);
-                                            } else {
-                                                LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
-                                            }
-                                        }
-                                        break;
-                                    case 'H':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            this_gate[0] = SQC_OPERATOR_HADAMARD;
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                    case 'T':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            if((strlen(this_tok)>1)&&(this_tok[1]=='*')) {
-                                                this_gate[0] = SQC_OPERATOR_T_DAG;
-                                            } else {
-                                                this_gate[0] = SQC_OPERATOR_T;
-                                            }
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                    case 'S':
-                                    case 'P':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            if((strlen(this_tok)>1)&&(this_tok[1]=='*')) {
-                                                this_gate[0] = SQC_OPERATOR_S_DAG;
-                                            } else {
-                                                this_gate[0] = SQC_OPERATOR_S;
-                                            }
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                    case 'z':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            this_gate[0] = SQC_OPERATOR_Z;
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                    case 'X':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            this_gate[0] = SQC_OPERATOR_X;
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                    case 'Y':
-                                        {
-                                            int this_gate[n+1];
-                                            for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-                                            this_gate[0] = SQC_OPERATOR_Y;
-                                            int this_q = 0;
-                                            this_tok = strtok(NULL," ,\t");
-                                            for(int i = 0; (this_q==0)&&(i < n); i++) {
-                                                if(!qubit_strings[i].compare(this_tok)) {
-                                                    this_q = (i+1);
-                                                }
-                                            }
-                                            if(this_q!=0) {
-                                                this_gate[1] = this_q;
-                                                out->AddOperator(this_gate);
-                                            }
-                                        }
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case 3: // After END before eof;
-                    {
-
-                    }
-                    break;
+						}
+						break;
+				}
             }
+			line_no++;
         }
 
         // Search for .i line
         // Search for .o line
         // Search for .c line
         // Search for BEGIN line
-
+		if(g_print_load_tfc_debug) {
+			LOut() << "Number of unknown gates = " << g_gate_hist[SQC_OPERATOR_N] << endl;
+			LOut() << "Number of unknown qubit labels = " << g_qubit_hist[0] << endl;
+			/*LOut() << "Gate hist: " << endl;
+			for(int i = 0; i < (SQC_OPERATOR_N + 1); i++) LOut() << g_gate_hist[i] << " ";
+			LOut() << endl;
+			for(int i = 0; i < (n + 1); i++) LOut() << g_qubit_hist[i] << " ";
+			LOut() << endl;*/
+		}
     }
+	
     my_file.close();
     return out;
 }

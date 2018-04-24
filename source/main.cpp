@@ -163,7 +163,9 @@ int main(int argc, char* argv[]) {
 					my_file.close();
 					this_circuit->Save(g_output_filename.c_str(), ios_base::app);
 					my_file.open(g_output_filename.c_str(), iostream::app);
-					my_file << endl;
+					if(g_print_load_tfc_debug&&g_gate_hist) my_file << "Number of unknown gates = " << g_gate_hist[SQC_OPERATOR_N] << endl;
+					if(g_print_load_tfc_debug&&g_qubit_hist) my_file << "Number of unknown qubit labels = " << g_qubit_hist[0] << endl;
+					my_file << endl;					
 
 					my_file << "Algorithm used: " << g_algorithm << endl;
 					if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl;

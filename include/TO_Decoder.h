@@ -12,6 +12,9 @@ using namespace std;
 #include "Matrix.h"
 #include "BMSparse.h"
 #include "LCL_Int.h"
+#include "LCL_Array.h"
+#include "LCL_Array_imp1.h"
+#include "LCL_Matrix_Heap_Sparse.h"
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
@@ -40,6 +43,9 @@ extern double g_matrix_precision;
 extern ofstream* g_output_file;
 extern LempelSelector g_lempel_selector;
 extern int g_out_no_partitions;
+extern bool g_print_load_tfc_debug;
+extern int* g_gate_hist;
+extern int* g_qubit_hist;
 
 namespace SYNTHESIS_ALGORITHM_TAG {
     const string DAFT_GUESS = "re";
