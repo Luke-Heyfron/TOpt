@@ -129,10 +129,13 @@ int main(int argc, char* argv[]) {
 		LOut() << "Circuit filename: " << circuit_filename << endl << endl;
                 this_circuit->Print();
 		LOut() << endl;
+		//this_circuit->name = "Input";
 
 		LOut() << "Algorithm used: " << g_algorithm << endl;
 		if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) LOut() << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl;
 		LOut() << endl;
+
+		int input_tcount = this_circuit->TCount();
 
 		clock_t tic = clock();
                 SQC_Circuit result = SQC_Circuit::UniversalOptimize(*this_circuit,this_decoder);
@@ -140,6 +143,7 @@ int main(int argc, char* argv[]) {
 
                 LOut() << "Output circuit:" << endl;
                 result.Print();
+		//result.name = "Output";
 
                 LOut() << "Gate distributions:" << endl;
                 LOut() << "Input:" << endl;
@@ -162,13 +166,8 @@ int main(int argc, char* argv[]) {
 					my_file << "Input circuit:" << endl;
 					my_file.close();
 					this_circuit->Save(g_output_filename.c_str(), ios_base::app);
-					my_file.open(g_output_filename.c_str(), iostream::app);
-					if(g_print_load_tfc_debug&&g_gate_hist) my_file << "Number of unknown gates = " << g_gate_hist[SQC_OPERATOR_N] << endl;
-					if(g_print_load_tfc_debug&&g_qubit_hist) my_file << "Number of unknown qubit labels = " << g_qubit_hist[0] << endl;
-					my_file << endl;					
-
-					my_file << "Algorithm used: " << g_algorithm << endl;
-					if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl;
+					my_file.open(g_output_filename.c_str(), iostream::app);					
+					my_file << endl;
 
 					my_file << endl;
 
@@ -182,8 +181,13 @@ int main(int argc, char* argv[]) {
 
 					my_file << "Input operator distribution:" << endl;
 					this_circuit->PrintOperatorDistribution(&my_file);
+					if(g_print_load_tfc_debug&&g_gate_hist) my_file << "Number of unknown gates = " << g_gate_hist[SQC_OPERATOR_N] << endl;
+					if(g_print_load_tfc_debug&&g_qubit_hist) my_file << "Number of unknown qubit labels = " << g_qubit_hist[0] << endl;
 
 					my_file << endl;
+
+					my_file << "Algorithm used: " << g_algorithm << endl;
+					if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << "TOOL Version: " << (this_tool_feedback?"f":"nf") << " " << this_tool_selector  << " rm = " << g_Reed_Muller_max << endl << endl;
 
 					my_file << "Output operator distribution:" << endl;
 					result.PrintOperatorDistribution(&my_file);
@@ -209,10 +213,10 @@ int main(int argc, char* argv[]) {
 					ofstream my_file(g_csv_filename.c_str(), iostream::app);
 					if(my_file.good()) {
 						my_file << circuit_filename << ",";
-						my_file << this_circuit->d << ",";
+						my_file << (this_circuit->d) << ",";
 						my_file << (this_circuit->n-this_circuit->d-this_circuit->p_hads) << ",";
-						my_file << this_circuit->p_hads << ",";
-						my_file << this_circuit->TCount() << ",";
+						my_file << (this_circuit->p_hads) << ",";
+						my_file << input_tcount << ",";
 						my_file << g_algorithm;
 						if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) my_file << ":" << (this_tool_feedback?"f":"nf") << "_" << this_tool_selector  << "_rm=" << g_Reed_Muller_max;
 						my_file << ",";

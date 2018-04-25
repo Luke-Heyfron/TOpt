@@ -82,6 +82,7 @@ constexpr static char SQC_OPSTRING_POST_0[] = "M";
 
 struct SQC_Circuit {
     // Properties
+	//string name;
     int n = 0; //Number of qubits (total)
     int d = 0; //Number of data qubits
     int m = 0; //Number of operators

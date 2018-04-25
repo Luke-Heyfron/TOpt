@@ -1928,6 +1928,10 @@ int SQC_Circuit::GateCount(SQC_Operator_Label in_g) const {
 
 int SQC_Circuit::TCount() const {
 	int T_count = 0;
+	//ofstream my_file("debug/TCount_debug.log");
+	//my_file << "Circuit = " << name << endl;
+	//my_file << "BEGIN" << endl;
+	int this_nargs = 0;
 	for(int t = 0; t < m; t++) {
 		switch(operator_list[t][0]) {
 			case SQC_OPERATOR_T:
@@ -1947,8 +1951,12 @@ int SQC_Circuit::TCount() const {
 				break;
 			case SQC_OPERATOR_TOFFOLI_N:
 				{
-					int this_nargs = GetNArgs(t);
+					this_nargs = GetNArgs(t);
 					switch(this_nargs) {
+						case 0:
+						case 1:
+						case 2:
+							break;
 						case 3:
 							T_count += 7;
 							break;
@@ -1959,7 +1967,10 @@ int SQC_Circuit::TCount() const {
 				}
 				break;
 		}
+		//my_file << "\tt = " << t << "; Operator = " << operator_list[t][0] << "; T_count = " << T_count << "; this_nargs = " << this_nargs << endl;
 	}
+	//my_file << "END" << endl << endl;
+	//my_file.close();
 	return T_count;
 }
 

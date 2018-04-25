@@ -40,5 +40,6 @@ static void decompose_C3_to_CNOT_D3(const SQC_Circuit& in, SQC_Circuit*& CNOT, S
 
 // 10. Optimize each partition's diagonal circuit w.r.t. T-count and map back to circuit decomposition.
 static SQC_Circuit optimize_D3(const SQC_Circuit& in, TO_Decoder decoder);
+static SQC_Circuit TODD_optimize_D3(const SQC_Circuit& in);
 
 #endif // UNIVERSAL_OPTIMIZE_HEADER

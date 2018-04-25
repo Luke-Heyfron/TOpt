@@ -80,6 +80,8 @@ GateStringSparse ReedMullerSynthesis2(const Signature& inS);
 
 //TODD synthesis functions
 GateStringSparse TODD(const Signature& inS);
+GateStringSparse TODD(const GateStringSparse& inGSM);
+PhasePolynomial TODDWrapper(const PhasePolynomial& in);
 
 //Main Lempel synthesis functions
 GateStringSparse TOOL(const Signature& inS, int maxRM, LempelSelector lempelSelector, bool feedback);

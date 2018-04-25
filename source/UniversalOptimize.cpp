@@ -121,7 +121,7 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         step9_time += secs(tic,toc);
 
         tic = clock();
-        SQC_Circuit step10 = SQC_Circuit::optimize_D3(*this_D3, decoder);
+        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_D3, decoder):SQC_Circuit::TODD_optimize_D3(*this_D3);
         // After implementing new version of optimize_D3, update final_n according to site of step10.n
 
         toc = clock();
@@ -143,7 +143,6 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     }
     for(int i = 0; i < step6_Hs[step6_N_Hs-1]->m; i++) out.AddOperator(step6_Hs[step6_N_Hs-1]->operator_list[i],step6_Hs[step6_N_Hs-1]->n+1);
 
-    out.simplify();
     clock_t finish = clock();
     /*
     LOut() << "Step 8: Hadamard gadgets. Executed in " << step8_time << "s" << endl;
@@ -854,6 +853,16 @@ SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) 
     int n = in.n;
     PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial out_f = FullDecoderWrapper(in_f,decoder);
+    SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
+    out.d = in.d;
+    out.p_hads = in.p_hads;
+    return out;
+}
+
+SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
+    int n = in.n;
+    PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
+    PhasePolynomial out_f = TODDWrapper(in_f);
     SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
     out.d = in.d;
     out.p_hads = in.p_hads;

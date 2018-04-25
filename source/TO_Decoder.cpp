@@ -30,7 +30,7 @@ string g_indvar_out;
 ostringstream g_h_order_stream;
 string g_best_random_h_order_f, g_best_random_h_order_nf;
 bool g_error_report = false;
-string g_algorithm = SYNTHESIS_ALGORITHM_TAG::LEMPEL_X;
+string g_algorithm = SYNTHESIS_ALGORITHM_TAG::TODD;
 int g_random_circuit_seed = 0;
 bool g_lempel_feedback = 1;
 int g_Reed_Muller_max = 6;
@@ -288,6 +288,37 @@ GateStringSparse TODD(const Signature& inS) {
     return out;
 }
 
+GateStringSparse TODD(const GateStringSparse& inGSM) {
+    LOut(); cout << "Gate synthesis begin." << endl;
+    clock_t start = clock();
+    BMSparse A_BMS = Interface_BMSGSS::GSSToBMS(inGSM);
+    int n = A_BMS.get_n();
+    int m = A_BMS.get_m();
+    bool** A_bool = LCL_Mat_GF2::construct(n,m);
+    A_BMS.toBool(A_bool);
+    int t;
+    clock_t tic = clock();
+    LOut_Pad++;
+    if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X))
+        GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+    else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X_2))
+        GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
+    else
+        GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+    clock_t toc = clock();
+    double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
+    BMSparse out_BMS(n,t);
+    out_BMS.fromBool(A_bool,n,t);
+    GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
+    LCL_Mat_GF2::destruct(A_bool,n,m);
+    LOut() << "TODD executed in " << exec_time << " seconds." << endl;
+    clock_t finish = clock();
+    LOut() << "Total time: " << secs(start,finish) << "s" << endl;
+    LOut_Pad--;
+    LOut() << "Gate synthesis end." << endl;    
+    return out;
+}
+
 PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder) {
     int n = in.get_n();
     PhasePolynomial out(n);
@@ -303,6 +334,41 @@ PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder
     Signature f_prime_sig = TO_Maps::WeightedPolynomial_to_Signature(f);
 
     GateStringSparse f_prime_GSS_optimized = decoder(f_prime_sig);
+
+    PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
+
+    out = g;
+
+    out += TO_Maps::WeightedPolynomial_to_PhasePolynomial(two_f_tilde);
+
+    WeightedPolynomial two_g_tilde = TO_Maps::PhasePolynomial_to_WeightedPolynomial(g);
+
+    two_g_tilde -= f_prime;
+
+    out -= TO_Maps::WeightedPolynomial_to_PhasePolynomial(two_g_tilde);
+
+    out %= 8;
+
+    return out;
+}
+
+PhasePolynomial TODDWrapper(const PhasePolynomial& in) {
+    int n = in.get_n();
+    PhasePolynomial out(n);
+
+    WeightedPolynomial f = TO_Maps::PhasePolynomial_to_WeightedPolynomial(in);
+
+    WeightedPolynomial f_prime(f);
+
+    WeightedPolynomial two_f_tilde(f);
+    f_prime %= 2;
+    two_f_tilde -= f_prime;
+
+    Signature f_prime_sig = TO_Maps::WeightedPolynomial_to_Signature(f);
+	
+	GateStringSparse in_gsm = TO_Maps::PhasePolynomial_to_GateStringSparse(in);
+
+    GateStringSparse f_prime_GSS_optimized = TODD(in_gsm);
 
     PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
 
