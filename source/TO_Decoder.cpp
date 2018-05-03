@@ -42,6 +42,8 @@ int g_out_no_partitions = -1;
 bool g_print_load_tfc_debug = true;
 int* g_gate_hist = NULL;
 int* g_qubit_hist = NULL;
+int g_out_T_count = 0;
+int g_fail_count = 0;
 
 GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     int n = inS.get_n();
@@ -334,6 +336,8 @@ PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder
     Signature f_prime_sig = TO_Maps::WeightedPolynomial_to_Signature(f);
 
     GateStringSparse f_prime_GSS_optimized = decoder(f_prime_sig);
+	
+	g_fail_count += (!synthesis_success(f_prime_sig,f_prime_GSS_optimized));
 
     PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
 
@@ -369,6 +373,8 @@ PhasePolynomial TODDWrapper(const PhasePolynomial& in) {
 	GateStringSparse in_gsm = TO_Maps::PhasePolynomial_to_GateStringSparse(in);
 
     GateStringSparse f_prime_GSS_optimized = TODD(in_gsm);
+	
+	g_fail_count += (!synthesis_success(f_prime_sig,f_prime_GSS_optimized));
 
     PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
 

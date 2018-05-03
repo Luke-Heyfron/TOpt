@@ -48,6 +48,7 @@ class PhasePolynomial {
         void mod8(); // Maps elements from Z to Z_8
         void mod2(); // Maps elements from Z or Z_8 to Z_2
         void clean();
+		int T_count() const;
 
 };
 

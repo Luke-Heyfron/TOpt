@@ -192,3 +192,13 @@ void PhasePolynomial::clean() {
         }
     }
 }
+
+int PhasePolynomial::T_count() const {
+	int out = 0;
+	for(int t = 0; t < T(); t++) {
+		if(a.at(t)) {
+			out += (m.at(t)%2);
+		}
+	}
+	return out;
+}

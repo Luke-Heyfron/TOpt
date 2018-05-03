@@ -1146,7 +1146,8 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
     if(my_file.good()) {
         int max_line = 1000;
         int max_qubits = 100;
-        char this_line[max_line];
+        char this_line_commented[max_line];
+		
         // Search for 1st string .v <var 1> <var 2> ... <var n>
             // Assign each var string to a qubit index 1 to n
         int n = 0;
@@ -1158,12 +1159,26 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
         int file_state = 0; // 0-before .v; 1-between .v and BEGIN; 2-between BEGIN and END; 3-After END before eof;
 		int line_no = 1;
         while(!my_file.eof()) {
-            my_file.getline(this_line,max_line);
+			my_file.getline(this_line_commented,max_line);			
+			if(this_line_commented&&strlen(this_line_commented)&&my_file.fail()) {				
+				error("Something went wrong with the input .tfc file. A line may have exceeded the character limit.", "LoadTFCFile", "SQC_Circuit");
+				LOut() << this_line_commented << endl;				
+				return NULL;
+			}
+            
 			//cout << "Line " << line_no << " = " << this_line << endl;
             //cout << file_state << ": " << this_line << endl;
-            for(int i = 0; i < strlen(this_line); i++) {
+			
+            /*for(int i = 0; i < strlen(this_line); i++) {
                 if(this_line[i]=='\'') error("Contains negated variables.","LoadTFCFile","SQC_Circuit");
-            }
+            }*/
+			char this_line[max_line];
+			if(this_line_commented&&strlen(this_line_commented)) {							
+				strcpy(this_line,this_line_commented);
+				char* temp = strchr(this_line,'#');
+				if(temp) *temp = '\0';
+			}
+			
             if(this_line&&strlen(this_line)) {
 				switch(file_state) {
 					case 0: //before .v
@@ -1536,7 +1551,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
             }
 			line_no++;
         }
-
+		
         // Search for .i line
         // Search for .o line
         // Search for .c line

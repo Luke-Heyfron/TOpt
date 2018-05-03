@@ -151,6 +151,10 @@ int main(int argc, char* argv[]) {
 
                 LOut() << "Output:" << endl;
                 result.PrintOperatorDistribution();
+				
+				LOut() << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
+				LOut() << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
+				LOut() << "Fail count = " << g_fail_count << endl;
 
 		LOut() << endl;
 
@@ -193,6 +197,10 @@ int main(int argc, char* argv[]) {
 					result.PrintOperatorDistribution(&my_file);
 
 					my_file << endl;
+					
+					my_file << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
+					my_file << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
+					my_file << "Fail count = " << g_fail_count << endl;
 
 					my_file << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
 					
@@ -204,7 +212,7 @@ int main(int argc, char* argv[]) {
 						ifstream my_infile(g_csv_filename.c_str(), iostream::in);
 						if(!my_infile.good()) {
 							ofstream my_outfile(g_csv_filename.c_str(), iostream::out);
-							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time" << endl;
+							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,OutputTCountCheck,FailCount" << endl;
 							my_outfile.close();
 						}
 						my_infile.close();
@@ -226,7 +234,9 @@ int main(int argc, char* argv[]) {
 						my_file << result.p_hads << ",";
 						my_file << result.TCount() << ",";
 						my_file << g_out_no_partitions << ",";
-						my_file << LCL_ConsoleOut::secs(tic,toc) << endl;
+						my_file << LCL_ConsoleOut::secs(tic,toc) << ",";
+						my_file << g_fail_count << ",";
+						my_file << g_out_T_count << endl;
 						my_file.close();
 					}
 				}

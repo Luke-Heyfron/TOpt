@@ -10,6 +10,8 @@ using namespace LCL_ConsoleOut;
 #include "TO_Decoder.h"
 
 SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder decoder) {
+	g_out_T_count = 0;
+	g_fail_count = 0;
     LOut() << "UniversalOptimize begin." << endl;
     LOut_Pad++;
     clock_t start = clock();
@@ -853,6 +855,7 @@ SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) 
     int n = in.n;
     PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial out_f = FullDecoderWrapper(in_f,decoder);
+	g_out_T_count += out_f.T_count();
     SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
     out.d = in.d;
     out.p_hads = in.p_hads;
@@ -863,6 +866,7 @@ SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
     int n = in.n;
     PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial out_f = TODDWrapper(in_f);
+	g_out_T_count += out_f.T_count();
     SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
     out.d = in.d;
     out.p_hads = in.p_hads;

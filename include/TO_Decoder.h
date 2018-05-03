@@ -46,6 +46,8 @@ extern int g_out_no_partitions;
 extern bool g_print_load_tfc_debug;
 extern int* g_gate_hist;
 extern int* g_qubit_hist;
+extern int g_out_T_count;
+extern int g_fail_count;
 
 namespace SYNTHESIS_ALGORITHM_TAG {
     const string DAFT_GUESS = "re";
