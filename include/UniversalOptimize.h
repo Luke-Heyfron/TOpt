@@ -42,4 +42,8 @@ static void decompose_C3_to_CNOT_D3(const SQC_Circuit& in, SQC_Circuit*& CNOT, S
 static SQC_Circuit optimize_D3(const SQC_Circuit& in, TO_Decoder decoder);
 static SQC_Circuit TODD_optimize_D3(const SQC_Circuit& in);
 
+
+// Debugging
+static void SaveRepresentationsToFile(const SQC_Circuit& in_C, const char* in_filename);
+
 #endif // UNIVERSAL_OPTIMIZE_HEADER

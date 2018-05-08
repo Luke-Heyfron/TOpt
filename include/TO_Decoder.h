@@ -15,6 +15,7 @@ using namespace std;
 #include "LCL_Array.h"
 #include "LCL_Array_imp1.h"
 #include "LCL_Matrix_Heap_Sparse.h"
+#include "WeightedPolynomial.h"
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
@@ -48,8 +49,11 @@ extern int* g_gate_hist;
 extern int* g_qubit_hist;
 extern int g_out_T_count;
 extern int g_fail_count;
+extern string g_algebra_prefix;
+extern int g_current_partition;
 
 namespace SYNTHESIS_ALGORITHM_TAG {
+	const string NONE = "none";
     const string DAFT_GUESS = "re";
     const string LEMPEL_LEAST_GREEDY = "tool_l";
     const string LEMPEL_GREEDY = "tool_lg";
@@ -63,6 +67,7 @@ namespace SYNTHESIS_ALGORITHM_TAG {
     const string ALL_LEMPEL = "all";
 }
 enum SYNTHESIS_ALGORITHM_ID {
+	NONE,
     DAFT_GUESS,
     REED_MULLER,
     LEMPEL_LEAST_GREEDY_F,
@@ -103,6 +108,7 @@ int LempelSelector_Random(const Signature& inS);
 GateStringSparse RE(const Signature& inS);
 
 void result_analysis(const Signature& inS, const GateStringSparse& inResult, ostream& inOS = cout);
+bool synthesis_success(const WeightedPolynomial& inpre, const WeightedPolynomial& inpost);
 bool synthesis_success(const Signature& inS, const GateStringSparse& inResult);
 bool T_fast(const GateStringSparse& inGSS);
 
@@ -114,5 +120,4 @@ Matrix RemoveRoundingError(const Matrix& in);
 GateStringSparse PSRMC_Lightweight_Search(const GateStringSparse& inGSS);
 GateStringSparse PSRMC_Complex_Submat(const GateStringSparse& inGSS, int n_RM=6, int col_order = 0, int n_orders = 1);
 int trapezoid_width(const BMSparse& inBMS, int height);
-
 #endif // TO_DECODER_HEADER

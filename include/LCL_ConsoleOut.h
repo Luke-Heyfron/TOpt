@@ -14,6 +14,8 @@ extern int dout_n;
 
 namespace LCL_ConsoleOut {
     extern int LOut_Pad;
+	extern int NErrors;
+	extern int NWarnings;
 
     ostream& LOut();
     void dout();

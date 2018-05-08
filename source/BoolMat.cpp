@@ -92,19 +92,19 @@ bool BoolMat::E(int i, int j, bool periodic) const {
     }
 }
 
-void BoolMat::print() const {
-    cout << "BoolMat object. Size = " << n << " X " << m << ". Values:" << endl;
+void BoolMat::print(ostream& inOS) const {
+    inOS << "BoolMat object. Size = " << n << " X " << m << ". Values:" << endl;
     if(n*m) {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < m; j++) {
-                cout << E(i,j);
+                inOS << E(i,j);
             }
-            cout << endl;
+            inOS << endl;
         }
     } else {
-        cout << "<Empty>" << endl;
+        inOS << "<Empty>" << endl;
     }
-    cout << endl;
+    inOS << endl;
 }
 
 int BoolMat::N() const {

@@ -11,6 +11,7 @@
 namespace TO_Maps {
     // PhasePolynomial <-> SQC_Circuit
     PhasePolynomial SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in);
+    PhasePolynomial SQC_Circuit_to_PhasePolynomial2(const SQC_Circuit& in);
     SQC_Circuit PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in);
 
     // PhasePolynomial <-> GateStringSparse

@@ -8,7 +8,7 @@ using namespace std;
 #include "LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
-#include <unordered_set>
+#include <vector>
 
 GateStringSparse GateSigInterface::SigToGSS(const Signature& inSig) {
     int n = inSig.get_n();
@@ -37,6 +37,9 @@ GateStringSparse GateSigInterface::SigToGSS(const Signature& inSig) {
 
     for(int i = 0; i < b_count; i++) {
         out = out + GateStringSparse::expandQuad(n, b_j[i], b_k[i]);
+        //cout << "b_j[i] = " << b_j[i] << "; b_k[i] = " << b_k[i] << endl;
+        //GateStringSparse::expandQuad(n, b_j[i], b_k[i]).print();
+        //out.print();
     }
 
     for(int i = 0; i < c_count; i++) {
@@ -55,7 +58,32 @@ GateStringSparse GateSigInterface::SigToGSS(const Signature& inSig) {
 Signature GateSigInterface::expandGSSTerm(const GateStringSparse& inGSS) {
     Signature out(inGSS.get_n());
 
-    int n_t = inGSS.weight(true);
+    for(int i = 0; (i < inGSS.get_n()); i++) {
+        int this_a = 0;
+        for(int t = 0; t < inGSS.weight(); t++) {
+            this_a += inGSS.E(t,i);
+        }
+        this_a %= 2;
+        if(this_a) out.set(i+1);
+        for(int j = (i+1); (i < inGSS.get_n())&&(j < inGSS.get_n()); j++) {
+            int this_b = 0;
+            for(int t = 0; t < inGSS.weight(); t++) {
+                this_b += inGSS.E(t,i)*inGSS.E(t,j);
+            }
+            this_b %= 2;
+            if(this_b) out.set(i+1,j+1);
+            for(int k = (j+1); (i < inGSS.get_n())&&(j < inGSS.get_n())&&(k < inGSS.get_n()); k++) {
+                int this_c = 0;
+                for(int t = 0; t < inGSS.weight(); t++) {
+                    this_c += inGSS.E(t,i)*inGSS.E(t,j)*inGSS.E(t,k);
+                }
+                this_c %= 2;
+                if(this_c) out.set(i+1,j+1,k+1);
+            }
+        }
+    }
+
+    /*int n_t = inGSS.weight(true);
     if(n_t>1) {
         unordered_set<int> data = inGSS.get_data();
         bool* this_x = new bool[inGSS.get_n()];
@@ -116,7 +144,7 @@ Signature GateSigInterface::expandGSSTerm(const GateStringSparse& inGSS) {
                 delete [] this_x;
             }
         }
-    }
+    }*/
 
     return out;
 }

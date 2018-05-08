@@ -14,7 +14,7 @@ class PhasePolynomial {
         int n = 0;
         int N = 0;
         vector<int> m;
-        vector<int> a;
+        vector<vector<bool>> a;
     public:
         PhasePolynomial(int in_n);
         PhasePolynomial(const PhasePolynomial& in);
@@ -26,7 +26,8 @@ class PhasePolynomial {
         int get_N() const;
         int T() const;
         int get_m_at(const int in_t) const;
-        int get_a_at(const int in_t) const;
+        vector<bool> get_a_at(const int in_t) const;
+        void get_a_at(bool* out_x, const int in_t) const;
 
         void operator+=(const PhasePolynomial& inPP);
         void operator*=(const int in_I);
@@ -35,13 +36,15 @@ class PhasePolynomial {
         void operator%=(const int in_m);
 
         // Getters
+		int operator[](const vector<bool>& in_v) const;
         int operator[](const int in_I) const;
         int operator[](const bool* in_x) const;
         int operator[](const string in_str) const;
 
         // Setters
-        int& operator[](const int in_I);
-        int& operator[](const bool* in_x);
+		int& operator[](const vector<bool>& in_v);
+        int& operator[](const int in_I);        
+        int& operator[](const bool* in_x); // Culprit
         int& operator[](const string in_str);
 
         // Methods

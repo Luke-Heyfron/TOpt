@@ -23,6 +23,7 @@ using namespace LCL_ConsoleOut;
 #include "WeightedPolynomial.h"
 #include "Utils.h"
 #include "TO_CircuitGenerators.h"
+#include "tests.h"
 
 #include <climits>
 #include <vector>
@@ -33,10 +34,9 @@ using namespace LCL_ConsoleOut;
 #include <fstream>
 #include <ctime>
 #include <utility>
+#include <climits>
 
 int main(int argc, char* argv[]) {
-    g_output_filename.clear();
-    g_csv_filename.clear();
 
     srand(time(NULL));
 
@@ -95,6 +95,10 @@ int main(int argc, char* argv[]) {
 							// csv filename
 							g_csv_filename = this_value;
 							break;
+						case 'g':
+							// algebra output
+							g_algebra_prefix = this_value;
+							break;
                     }
                     i++;
                 }
@@ -151,7 +155,7 @@ int main(int argc, char* argv[]) {
 
                 LOut() << "Output:" << endl;
                 result.PrintOperatorDistribution();
-				
+
 				LOut() << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
 				LOut() << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
 				LOut() << "Fail count = " << g_fail_count << endl;
@@ -170,7 +174,7 @@ int main(int argc, char* argv[]) {
 					my_file << "Input circuit:" << endl;
 					my_file.close();
 					this_circuit->Save(g_output_filename.c_str(), ios_base::app);
-					my_file.open(g_output_filename.c_str(), iostream::app);					
+					my_file.open(g_output_filename.c_str(), iostream::app);
 					my_file << endl;
 
 					my_file << endl;
@@ -179,7 +183,7 @@ int main(int argc, char* argv[]) {
 					my_file.close();
 							result.Save(g_output_filename.c_str(),ios_base::app);
 					my_file.open(g_output_filename.c_str(), iostream::app);
-					
+
 
 					my_file << endl;
 
@@ -197,13 +201,13 @@ int main(int argc, char* argv[]) {
 					result.PrintOperatorDistribution(&my_file);
 
 					my_file << endl;
-					
+
 					my_file << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
 					my_file << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
 					my_file << "Fail count = " << g_fail_count << endl;
 
 					my_file << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
-					
+
 					my_file.close();
                 }
 				if(!g_csv_filename.empty()) {
@@ -212,7 +216,7 @@ int main(int argc, char* argv[]) {
 						ifstream my_infile(g_csv_filename.c_str(), iostream::in);
 						if(!my_infile.good()) {
 							ofstream my_outfile(g_csv_filename.c_str(), iostream::out);
-							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,OutputTCountCheck,FailCount" << endl;
+							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,FailCount,OutputTCountCheck" << endl;
 							my_outfile.close();
 						}
 						my_infile.close();
@@ -330,7 +334,7 @@ int main(int argc, char* argv[]) {
                 GateStringSparse tempout = TODD(this_sig);
                 out.assign(tempout);
             }
-            result_analysis(this_sig,out);
+            //result_analysis(this_sig,out);
             cout << "Output phase polynomial:" << endl;
             out.print();
         } else if(!this_command.compare("help")) {
@@ -343,5 +347,9 @@ int main(int argc, char* argv[]) {
             myfile.close();
         }
     }
+
+	cout << "Number of LCL errors: " << LCL_ConsoleOut::NErrors << endl;
+	cout << "Number of LCL warnings: " << LCL_ConsoleOut::NWarnings << endl;
+
     return 0;
 }

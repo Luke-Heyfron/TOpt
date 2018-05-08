@@ -4,6 +4,9 @@
 #define BM_ZERO BoolMat(1,1,0)
 #define BM_ONE BoolMat(1,1,1)
 
+#include <iostream>
+using namespace std;
+
 class BoolMat {
     //Implements an n X m binary matrix.
 private:
@@ -41,7 +44,7 @@ public:
 
     int sum() const;
 
-    void print() const;
+    void print(ostream& inOS = cout) const;
 
     static int sum(const BoolMat& inBM);
     void resize(int inN, int inM); //Warning! Destroys all contents of data

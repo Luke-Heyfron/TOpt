@@ -38,6 +38,85 @@ PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in) {
                         }
                     }
                     E_mat = (this_CNOT*E_mat);
+					/*if(false&&((c>=31)||(d>=31))) {
+						cout << "CNOT INVOLVING QUBIT 32 OR GREATER" << endl;
+						E_mat.print();
+					}*/
+                }
+                break;
+            case SQC_OPERATOR_Z:
+            case SQC_OPERATOR_S:
+            case SQC_OPERATOR_T:
+            case SQC_OPERATOR_T_DAG:
+            case SQC_OPERATOR_S_DAG:
+                {
+                    int q = in.operator_list[t][1]-1;
+                    bool x[n];
+                    for(int j = 0; j < n; j++) x[j] = E_mat.E(q,j);
+                    int m = 0;
+                    switch(in.operator_list[t][0]) {
+                        case SQC_OPERATOR_Z:
+                            m = 4;
+                            break;
+                        case SQC_OPERATOR_S:
+                            m = 2;
+                            break;
+                        case SQC_OPERATOR_T:
+                            m = 1;
+                            break;
+                        case SQC_OPERATOR_T_DAG:
+                            m = 7;
+                            break;
+                        case SQC_OPERATOR_S_DAG:
+                            m = 6;
+                            break;
+                    }
+                    out[x] += m;
+					/*out.print();
+					for(int j = 0; j < n; j++) cout << x[j];
+					cout << endl;
+					cout << endl;*/
+                }
+                break;
+            default:
+                cout << "Warning in TO_Maps::PhasePolynomial_to_SQC_Circuit! Expected gates are {CNOT, Z, S, T} only." << endl;
+                break;
+        }
+    }
+
+    out %= 8;
+
+	//out.print();
+
+	//cout << "ADFADFASDF" << endl;
+
+    return out;
+}
+
+PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial2(const SQC_Circuit& in) {
+    int n = in.n;
+    PhasePolynomial out(n);
+
+    BMSparse E_mat(n,n);
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            E_mat.E(i,j,(i==j));
+        }
+    }
+
+    for(int t = 0; t < in.m; t++) {
+        switch(in.operator_list[t][0]) {
+            case SQC_OPERATOR_CNOT:
+                {
+                    int c = in.operator_list[t][2]-1;
+                    int d = in.operator_list[t][1]-1;
+                    BMSparse this_CNOT(n,n);
+                    for(int i = 0; i < n; i++) {
+                        for(int j = 0; j < n; j++) {
+                            this_CNOT.E(i,j,((i==j)+(i==d)*(j==c))%2);
+                        }
+                    }
+                    E_mat = (this_CNOT*E_mat);
                 }
                 break;
             case SQC_OPERATOR_Z:
@@ -91,7 +170,7 @@ SQC_Circuit TO_Maps::PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in) {
         while(this_m_t<0) this_m_t += 8;
         this_m_t %= 8;
         if(this_m_t!=0) {
-            LCL_Bool::IntToBoolVec(x,in.get_a_at(t),n);
+            in.get_a_at(x,t);
             int i_0 = -1;
             for(int i = 0; (i_0==(-1))&&(i < n); i++) if(x[i]) i_0 = i;
             if(i_0>=0) {
@@ -134,7 +213,7 @@ GateStringSparse TO_Maps::PhasePolynomial_to_GateStringSparse(const PhasePolynom
 
     for(int t = 0; t < in.T(); t++) {
         int this_m_t = in.get_m_at(t);
-        int this_a_t = in.get_a_at(t);
+        vector<bool> this_a_t = in.get_a_at(t);
         while(this_m_t<0) this_m_t+=2;
         this_m_t%=2;
         if(this_m_t%2) {
@@ -153,11 +232,17 @@ PhasePolynomial TO_Maps::GateStringSparse_to_PhasePolynomial(const GateStringSpa
     int n = in.get_n();
     PhasePolynomial out(n);
 
-    unordered_set<int> data = in.get_data();
+	vector<vector<bool>> data = in.get_data();
+
+	for(int t = 0; t < data.size(); t++) {
+		out[data[t]]=1;
+	}
+
+    /*unordered_set<int> data = in.get_data();
     for(unordered_set<int>::iterator it = data.begin(); it != data.end(); it++) {
         int thisI = *it;
         out[thisI] = 1;
-    }
+    }*/
 
     return out;
 }
@@ -179,11 +264,12 @@ WeightedPolynomial TO_Maps::PhasePolynomial_to_WeightedPolynomial(const PhasePol
 
     for(int t = 0; t < in.T(); t++) {
         int this_m = in.get_m_at(t);
-        int this_a = in.get_a_at(t);
+        //int this_a = in.get_a_at(t);
         while(this_m<0) this_m += 8;
         this_m %= 8;
         if(this_m) {
-            LCL_Bool::IntToBoolVec(x,this_a,n);
+            //LCL_Bool::IntToBoolVec(x,this_a,n);
+			in.get_a_at(x,t);
             for(int k = 0; k < this_m; k++) {
                 for(int i = 0; i < n; i++) {
                     A[i][j] = x[i];
@@ -286,6 +372,8 @@ PhasePolynomial TO_Maps::WeightedPolynomial_to_PhasePolynomial(const WeightedPol
             }
         }
     }
+
+
 
     out %= 8;
 

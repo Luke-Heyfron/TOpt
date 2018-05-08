@@ -13,36 +13,102 @@ using namespace std;
 #include "LCL_Bool.h"
 #include "LCL_Int.h"
 #include "BoolMat.h"
+#include "LCL_ConsoleOut.h"
+using namespace LCL_ConsoleOut;
 
 GateStringSparse::GateStringSparse(int in_n) {
-    data_us = new unordered_set<int>;
+    //data_us = new unordered_set<vector<bool>>;
     n = in_n;
 }
 
 GateStringSparse::~GateStringSparse() {
-    delete data_us;
+    //delete data_us;
 }
 
-int GateStringSparse::set(int I) {
+int GateStringSparse::set(const vector<bool>& in_v) {
+	if(in_v.size()==n) {
+		bool found = 0;
+		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+			found = 1;
+			for(int i = 0; found&&(i < n); i++) {
+				found = (data_us[t][i]==in_v[i]);
+			}
+			if(found) {
+				return 0;
+			}
+		}
+		if(!found) {
+			data_us.push_back(in_v);
+			return 1;
+		}
+	} else {
+		error("GateStringSparse key should have length n!", "set", "GateStringSparse");
+		LOut_Pad++;
+            LOut() << "n = " << n << endl;
+            LOut() << "Input key:" << endl;
+            LOut();
+            for(int i = 0; i < in_v.size(); i++) cout << in_v[i];
+            cout << endl;
+		LOut_Pad--;
+	}
+    //pair<unordered_set<vector<bool>>::iterator,bool> temp = data_us->insert(in_v);
+    //return temp.second;
+}
+
+int GateStringSparse::clear(const vector<bool>& in_v) {
+	if(in_v.size()==n) {
+		bool found = 0;
+		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+			found = 1;
+			for(int i = 0; found&&(i < n); i++) {
+				found = (data_us[t][i]==in_v[i]);
+			}
+			if(found) {
+				data_us.erase(data_us.begin() + t);
+				return 1;
+			}
+		}
+		if(!found) {
+			return 0;
+		}
+	} else {
+		error("GateStringSparse key should have length n!", "clear", "GateStringSparse");
+	}
+    //unordered_set<vector<bool>>::size_type temp = data_us->erase(in_v);
+    //return temp;
+}
+
+/*int GateStringSparse::set(int I) {
     pair<unordered_set<int>::iterator,bool> temp = data_us->insert(I);
+	warning("Don't use this", "set", "GateStringSparse");
     return temp.second;
 }
 
 int GateStringSparse::clear(int I) {
     unordered_set<int>::size_type temp = data_us->erase(I);
+	warning("Don't use this", "clear", "GateStringSparse");
     return temp;
-}
+}*/
 
 int GateStringSparse::set(const bool* x) {
-    return set(x_to_I(x));
+	vector<bool> v;
+	v.resize(n);
+	for(int i = 0; i < n; i++) v[i]=x[i];
+
+    return set(v);
 }
 
 int GateStringSparse::clear(const bool* x) {
-    return clear(x_to_I(x));
+	vector<bool> v;
+	v.resize(n);
+	for(int i = 0; i < n; i++) v[i]=x[i];
+
+    return clear(v);
 }
 
 void GateStringSparse::clear() {
-    data_us->clear();
+    //data_us->clear();
+    data_us.clear();
 }
 
 int GateStringSparse::get_n() const {
@@ -50,9 +116,9 @@ int GateStringSparse::get_n() const {
 }
 
 void GateStringSparse::print(ostream& inOS) const {
-    inOS << "Gate string: ";
+    inOS << "Gate string: " << n << " x " << weight(true) << endl;
 
-    bool this_x[n];
+    /*bool this_x[n];
     int this_I;
     int c = 0;
     for(unordered_set<int>::iterator it = data_us->begin(); it!=data_us->end(); it++) {
@@ -73,29 +139,63 @@ void GateStringSparse::print(ostream& inOS) const {
         if(c<(int)(data_us->size()-1))
         inOS << " + ";
         c++;
-    }
+    }*/
+	for(int i = 0; i < n; i++) {
+		for(int j = 0; j < data_us.size(); j++) {
+			inOS << data_us[j][i];
+		}
+		inOS << endl;
+	}
     inOS << endl;
 
 }
 
-bool GateStringSparse::E(int I) const {
+bool GateStringSparse::E(const vector<bool>& in_v) const {
+    /*unordered_set<int>::iterator ePos = data_us->find(in_v);
+    if(ePos==data_us->end()) {
+        return 0;
+    } else {
+        return 1;
+    }*/
+	if(in_v.size()==n) {
+		bool found = 0;
+		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+			found = 1;
+			for(int i = 0; found&&(i < n); i++) {
+				found = (data_us[t][i]==in_v[i]);
+			}
+			if(found) {
+				return 1;
+			}
+		}
+		if(!found) {
+			return 0;
+		}
+	} else {
+		error("GateStringSparse key should have length n!", "E", "GateStringSparse");
+	}
+}
+
+/*bool GateStringSparse::E(int I) const {
     unordered_set<int>::iterator ePos = data_us->find(I);
+	warning("Don't use this", "E", "GateStringSparse");
     if(ePos==data_us->end()) {
         return 0;
     } else {
         return 1;
     }
-}
+}*/
 
 void GateStringSparse::printString(const char* pre) const {
-    if(pre) cout << pre;
+    /*if(pre) cout << pre;
     for(int i = 0; i < pow(2,n); i++) {
         cout << E(i);
     }
-    cout << endl;
+    cout << endl;*/
+	error("Use of unimplemented function", "printString", "GateStringSparse");
 }
 
-int GateStringSparse::x_to_I(const bool* x) const {
+/*int GateStringSparse::x_to_I(const bool* x) const {
     int out = 0;
     for(int i = 0; i < n; i++) {
         out += x[i]*pow(2,i);
@@ -109,7 +209,7 @@ void GateStringSparse::I_to_x(int I, bool* out) const {
         out[i] = temp%2;
         temp /= 2;
     }
-}
+}*/
 
 GateStringSparse GateStringSparse::expandQuad(int in_n, int in_x1, int in_x2) {
     in_x1--;
@@ -182,11 +282,60 @@ GateStringSparse GateStringSparse::expandLin(int in_n, int in_x1) {
     return out;
 }
 
+int GateStringSparse::add(const vector<bool>& in_v) {
+    int out = set(in_v);
+    if(!out) {
+        clear(in_v);
+    }
+    return out;
+}
+
+int GateStringSparse::add(const bool* in_v) {
+    int out = set(in_v);
+    if(!out) {
+        clear(in_v);
+    }
+    return out;
+}
+
+
 GateStringSparse GateStringSparse::add(const GateStringSparse& inGSS) const {
     GateStringSparse out(n);
 
-    for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
-        int thisI = *it;
+	// Search both GSM's. Add columns if and only if they appear in one GSM but not the other.
+
+	for(int t1 = 0; t1 < data_us.size(); t1++) {
+		vector<bool> col1 = data_us[t1];
+		bool found = 0;
+		for(int t2 = 0; (!found)&&(t2 < inGSS.data_us.size()); t2++) {
+			vector<bool> col2 = inGSS.data_us[t2];
+			found = 1;
+			for(int i = 0; found&&(i < n); i++) {
+				found = (col1[i]==col2[i]);
+			}
+		}
+		if(!found) {
+            out.set(col1);
+        }
+	}
+
+	for(int t1 = 0; t1 < inGSS.data_us.size(); t1++) {
+		vector<bool> col1 = inGSS.data_us[t1];
+		bool found = 0;
+		for(int t2 = 0; (!found)&&(t2 < data_us.size()); t2++) {
+			vector<bool> col2 = data_us[t2];
+			found = 1;
+			for(int i = 0; found&&(i < n); i++) {
+				found = (col1[i]==col2[i]);
+			}
+		}
+		if(!found) {
+            out.set(col1);
+        }
+	}
+
+    /*for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
+        vector<bool> thisI = *it;
         unordered_set<int>::iterator ePos = inGSS.data_us->find(thisI);
         if(ePos==inGSS.data_us->end()) {
             out.set(thisI);
@@ -194,14 +343,39 @@ GateStringSparse GateStringSparse::add(const GateStringSparse& inGSS) const {
     }
 
     for(unordered_set<int>::iterator it = inGSS.data_us->begin(); it != inGSS.data_us->end(); it++) {
-        int thisI = *it;
+        vector<bool> thisI = *it;
         unordered_set<int>::iterator ePos = data_us->find(thisI);
         if(ePos==data_us->end()) {
             out.set(thisI);
         }
-    }
+    }*/
 
     return out;
+}
+
+bool GateStringSparse::E(int i, int j) const {
+    if((0<=i)&&(i<data_us.size())&&(0<=j)&&(j<data_us[i].size())) {
+        return data_us[i][j];
+    } else {
+        error("Index out of bounds.", "E", "GateStringSparse");
+        LOut_Pad++;
+            LOut() << "i = " << i << "; j = " << j << endl;
+        LOut_Pad--;
+        return 0;
+    }
+}
+
+bool GateStringSparse::E(int i, int j, bool v) {
+    if((0<=i)&&(i<data_us.size())&&(0<=j)&&(j<data_us[i].size())) {
+        data_us[i][j] = v;
+        return data_us[i][j];
+    } else {
+        error("Index out of bounds.", "E", "GateStringSparse");
+        LOut_Pad++;
+            LOut() << "i = " << i << "; j = " << j << endl;
+        LOut_Pad--;
+        return 0;
+    }
 }
 
 GateStringSparse GateStringSparse::operator+(const GateStringSparse& inGSS) const {
@@ -209,7 +383,7 @@ GateStringSparse GateStringSparse::operator+(const GateStringSparse& inGSS) cons
 }
 
 GateStringSparse& GateStringSparse::assign(const GateStringSparse& inGSS) {
-    *data_us = *(inGSS.data_us);
+    data_us = (inGSS.data_us);
     n = inGSS.n;
     return *this;
 }
@@ -235,6 +409,7 @@ vector<GateStringSparse*> GateStringSparse::ReedMullerGenerators(int in_r, int i
 
         }
     }
+	//error("Use of unimplemented function", "ReedMullerGenerators", "GateStringSparse");
 
     return out;
 }
@@ -248,48 +423,102 @@ GateStringSparse GateStringSparse::MonomialBF(bool* in_monvec, int in_m) {
     for(int i = 0; i < N; i++) {
         LCL_Bool::IntToBoolVec(B_i,i,in_m);
         if(LCL_Bool::Inner(B_i,in_monvec,in_m)==r) {
-            out.set(i);
+            bool x[in_m];
+            LCL_Bool::IntToBoolVec(x,i,in_m);
+            out.set(x);
         }
     }
+	//error("Use of unimplemented function", "MonomialBF", "GateStringSparse");
     return out;
 }
 
 int GateStringSparse::weight(bool punc) const {
-    return data_us->size()-punc*E(0);
+	vector<bool> v;
+	v.resize(n);
+    return data_us.size()-punc*E(v);
 }
 
 GateStringSparse GateStringSparse::mult2xh(const int h) const {
     GateStringSparse out(n);
 
+    // Start by copying this to out
     out.assign(*this);
 
+    /*
     bool* this_x = new bool[n];
+    // Iterate over all elements
     for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
         int I = *it;
         I_to_x(I,this_x);
+        // Get the key and set (h-1)^th element to 1 and set this element in output.
         this_x[h-1]=1;
         out.set(this_x);
+    }*/
+
+    vector<bool> this_x(n);
+    for(int t = 0; t < data_us.size(); t++) {
+        this_x = data_us[t];
+        int sum = 0;
+        for(int i = 0; i < n; i++) sum += this_x[i];
+        if(sum>0) {
+            this_x[h-1] = !this_x[h-1];
+            out.add(this_x);
+        }
     }
 
+    // If this has odd no. cols
     if(weight(true)%2) {
         for(int i = 0; i < n; i++) {
+            // Create a key with (h-1)^th element equal to 1 and the rest zero. Set that element in output.
             if(i==(h-1)) {
                 this_x[i]=1;
             } else {
                 this_x[i]=0;
             }
         }
-        out.set(this_x);
+        out.add(this_x);
     }
-    delete [] this_x;
+
+	//error("Use of unimplemented function", "mult2xh", "GateStringSparse");
 
     return out;
 }
 
-unordered_set<int> GateStringSparse::get_data() const {
-    unordered_set<int> out;
+void GateStringSparse::proper() {
+    for(int i = 0; i < weight(); i++) {
+        vector<bool> c_i = data_us[i];
+        int sum = 0;
+        for(int k = 0; k < n; k++) {
+            sum += c_i[k];
+        }
+        if(!sum) {
+            data_us.erase(data_us.begin()+i);
+            i--;
+        }
+    }
 
-    out = *data_us;
+    for(int i = 0; i < (weight()-1); i++) {
+        vector<bool> c_i = data_us[i];
+        for(int j = (i+1); j < weight(); j++) {
+            vector<bool> c_j = data_us[j];
+            int sum = 0;
+            for(int k = 0; k < n; k++) {
+                sum += ((c_i[k]+c_j[k])%2);
+            }
+            if(!sum) {
+                data_us.erase(data_us.begin()+j);
+                j--;
+                data_us.erase(data_us.begin()+i);
+                i--;
+            }
+        }
+    }
+}
+
+vector<vector<bool>> GateStringSparse::get_data() const {
+    vector<vector<bool>> out;
+
+    out = data_us;
 
     return out;
 }
@@ -297,7 +526,7 @@ unordered_set<int> GateStringSparse::get_data() const {
 GateStringSparse GateStringSparse::augment(const int h) const {
     GateStringSparse out(n+1);
 
-    bool* this_x = new bool[n];
+    /*bool* this_x = new bool[n];
     bool* this_xout = new bool[n+1];
     for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
         int I = *it;
@@ -317,7 +546,9 @@ GateStringSparse GateStringSparse::augment(const int h) const {
         out.set(this_xout);
     }
     delete [] this_x;
-    delete [] this_xout;
+    delete [] this_xout;*/
+
+	error("Use of unimplemented function", "augment", "GateStringSparse");
 
     return out;
 }
@@ -325,14 +556,31 @@ GateStringSparse GateStringSparse::augment(const int h) const {
 GateStringSparse GateStringSparse::addxh(const int h) const {
     GateStringSparse out(n);
 
-    bool* this_x = new bool[n];
+    /*bool* this_x = new bool[n];
+    // Iterate over each element
     for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
         int I = *it;
+        // Get the key as a column vector
         I_to_x(I,this_x);
+        // Flip the (h-1)^th element of the key.
         this_x[h-1] = !this_x[h-1];
+        // Set the element of out given by the new key.
         out.set(this_x);
     }
-    delete [] this_x;
+    delete [] this_x;*/
+
+    vector<bool> this_x(n);
+    for(int t = 0; t < data_us.size(); t++) {
+        int sum = 0;
+        for(int i = 0; i < n; i++) sum += data_us[t][i];
+        if(sum) {
+            this_x = data_us[t];
+            this_x[h-1] = !this_x[h-1];
+            out.add(this_x);
+        }
+    }
+
+	//error("Use of unimplemented function", "addxh", "GateStringSparse");
 
     return out;
 }
@@ -340,7 +588,7 @@ GateStringSparse GateStringSparse::addxh(const int h) const {
 GateStringSparse GateStringSparse::randomWeightN(int in_n, int N) {
     GateStringSparse out(in_n);
 
-    for(int i = 0; i < N; i++) {
+    /*for(int i = 0; i < N; i++) {
         bool exit = false;
         while(!exit) {
             int this_I = LCL_Int::randi(1,pow(2,in_n)-1);
@@ -349,7 +597,9 @@ GateStringSparse GateStringSparse::randomWeightN(int in_n, int N) {
                 exit = true;
             }
         }
-    }
+    }*/
+
+	error("Use of unimplemented function", "randomWeightN", "GateStringSparse");
 
     return out;
 }
@@ -419,11 +669,14 @@ GateStringSparse GateStringSparse::superGSS(bool* inc_vec, int len) const {
     }
 
     if(h_count==n) {
-        bool* this_x = new bool[n];
-        bool* super_x = new bool[len];
-        for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
-            int this_I = *it;
-            I_to_x(this_I, this_x);
+        /*bool* this_x = new bool[n];
+        bool* super_x = new bool[len];*/
+        vector<bool> this_x(n);
+        vector<bool> super_x(len);
+        // Iterate over all elements
+        for(int t = 0; t < weight(); t++) {
+            this_x = data_us[t];
+            // Key the key (confirmed it is non-zero
             for(int i = 0; i < len; i++) super_x[i] = 0;
             for(int i = 0; i < n; i++) {
                 if(this_x[i]) {
@@ -433,19 +686,21 @@ GateStringSparse GateStringSparse::superGSS(bool* inc_vec, int len) const {
             out.set(super_x);
         }
 
-        delete [] this_x;
-        delete [] super_x;
+        /*delete [] this_x;
+        delete [] super_x;*/
     } else {
-        cout << "GateStringSparse error! inc_vec must have weight of exactly n." << endl;
+        error("inc_vec must have weight of exactly n.", "supperGSS", "GateStringSparse");
     }
 
     delete [] to_super_mapping;
 
+	//error("Use of unimplemented function", "superGSS", "GateStringSparse");
+
     return out;
 }
 
-void GateStringSparse::printMatrix() const {
-    BoolMat thisBM(n, weight(true));
+void GateStringSparse::printMatrix(ostream& inOS) const {
+    /*BoolMat thisBM(n, weight(true));
 
     bool* this_x = new bool[n];
     int col = 0;
@@ -458,15 +713,17 @@ void GateStringSparse::printMatrix() const {
         }
     }
 
-    thisBM.print();
+    thisBM.print(inOS);
 
-    delete [] this_x;
+    delete [] this_x;*/
+
+	print(inOS);
 }
 
 GateStringSparse GateStringSparse::subGSS_xh(int h) const {
     GateStringSparse out(n);
 
-    bool* this_x = new bool[n];
+    /*bool* this_x = new bool[n];
     for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
         int this_I = *it;
         I_to_x(this_I,this_x);
@@ -474,7 +731,9 @@ GateStringSparse GateStringSparse::subGSS_xh(int h) const {
             out.set(this_x);
         }
     }
-    delete [] this_x;
+    delete [] this_x;*/
+
+	error("Use of unimplemented function", "subGSS_xh", "GateStringSparse");
 
     return out;
 }
@@ -482,7 +741,7 @@ GateStringSparse GateStringSparse::subGSS_xh(int h) const {
 GateStringSparse GateStringSparse::subGSS_s(bool* in_s) const {
     GateStringSparse out(n);
 
-    int weight = 0;
+    /*int weight = 0;
     for(int i = 0; i < n; i++) weight += in_s[i];
     bool* this_x = new bool[n];
     for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
@@ -494,7 +753,9 @@ GateStringSparse GateStringSparse::subGSS_s(bool* in_s) const {
             out.set(this_x);
         }
     }
-    delete [] this_x;
+    delete [] this_x;*/
+
+	error("Use of unimplemented function", "subGSS_s", "GateStringSparse");
 
     return out;
 }
@@ -502,7 +763,7 @@ GateStringSparse GateStringSparse::subGSS_s(bool* in_s) const {
 GateStringSparse GateStringSparse::multiply(const GateStringSparse& inGSS) const {
     GateStringSparse out(n);
 
-    for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
+    /*for(unordered_set<int>::iterator it = data_us->begin(); it != data_us->end(); it++) {
         int this_I = *it;
         for(unordered_set<int>::iterator jt = inGSS.data_us->begin(); jt != inGSS.data_us->end(); jt++) {
             int this_J = *jt;
@@ -510,7 +771,9 @@ GateStringSparse GateStringSparse::multiply(const GateStringSparse& inGSS) const
                 out.set(this_I);
             }
         }
-    }
+    }*/
+
+	error("Use of unimplemented function", "multiply", "GateStringSparse");
 
     return out;
 }

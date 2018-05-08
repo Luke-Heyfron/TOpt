@@ -9,30 +9,38 @@ using namespace std;
 
 class GateStringSparse {
 private:
-    unordered_set<int>* data_us;
+    vector<vector<bool>> data_us;
     int n;
 public:
     GateStringSparse(int in_n);
     ~GateStringSparse();
 
-    int set(int I);
-    int clear(int I);
+    int set(const vector<bool>& in_v);
+    int clear(const vector<bool>& in_v);
+	//int set(int I);
+    //int clear(int I);
     int set(const bool* x);
     int clear(const bool* x);
+    int add(const vector<bool>& in_v);
     int add(const bool* x);
     void clear();
 
-    bool E(int I) const;
+    //bool E(int I) const;
+    bool E(const vector<bool>& in_v) const;
+    bool E(int i, int j) const;
+    bool E(int i, int j, bool v);
+
+    void proper();
 
     int get_n() const;
     int weight(bool punc = false) const;
 
     void print(ostream& inOS = cout) const;
     void printString(const char* pre = NULL) const;
-    void printMatrix() const;
+    void printMatrix(ostream& inOS = cout) const;
 
-    int x_to_I(const bool* x) const;
-    void I_to_x(int I, bool* out) const;
+    //int x_to_I(const bool* x) const;
+    //void I_to_x(int I, bool* out) const;
 
     GateStringSparse& assign(const GateStringSparse& inGSS);
     GateStringSparse& operator=(const GateStringSparse& inGSS);
@@ -43,7 +51,7 @@ public:
 
     GateStringSparse augment(const int h) const;
 
-    unordered_set<int> get_data() const;
+    vector<vector<bool>> get_data() const;
 
     GateStringSparse mult2xh(const int h) const;
     GateStringSparse addxh(const int h) const;

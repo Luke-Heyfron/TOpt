@@ -23,6 +23,7 @@ using namespace LCL_ConsoleOut;
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
+#include <string>
 
 string g_output_filename;
 string g_csv_filename;
@@ -44,13 +45,15 @@ int* g_gate_hist = NULL;
 int* g_qubit_hist = NULL;
 int g_out_T_count = 0;
 int g_fail_count = 0;
+string g_algebra_prefix;
+int g_current_partition = 0;
 
 GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     int n = inS.get_n();
     int N = (int)pow(2,n);
     GateStringSparse out(n);
 
-    GateStringSparse daft = GateSigInterface::SigToGSS(inS);
+    /*GateStringSparse daft = GateSigInterface::SigToGSS(inS);
     bool* gss_vec = new bool[N];
     for(int i = 0; i < N; i++) gss_vec[i] = daft.E(i);
     bool* result = new bool[N];
@@ -68,7 +71,10 @@ GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     }
 
     delete [] gss_vec;
-    delete [] result;
+    delete [] result;*/
+
+	error("Use of unimplemented function.", "ReedMullerSynthesis2", "TO_Decoder");
+
     return out;
 }
 
@@ -96,7 +102,7 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
     cout << "Total codewords to search = " << N_total << endl;
     cout << "Search begin..." << endl;
     bool thisBS[N],lastBS[N],addBS[N];
-    GateStringSparse thisCodeWord(N);
+    GateStringSparse thisCodeWord(n);
     clock_t tic = clock();
     clock_t start = clock();
     LCL_Bool::zeros(lastBS,N);
@@ -113,9 +119,11 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
             tic = clock();
         }
         LCL_Bool::BitwiseXor(thisBS,lastBS,addBS,N);
+
         for(int j = 0; j < N; j++) {
             if(addBS[j]) {
                 thisCodeWord = (thisCodeWord + (*myRM[j]));
+
             }
         }
         GateStringSparse newFunc = (daft+thisCodeWord);
@@ -126,6 +134,7 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
             out = newFunc;
             for(int i = 0; i < (int)optimalStrings.size(); i++) {
                 delete optimalStrings[i];
+                optimalStrings[i] = NULL;
             }
             optimalStrings.clear();
         }
@@ -173,20 +182,22 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
 
     for(int i = 0; i < (int)myRM.size(); i++) {
         delete myRM[i];
+        myRM[i] = NULL;
     }
     for(int i = 0; i < (int)optimalStrings.size(); i++) {
         delete optimalStrings[i];
+        optimalStrings[i] = NULL;
     }
     delete [] weightdist;
     weightdist = NULL;
 
-    if((!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::REED_MULLER))&&(!g_output_filename.empty())) {
+    if(false&&(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::REED_MULLER))&&(!g_output_filename.empty())) {
         ofstream my_file(g_output_filename.c_str(),iostream::app);
         my_file << "Input signature" << endl;
         inS.print(my_file);
         my_file << "Output gate string" << endl;
         out.print(my_file);
-        result_analysis(inS,out,my_file);
+        //result_analysis(inS,out,my_file);
         my_file << "Total execution time = " << total_time << "s" << endl;
         my_file << endl;
         my_file << "Input signature as file" << endl;
@@ -209,7 +220,7 @@ GateStringSparse ReedMullerSynthesis(const Signature& inS) {
     return out;
 }
 
-void result_analysis(const Signature& inS, const GateStringSparse& inResult, ostream& inOS) {
+/*void result_analysis(const Signature& inS, const GateStringSparse& inResult, ostream& inOS) {
     GateStringSparse daft = GateSigInterface::SigToGSS(inS);
     int daft_weight = daft.weight(true);
     int result_weight = inResult.weight(true);
@@ -227,13 +238,20 @@ void result_analysis(const Signature& inS, const GateStringSparse& inResult, ost
     inOS << "Output T-count = " << result_weight << endl;
     inOS << "Reduced T-count by " << (daft_weight-result_weight) << endl;
     inOS << endl;
+}*/
+
+bool synthesis_success(const WeightedPolynomial& in_pre, const WeightedPolynomial& in_post) {
+    Signature pre_sig = TO_Maps::WeightedPolynomial_to_Signature(in_pre);
+    Signature post_sig = TO_Maps::WeightedPolynomial_to_Signature(in_post);
+    Signature difference = pre_sig + post_sig;
+    return difference.isEmpty();
 }
 
 bool synthesis_success(const Signature& inS, const GateStringSparse& inResult) {
     bool out;
 
-    //Signature restored_sig = GateSigInterface::expandGSSTerm(inResult);
-    Signature restored_sig = Interface_SigBMS::BMSToSig(Interface_BMSGSS::GSSToBMS(inResult));
+    Signature restored_sig = GateSigInterface::expandGSSTerm(inResult);
+    //Signature restored_sig = Interface_SigBMS::BMSToSig(Interface_BMSGSS::GSSToBMS(inResult));
     Signature difference = inS + restored_sig;
     out = difference.isEmpty();
 
@@ -292,32 +310,44 @@ GateStringSparse TODD(const Signature& inS) {
 
 GateStringSparse TODD(const GateStringSparse& inGSM) {
     LOut(); cout << "Gate synthesis begin." << endl;
+
     clock_t start = clock();
+
     BMSparse A_BMS = Interface_BMSGSS::GSSToBMS(inGSM);
+
     int n = A_BMS.get_n();
     int m = A_BMS.get_m();
+
     bool** A_bool = LCL_Mat_GF2::construct(n,m);
     A_BMS.toBool(A_bool);
+
     int t;
     clock_t tic = clock();
+
     LOut_Pad++;
+
     if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X))
         GateSynthesisMatrix::LempelX(A_bool,n,m,t);
     else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X_2))
         GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
     else
         GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+
     clock_t toc = clock();
     double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
+
     BMSparse out_BMS(n,t);
     out_BMS.fromBool(A_bool,n,t);
+
     GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
+
     LCL_Mat_GF2::destruct(A_bool,n,m);
+
     LOut() << "TODD executed in " << exec_time << " seconds." << endl;
     clock_t finish = clock();
     LOut() << "Total time: " << secs(start,finish) << "s" << endl;
     LOut_Pad--;
-    LOut() << "Gate synthesis end." << endl;    
+    LOut() << "Gate synthesis end." << endl;
     return out;
 }
 
@@ -336,10 +366,12 @@ PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder
     Signature f_prime_sig = TO_Maps::WeightedPolynomial_to_Signature(f);
 
     GateStringSparse f_prime_GSS_optimized = decoder(f_prime_sig);
-	
-	g_fail_count += (!synthesis_success(f_prime_sig,f_prime_GSS_optimized));
 
     PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
+
+    WeightedPolynomial f_post = TO_Maps::PhasePolynomial_to_WeightedPolynomial(g);
+
+    g_fail_count += (!synthesis_success(f,f_post));
 
     out = g;
 
@@ -357,10 +389,13 @@ PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder
 }
 
 PhasePolynomial TODDWrapper(const PhasePolynomial& in) {
+	// Can output PP
+
     int n = in.get_n();
     PhasePolynomial out(n);
 
     WeightedPolynomial f = TO_Maps::PhasePolynomial_to_WeightedPolynomial(in);
+	// Can output WP
 
     WeightedPolynomial f_prime(f);
 
@@ -369,14 +404,18 @@ PhasePolynomial TODDWrapper(const PhasePolynomial& in) {
     two_f_tilde -= f_prime;
 
     Signature f_prime_sig = TO_Maps::WeightedPolynomial_to_Signature(f);
-	
+	// Can output ST
+
 	GateStringSparse in_gsm = TO_Maps::PhasePolynomial_to_GateStringSparse(in);
+	// Can output GSM
 
     GateStringSparse f_prime_GSS_optimized = TODD(in_gsm);
-	
-	g_fail_count += (!synthesis_success(f_prime_sig,f_prime_GSS_optimized));
 
     PhasePolynomial g = TO_Maps::GateStringSparse_to_PhasePolynomial(f_prime_GSS_optimized);
+
+    WeightedPolynomial f_post = TO_Maps::PhasePolynomial_to_WeightedPolynomial(g);
+
+    g_fail_count += (!synthesis_success(f,f_post));
 
     out = g;
 

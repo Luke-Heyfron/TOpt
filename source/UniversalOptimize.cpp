@@ -5,6 +5,7 @@
 using namespace std;
 
 #include <ctime>
+#include <string>
 #include "LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 #include "TO_Decoder.h"
@@ -101,6 +102,7 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     int final_n = in.n;
 	int final_p_hads = 0;
     for(int p = 0; p < step6_N_Ps; p++) {
+		g_current_partition = p;
         SQC_Circuit* this_part = step6_Ps[p];
         SQC_Circuit* this_L = NULL;
         SQC_Circuit* this_Pp = NULL;
@@ -110,7 +112,7 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         SQC_Circuit::Hadamards_to_Gadgets(*this_part,this_L,this_Pp,this_R);
         toc = clock();
         step8_time += secs(tic,toc);
-		
+
 		if(this_Pp->p_hads>final_p_hads) final_p_hads = this_Pp->p_hads;
 
         if(this_Pp->n>final_n) final_n = this_Pp->n;
@@ -123,8 +125,18 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         step9_time += secs(tic,toc);
 
         tic = clock();
-        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_D3, decoder):SQC_Circuit::TODD_optimize_D3(*this_D3);
+        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)?(g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_D3, decoder):SQC_Circuit::TODD_optimize_D3(*this_D3)):SQC_Circuit(*this_D3);
         // After implementing new version of optimize_D3, update final_n according to site of step10.n
+        //cout << "HGJAEEFFGFGH" << endl;
+
+		step10.simplify();
+
+		if(!g_algebra_prefix.empty()) {
+			char temp_numstr[10];
+			sprintf(temp_numstr,"%d",(p+1));
+			string temp_filename = g_algebra_prefix + string(temp_numstr);
+			SaveRepresentationsToFile(step10, temp_filename.c_str());
+		}
 
         toc = clock();
         step10_time += secs(tic,toc);
@@ -138,7 +150,7 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 
     }
     SQC_Circuit out(final_n, in.d, final_p_hads);
-	
+
     for(int p = 0; p < step6_N_Ps; p++) {
         for(int i = 0; i < step6_Hs[p]->m; i++) out.AddOperator(step6_Hs[p]->operator_list[i],step6_Hs[p]->n+1);
         for(int i = 0; i < step10s[p]->m; i++) out.AddOperator(step10s[p]->operator_list[i],step10s[p]->n+1);
@@ -871,4 +883,64 @@ SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
     out.d = in.d;
     out.p_hads = in.p_hads;
     return out;
+}
+
+void SQC_Circuit::SaveRepresentationsToFile(const SQC_Circuit& in_C, const char* in_filename) {
+	// SQC_Circuit
+		in_C.Save(in_filename);
+
+	// PP
+		PhasePolynomial pp = TO_Maps::SQC_Circuit_to_PhasePolynomial(in_C);
+	// WP
+		WeightedPolynomial wp = TO_Maps::PhasePolynomial_to_WeightedPolynomial(pp);
+	// GSM
+		GateStringSparse gsm = TO_Maps::PhasePolynomial_to_GateStringSparse(pp);
+	// ST
+		Signature st = TO_Maps::WeightedPolynomial_to_Signature(wp);
+
+	// Output
+		ofstream f(in_filename, iostream::app);
+
+		f << endl;
+
+		// PP
+		f << "Phase polynomial:" << endl;
+		for(int t = 0; t < pp.T(); t++) {
+			f << "\t";
+			bool* x = new bool[pp.get_n()];
+			for(int i = 0; i < pp.get_n(); i++) x[i]=0;
+			pp.get_a_at(x,t);
+			for(int i = 0; i < pp.get_n(); i++) f << x[i];
+			f << "\t" << pp.get_m_at(t);
+			f << endl;
+			delete [] x;
+		}
+
+		f << endl;
+
+		// WP
+		f << "WeightedPolynomial:" << endl;
+		for(int i = 1; i <= wp.get_n(); i++) {
+			if(wp(i)) f << "\tl_" << i << " = " << wp(i) << endl;
+			for(int j = (i+1); j <= wp.get_n(); j++) {
+				if(wp(i,j)) f << "\tq_{" << i << ", " << j << "} = " << wp(i,j) << endl;
+				for(int k = (j+1); k <= wp.get_n(); k++) {
+					if(wp(i,j,k)) f << "\tc_{" << i << ", " << j << ", " << k << "} = " << wp(i,j,k) << endl;
+				}
+			}
+		}
+
+		f << endl;
+
+		// GSM
+		f << "Gate synthesis matrix:" << endl;
+		gsm.printMatrix(f);
+
+		f << endl;
+
+		// ST
+		f << "Signature tensor:" << endl;
+		st.print(f);
+
+		f.close();
 }
