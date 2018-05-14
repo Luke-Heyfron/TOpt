@@ -590,7 +590,7 @@ void SQC_Circuit::DecompositionVW(SQC_Circuit* out_V, SQC_Circuit* out_W) const 
     }
 }
 
-BMSparse SQC_Circuit::toGateSynthesisMatrix() const {
+/*BMSparse SQC_Circuit::toGateSynthesisMatrix() const {
     Signature out(n);
 
     BMSparse A(n,0);
@@ -641,9 +641,9 @@ BMSparse SQC_Circuit::toGateSynthesisMatrix() const {
     out = Interface_SigBMS::BMSToSig(A);
 
     return A;
-}
+}*/
 
-bool SQC_Circuit::NextSignature(Signature& outsig) {
+/*bool SQC_Circuit::NextSignature(Signature& outsig) {
     outsig = Signature(n);
     bool out = 0;
     SQC_Circuit hadamards, CNOT_Ts;
@@ -685,7 +685,7 @@ bool SQC_Circuit::NextSignature(Signature& outsig) {
 
 
     return out;
-}
+}*/
 
 void SQC_Circuit::ReplaceOperator(SQC_Circuit* in_new_ops, int t, int n_rep) {
     // Create temporary copy of original circuit
@@ -1140,14 +1140,14 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 		g_gate_hist = new int[SQC_OPERATOR_N+1];
 		for(int i = 0; i < (SQC_OPERATOR_N + 1); i++) g_gate_hist[i] = 0;
 	}
-	
+
     SQC_Circuit* out = NULL;
     ifstream my_file(inFilename);
     if(my_file.good()) {
         int max_line = 1000;
         int max_qubits = 100;
         char this_line_commented[max_line];
-		
+
         // Search for 1st string .v <var 1> <var 2> ... <var n>
             // Assign each var string to a qubit index 1 to n
         int n = 0;
@@ -1159,26 +1159,26 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
         int file_state = 0; // 0-before .v; 1-between .v and BEGIN; 2-between BEGIN and END; 3-After END before eof;
 		int line_no = 1;
         while(!my_file.eof()) {
-			my_file.getline(this_line_commented,max_line);			
-			if(this_line_commented&&strlen(this_line_commented)&&my_file.fail()) {				
+			my_file.getline(this_line_commented,max_line);
+			if(this_line_commented&&strlen(this_line_commented)&&my_file.fail()) {
 				error("Something went wrong with the input .tfc file. A line may have exceeded the character limit.", "LoadTFCFile", "SQC_Circuit");
-				LOut() << this_line_commented << endl;				
+				LOut() << this_line_commented << endl;
 				return NULL;
 			}
-            
+
 			//cout << "Line " << line_no << " = " << this_line << endl;
             //cout << file_state << ": " << this_line << endl;
-			
+
             /*for(int i = 0; i < strlen(this_line); i++) {
                 if(this_line[i]=='\'') error("Contains negated variables.","LoadTFCFile","SQC_Circuit");
             }*/
 			char this_line[max_line];
-			if(this_line_commented&&strlen(this_line_commented)) {							
+			if(this_line_commented&&strlen(this_line_commented)) {
 				strcpy(this_line,this_line_commented);
 				char* temp = strchr(this_line,'#');
 				if(temp) *temp = '\0';
 			}
-			
+
             if(this_line&&strlen(this_line)) {
 				switch(file_state) {
 					case 0: //before .v
@@ -1246,10 +1246,11 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 								file_state = 3;
 							} else {
 								char* this_tok = NULL;
-								this_tok = strtok(this_line," ,\t");								
+								this_tok = strtok(this_line," ,\t");
 								if(this_tok&&strlen(this_tok)) {
 									string this_tok_str(this_tok);
-									if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {										
+									if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {
+                                        // Toffoli_n gate: n determined from argument count
 										int this_gate[n+1];
 										this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
 										for(int i = 0; i < n; i++) this_gate[i+1] = 0;
@@ -1275,9 +1276,10 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
 											// Unknown gate
-											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
-										}										
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+										}
 									} else if(this_tok[0]=='t') {
+                                        // Toffoli_n gate: n determined from gate name
 										int toff_n = 0;
 										toff_n = atoi(this_tok+1);
 										if(toff_n>0) {
@@ -1290,7 +1292,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 													int this_q = 0;
 													for(int i = 0; (this_q==0)&&(i < n); i++) {
 														if(!qubit_strings[i].compare(this_tok)) {
-															this_q = (i+1);														
+															this_q = (i+1);
 														}
 													}
 													if(this_q>0) {
@@ -1302,16 +1304,17 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											}
 											if(q_count==toff_n) {
 												swap(this_gate[1],this_gate[toff_n]);
-												out->AddOperator(this_gate);												
+												out->AddOperator(this_gate);
 												if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 												//cout << "this_gate[0] = " << this_gate[0] << endl;
 											} else {
 												// Unknown gate
-												if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;												
+												if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 												//cout << "SQC_OPERATOR_N = " << SQC_OPERATOR_N << endl;
 											}
 										}
 									} else if((!this_tok_str.compare("Z"))||(!this_tok_str.compare("z"))) {
+									    // Z, CZ, CCZ: Gate determined from argument count
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_CCZ;
@@ -1341,10 +1344,11 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
 											// Unknown gate
-											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
 									} else if(!this_tok_str.compare("H")) {
+									    // Hadamard gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_HADAMARD;
@@ -1364,17 +1368,18 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
 											}
 										}
-										if(q_count==1) {										
+										if(q_count==1) {
 											out->AddOperator(this_gate);
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
 											// Unknown gate
-											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									} else if(!this_tok_str.compare("T")) {
+									    // T gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-										this_gate[0] = SQC_OPERATOR_T;									
+										this_gate[0] = SQC_OPERATOR_T;
 										int q_count = 0;
 										while(this_tok=strtok(NULL," ,\t")) {
 											if(strlen(this_tok)) {
@@ -1391,17 +1396,18 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
 											}
 										}
-										if(q_count==1) {										
+										if(q_count==1) {
 											out->AddOperator(this_gate);
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
 											// Unknown gate
-											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;											
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									}  else if(!this_tok_str.compare("T*")) {
+									    // T^dagger gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-										this_gate[0] = SQC_OPERATOR_T_DAG;									
+										this_gate[0] = SQC_OPERATOR_T_DAG;
 										int q_count = 0;
 										while(this_tok=strtok(NULL," ,\t")) {
 											if(strlen(this_tok)) {
@@ -1418,7 +1424,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
 											}
 										}
-										if(q_count==1) {										
+										if(q_count==1) {
 											out->AddOperator(this_gate);
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
@@ -1426,9 +1432,10 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									}  else if((!this_tok_str.compare("S"))||(!this_tok_str.compare("P"))) {
+									    // Phase gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-										this_gate[0] = SQC_OPERATOR_S;									
+										this_gate[0] = SQC_OPERATOR_S;
 										int q_count = 0;
 										while(this_tok=strtok(NULL," ,\t")) {
 											if(strlen(this_tok)) {
@@ -1453,9 +1460,10 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									} else if((!this_tok_str.compare("S*"))||(!this_tok_str.compare("P*"))) {
+									    // Phase^dagger gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
-										this_gate[0] = SQC_OPERATOR_S_DAG;									
+										this_gate[0] = SQC_OPERATOR_S_DAG;
 										int q_count = 0;
 										while(this_tok=strtok(NULL," ,\t")) {
 											if(strlen(this_tok)) {
@@ -1480,6 +1488,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									} else if(!this_tok_str.compare("X")) {
+									    // Pauli X gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_X;
@@ -1508,6 +1517,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 										}
 									}  else if(!this_tok_str.compare("Y")) {
+									    // Pauli Y gate
 										int this_gate[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_Y;
@@ -1527,7 +1537,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 												if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
 											}
 										}
-										if(q_count==1) {										
+										if(q_count==1) {
 											out->AddOperator(this_gate);
 											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
 										} else {
@@ -1551,7 +1561,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
             }
 			line_no++;
         }
-		
+
         // Search for .i line
         // Search for .o line
         // Search for .c line
@@ -1566,7 +1576,7 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 			LOut() << endl;*/
 		}
     }
-	
+
     my_file.close();
     return out;
 }
@@ -1920,13 +1930,13 @@ void SQC_Circuit::PrintOperatorDistribution(ostream* in_OS) const {
     if(in_OS) (*in_OS) << "Number of `data' qubits = " << d << endl;
     if(in_OS) (*in_OS) << "Number of `Toff_n' ancillas = " << (n-d-p_hads) << endl;
     if(in_OS) (*in_OS) << "Number of Hadamard ancillas = " << p_hads << endl;
-    if(in_OS) (*in_OS) << "Hadamard ancilla cap = ";    
+    if(in_OS) (*in_OS) << "Hadamard ancilla cap = ";
     if(in_OS) (g_Hadamard_ancillas==(-1))?((*in_OS) << "infinite"):((*in_OS) << g_Hadamard_ancillas);
     if(in_OS) (*in_OS) << endl;
     if(in_OS) (*in_OS) << "Number of {CNOT,T} partitions = " << g_out_no_partitions << endl;
     if(in_OS) (*in_OS) << "T count = " << T_Count << endl;
     if(in_OS) (*in_OS) << "Cost estimation = " << this_cost << endl;
-    
+
     if(in_OS) (*in_OS) << "\tid\tCount" << endl;
     for(int i = 0; i < SQC_OPERATOR_N; i++) {
         if(in_OS) (*in_OS) << "\t" << i << "\t" << hist[i] << endl;
@@ -1975,7 +1985,7 @@ int SQC_Circuit::TCount() const {
 						case 3:
 							T_count += 7;
 							break;
-						default:							
+						default:
 							T_count += 14*(this_nargs-3)+7;
 							break;
 					}

@@ -48,7 +48,7 @@ Signature CircuitGenerator(const string& inS) {
         int N_toff = atoi(circuit_args.c_str());
         cout << "Toffoli circuit; N_toff = " << N_toff << endl;
         out = CircuitGenerator_Toffoli(N_toff);
-    } else if(!circuit_name.compare("RandomComplex")) {
+    } /*else if(!circuit_name.compare("RandomComplex")) {
         int n;
         int this_seed = 0;
         int arg_split_pos = circuit_args.find(split_char);
@@ -65,12 +65,12 @@ Signature CircuitGenerator(const string& inS) {
         }
         cout << endl;
         out = CircuitGenerator_RandomComplex(n,this_seed);
-    }
+    }*/
 
     return out;
 }
 
-Signature CircuitGenerator_RandomComplex(int n, int in_seed) {
+/*Signature CircuitGenerator_RandomComplex(int n, int in_seed) {
     Signature out;
 
     GateStringSparse complex_GSS = GateStringSparse::randomUpTo3Qu(n, in_seed);
@@ -81,4 +81,4 @@ Signature CircuitGenerator_RandomComplex(int n, int in_seed) {
     g_indvar_out = temp_ss.str();
 
     return out;
-}
+}*/

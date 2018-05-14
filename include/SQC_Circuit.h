@@ -128,11 +128,11 @@ struct SQC_Circuit {
     bool GetPartition(SQC_Circuit* out_Hadamards, SQC_Circuit* out_CNOT_T);
     bool GetPartition(SQC_Circuit* out);
     void DecompositionVW(SQC_Circuit* out_V, SQC_Circuit* out_W) const;
-    BMSparse toGateSynthesisMatrix() const;
+    //BMSparse toGateSynthesisMatrix() const;
     void fromGateSynthesisMatrix(const BMSparse& inBMS);
 
     Matrix toMatrix() const;
-    bool NextSignature(Signature& outSig);
+    //bool NextSignature(Signature& outSig);
 
     void ReplaceOperator(SQC_Circuit* in_new_ops, int t, int n_rep=1);
     void ConvertFromToffoli();

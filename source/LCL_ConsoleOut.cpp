@@ -9,6 +9,8 @@ using namespace std;
 
 int LCL_ConsoleOut::LOut_Pad = 0;
 int dout_n = 0;
+int LCL_ConsoleOut::NErrors = 0;
+int LCL_ConsoleOut::NWarnings = 0;
 
 ostream& LCL_ConsoleOut::LOut() {
     for(int i = 0; i < LOut_Pad; i++) {
@@ -33,35 +35,37 @@ double LCL_ConsoleOut::secs(clock_t tic, clock_t toc) {
 void LCL_ConsoleOut::warning(const char* message, const char* function_name, const char* class_name) {
     LOut() << "WARNING! ";
     if(function_name||class_name) {
-        LOut() << "In `";
+        cout << "In `";
         if(class_name) {
-            LOut() << class_name;
+            cout << class_name;
             if(function_name) {
-                LOut() << "::";
+                cout << "::";
             }
         }
         if(function_name) {
-            LOut() << function_name;
+            cout << function_name;
         }
-        LOut() << "'. ";
+        cout << "'. ";
     }
-    LOut() << message << endl;
+    cout << message << endl;
+	NWarnings++;
 }
 
 void LCL_ConsoleOut::error(const char* message, const char* function_name, const char* class_name) {
     LOut() << "ERROR! ";
     if(function_name||class_name) {
-        LOut() << "In `";
+        cout << "In `";
         if(class_name) {
-            LOut() << class_name;
+            cout << class_name;
             if(function_name) {
-                LOut() << "::";
+                cout << "::";
             }
         }
         if(function_name) {
-            LOut() << function_name;
+            cout << function_name;
         }
-        LOut() << "'. ";
+        cout << "'. ";
     }
-    LOut() << message << endl;
+    cout << message << endl;
+	NErrors++;
 }

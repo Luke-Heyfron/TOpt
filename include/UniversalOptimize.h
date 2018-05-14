@@ -13,6 +13,10 @@ static SQC_Circuit convert_Y_to_XZ(const SQC_Circuit& in);
 //int N_Toffn_ancillas() const;
 static SQC_Circuit expand_Toffn_to_Toff3(const SQC_Circuit& in); // Assumes out already has enough ancillas
 
+    // 2a) (Optional) Remove all Pauli X gates (resulting circuit will be Clifford equivalent to input circuit)
+//static SQC_Circuit remove_Pauli_Xs(const SQC_Circuit& in);
+    // 2b) (Optional) Search for H CZ H patterns to rewrite as CNOT's.
+
 // 3. Convert X and Toff_3 to H, Z and CCZ
 static SQC_Circuit convert_Xs(const SQC_Circuit& in);
 //static SQC_Circuit convert_Toff3_to_HCCZH(const SQC_Circuit& in);
@@ -41,5 +45,9 @@ static void decompose_C3_to_CNOT_D3(const SQC_Circuit& in, SQC_Circuit*& CNOT, S
 // 10. Optimize each partition's diagonal circuit w.r.t. T-count and map back to circuit decomposition.
 static SQC_Circuit optimize_D3(const SQC_Circuit& in, TO_Decoder decoder);
 static SQC_Circuit TODD_optimize_D3(const SQC_Circuit& in);
+
+
+// Debugging
+static void SaveRepresentationsToFile(const SQC_Circuit& in_C, const char* in_filename);
 
 #endif // UNIVERSAL_OPTIMIZE_HEADER

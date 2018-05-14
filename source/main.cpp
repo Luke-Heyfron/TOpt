@@ -23,6 +23,7 @@ using namespace LCL_ConsoleOut;
 #include "WeightedPolynomial.h"
 #include "Utils.h"
 #include "TO_CircuitGenerators.h"
+#include "tests.h"
 
 #include <climits>
 #include <vector>
@@ -33,10 +34,9 @@ using namespace LCL_ConsoleOut;
 #include <fstream>
 #include <ctime>
 #include <utility>
+#include <climits>
 
 int main(int argc, char* argv[]) {
-    g_output_filename.clear();
-    g_csv_filename.clear();
 
     srand(time(NULL));
 
@@ -95,6 +95,14 @@ int main(int argc, char* argv[]) {
 							// csv filename
 							g_csv_filename = this_value;
 							break;
+						case 'g':
+							// algebra output
+							g_algebra_prefix = this_value;
+							break;
+                        case 'x':
+                            // Remove Pauli X's
+                            g_remove_pauli_xs = atoi(this_value.c_str());
+                            break;
                     }
                     i++;
                 }
@@ -151,7 +159,7 @@ int main(int argc, char* argv[]) {
 
                 LOut() << "Output:" << endl;
                 result.PrintOperatorDistribution();
-				
+
 				LOut() << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
 				LOut() << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
 				LOut() << "Fail count = " << g_fail_count << endl;
@@ -170,7 +178,7 @@ int main(int argc, char* argv[]) {
 					my_file << "Input circuit:" << endl;
 					my_file.close();
 					this_circuit->Save(g_output_filename.c_str(), ios_base::app);
-					my_file.open(g_output_filename.c_str(), iostream::app);					
+					my_file.open(g_output_filename.c_str(), iostream::app);
 					my_file << endl;
 
 					my_file << endl;
@@ -179,7 +187,7 @@ int main(int argc, char* argv[]) {
 					my_file.close();
 							result.Save(g_output_filename.c_str(),ios_base::app);
 					my_file.open(g_output_filename.c_str(), iostream::app);
-					
+
 
 					my_file << endl;
 
@@ -197,13 +205,13 @@ int main(int argc, char* argv[]) {
 					result.PrintOperatorDistribution(&my_file);
 
 					my_file << endl;
-					
+
 					my_file << "Output T Count (SQC_Circuit) = " << (result.TCount()) << endl;
 					my_file << "Output T Count (PhasePolynomial) = " << g_out_T_count << endl;
 					my_file << "Fail count = " << g_fail_count << endl;
 
 					my_file << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
-					
+
 					my_file.close();
                 }
 				if(!g_csv_filename.empty()) {
@@ -212,7 +220,7 @@ int main(int argc, char* argv[]) {
 						ifstream my_infile(g_csv_filename.c_str(), iostream::in);
 						if(!my_infile.good()) {
 							ofstream my_outfile(g_csv_filename.c_str(), iostream::out);
-							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,OutputTCountCheck,FailCount" << endl;
+							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,FailCount,OutputTCountCheck" << endl;
 							my_outfile.close();
 						}
 						my_infile.close();
@@ -330,9 +338,171 @@ int main(int argc, char* argv[]) {
                 GateStringSparse tempout = TODD(this_sig);
                 out.assign(tempout);
             }
-            result_analysis(this_sig,out);
+            //result_analysis(this_sig,out);
             cout << "Output phase polynomial:" << endl;
             out.print();
+        } else if(!this_command.compare("gsm")) {
+            if(argc>=3) {
+                string input_filename = argv[2];
+                LOut() << "Input filename: " << input_filename << endl;
+                GateStringSparse* gsm = GateStringSparse::LoadCSV(input_filename.c_str());
+                if(gsm) {
+                    LOut() << "Input gate synthesis matrix:" << endl;
+                    LOut_Pad++;
+                    gsm->print();
+                    LOut_Pad--;
+                    for(int i = 3; i < argc; i++) {
+                        string this_option = argv[i];
+                        if((this_option[0]=='-')&&((i+1)<argc)) {
+                            string this_value = argv[i+1];
+                            char this_option_char = this_option[1];
+                            switch(this_option_char) {
+                                case 'r':
+                                    g_Reed_Muller_max = atoi(this_value.c_str());
+                                    break;
+                                case 'a':
+                                    g_algorithm = this_value;
+                                    break;
+                                case 'f':
+                                    if((!this_value.compare("true"))||(!this_value.compare("1"))) {
+                                        g_lempel_feedback = true;
+                                    } else if((!this_value.compare("false"))||(!this_value.compare("0"))) {
+                                        g_lempel_feedback = false;
+                                    }
+                                    break;
+                                case 'o':
+                                    g_output_filename = this_value;
+                                    break;
+                                case 's':
+                                    g_lempel_selector_name = this_value;
+                                    if(!g_lempel_selector_name.compare(LEMPEL_SELECTOR_NAME::GREEDY)) {
+                                        g_lempel_selector = LempelSelector_Greedy;
+                                    } else if(!g_lempel_selector_name.compare(LEMPEL_SELECTOR_NAME::LEAST_GREEDY)) {
+                                        g_lempel_selector = LempelSelector_LeastGreedy;
+                                    } else if(!g_lempel_selector_name.compare(LEMPEL_SELECTOR_NAME::RANDOM)) {
+                                        g_lempel_selector = LempelSelector_Random;
+                                    }
+                            }
+                            i++;
+                        }
+                    }
+
+                    clock_t tic = clock();
+                    GateStringSparse* result = NULL;
+                    if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)) {
+                        GateStringSparse out = TODD(*gsm);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL(s,g_Reed_Muller_max,g_lempel_selector,g_lempel_feedback);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    }  else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_F_G)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_F_G(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_F_LG)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_F_LG(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_F_R)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_F_R(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_NF_G)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_WF_G(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_NF_LG)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_WF_LG(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL_NF_R)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = TOOL_WF_R(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::DAFT_GUESS)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = RE(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    }  else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::REED_MULLER)) {
+                        Signature s = GateSigInterface::expandGSSTerm(*gsm);
+                        GateStringSparse out = ReedMullerSynthesis(s);
+                        result = new GateStringSparse(out.get_n());
+                        result->assign(out);
+                    } else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)) {
+                        result = new GateStringSparse(gsm->get_n());
+                        result->assign(*gsm);
+                    }
+                    clock_t toc = clock();
+                    double exec_time = LCL_ConsoleOut::secs(tic,toc);
+
+                    if(result) {
+                        bool success = synthesis_success(*gsm,*result);
+
+                        int tcount_pre = gsm->weight(true);
+                        int tcount_post = result->weight(true);
+
+                        LOut() << endl << "Output gate synthesis matrix:" << endl;
+                        LOut_Pad++;
+                        result->print();
+                        LOut_Pad--;
+
+                        LOut() << "Successful? " << (success?"Yes":"No") << endl;
+                        LOut() << "T Count = " << tcount_post << endl << endl;
+
+                        if(!g_output_filename.empty()) {
+                            // Check if file setup is necessary
+                            bool setup_necessary = true;
+                            {
+                                ifstream f(g_output_filename.c_str());
+                                if(f.good()) {
+                                    setup_necessary = false;
+                                }
+                                f.close();
+                            }
+
+                            ofstream f(g_output_filename.c_str(), iostream::app);
+
+                            if(setup_necessary) {
+                                f << "A_Matrix_Name,Algorithm,T_Pre,T_Post,Time,Same_Sig" << endl;
+                            }
+
+                            f << input_filename << ",";
+                            f << g_algorithm;
+                            if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TOOL)) {
+                                f << "_" << (g_lempel_feedback?"f":"nf") << "_" << g_lempel_selector_name;
+                            }
+                            f << ",";
+                            f << tcount_pre << ",";
+                            f << tcount_post << ",";
+                            f << exec_time << ",";
+                            f << success  << endl;
+                        }
+
+                        delete result;
+                        result = NULL;
+                    }
+                } else {
+                    error("Could not load GSM file.", "gsm", "main.cpp");
+                }
+
+                if(gsm) {
+                    delete gsm;
+                    gsm = NULL;
+                }
+            } else {
+                error("Wrong argument count.","GSM","main.cpp");
+            }
+
         } else if(!this_command.compare("help")) {
             ifstream myfile("README.md");
             while(!myfile.eof()) {
@@ -343,5 +513,9 @@ int main(int argc, char* argv[]) {
             myfile.close();
         }
     }
+
+	cout << "Number of LCL errors: " << LCL_ConsoleOut::NErrors << endl;
+	cout << "Number of LCL warnings: " << LCL_ConsoleOut::NWarnings << endl;
+
     return 0;
 }

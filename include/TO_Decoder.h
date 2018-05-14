@@ -15,6 +15,7 @@ using namespace std;
 #include "LCL_Array.h"
 #include "LCL_Array_imp1.h"
 #include "LCL_Matrix_Heap_Sparse.h"
+#include "WeightedPolynomial.h"
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
@@ -24,6 +25,11 @@ using namespace std;
 
 typedef GateStringSparse (*TO_Decoder)(const Signature& in_S);
 typedef int (*LempelSelector) (const Signature& inS);
+namespace LEMPEL_SELECTOR_NAME {
+    const string GREEDY = "g";
+    const string LEAST_GREEDY = "lg";
+    const string RANDOM = "r";
+}
 
 const double update_time = 5.0;
 
@@ -42,20 +48,31 @@ extern int g_Hadamard_ancillas;
 extern double g_matrix_precision;
 extern ofstream* g_output_file;
 extern LempelSelector g_lempel_selector;
+extern string g_lempel_selector_name;
 extern int g_out_no_partitions;
 extern bool g_print_load_tfc_debug;
 extern int* g_gate_hist;
 extern int* g_qubit_hist;
 extern int g_out_T_count;
 extern int g_fail_count;
+extern string g_algebra_prefix;
+extern int g_current_partition;
+extern bool g_remove_pauli_xs;
 
 namespace SYNTHESIS_ALGORITHM_TAG {
+	const string NONE = "none";
     const string DAFT_GUESS = "re";
     const string LEMPEL_LEAST_GREEDY = "tool_l";
     const string LEMPEL_GREEDY = "tool_lg";
     const string LEMPEL_RANDOM = "tool_r";
     const string TODD = "todd";
     const string TOOL = "tool";
+    const string TOOL_F_G = "tool_f_g";
+    const string TOOL_F_LG = "tool_f_lg";
+    const string TOOL_F_R = "tool_f_r";
+    const string TOOL_NF_G = "tool_nf_g";
+    const string TOOL_NF_LG = "tool_nf_lg";
+    const string TOOL_NF_R = "tool_nf_lg";
     const string LEMPEL_X = "lx";
     const string LEMPEL_X_2 = "lx2";
     const string REED_MULLER = "rm";
@@ -63,6 +80,7 @@ namespace SYNTHESIS_ALGORITHM_TAG {
     const string ALL_LEMPEL = "all";
 }
 enum SYNTHESIS_ALGORITHM_ID {
+	NONE,
     DAFT_GUESS,
     REED_MULLER,
     LEMPEL_LEAST_GREEDY_F,
@@ -103,7 +121,9 @@ int LempelSelector_Random(const Signature& inS);
 GateStringSparse RE(const Signature& inS);
 
 void result_analysis(const Signature& inS, const GateStringSparse& inResult, ostream& inOS = cout);
+bool synthesis_success(const WeightedPolynomial& inpre, const WeightedPolynomial& inpost);
 bool synthesis_success(const Signature& inS, const GateStringSparse& inResult);
+bool synthesis_success(const GateStringSparse& inGSM, const GateStringSparse& inResult);
 bool T_fast(const GateStringSparse& inGSS);
 
 PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder = TODD);
@@ -114,5 +134,4 @@ Matrix RemoveRoundingError(const Matrix& in);
 GateStringSparse PSRMC_Lightweight_Search(const GateStringSparse& inGSS);
 GateStringSparse PSRMC_Complex_Submat(const GateStringSparse& inGSS, int n_RM=6, int col_order = 0, int n_orders = 1);
 int trapezoid_width(const BMSparse& inBMS, int height);
-
 #endif // TO_DECODER_HEADER
