@@ -4,9 +4,9 @@
 using namespace std;
 
 #include <cmath>
-#include "LCL_Mat_GF2.h"
-#include "LCL_ConsoleOut.h"
-#include "LCL_Int.h"
+#include "LCL/LCL_Mat_GF2.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
+#include "LCL/LCL_Int.h"
 using namespace LCL_ConsoleOut;
 
 bool** GateSynthesisMatrix::from_signature(bool*** S, int n, int& mp) {
@@ -133,7 +133,7 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
     bool** A_ext = LCL_Mat_GF2::construct(n_ext,m+1);
 
     bool found = 1;
-    int round = 0;	
+    int round = 0;
     while(found&&(round<m)) {
         found = 0;
         LOut(); cout << "Round = " << round << endl;

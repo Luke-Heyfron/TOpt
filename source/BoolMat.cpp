@@ -6,7 +6,7 @@ using namespace std;
 #include <cmath>
 #include <fstream>
 
-#include "LCL_Maths.h"
+#include "LCL/Modules/LCL_Maths.h"
 
 BoolMat::BoolMat() {
     n = 0;
@@ -362,7 +362,7 @@ BoolMat BoolMat::AllUniqueBinaryPerms(int n, int w) {
     if(w==0) {
         out.resize(1,n);
     } else {
-        int N = LCL_Maths::nCr(n,w);
+        int N = LCL_MathsUtils::nCr(n,w);
         out.resize(N,n);
         int i = w-1;
         int row = 0;

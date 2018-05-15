@@ -6,7 +6,7 @@ using namespace std;
 
 #include <ctime>
 #include <string>
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 #include "TO_Decoder.h"
 
@@ -116,20 +116,20 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 		if(this_Pp->p_hads>final_p_hads) final_p_hads = this_Pp->p_hads;
 
         if(this_Pp->n>final_n) final_n = this_Pp->n;
-        SQC_Circuit* this_CNOT = NULL;
-        SQC_Circuit* this_D3 = NULL;
+        /*SQC_Circuit* this_CNOT = NULL;
+        SQC_Circuit* this_D3 = NULL;*/
 
-        tic = clock();
+        /*tic = clock();
         SQC_Circuit::decompose_C3_to_CNOT_D3(*this_Pp, this_CNOT, this_D3);
         toc = clock();
-        step9_time += secs(tic,toc);
+        step9_time += secs(tic,toc);*/
 
         tic = clock();
-        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)?(g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_D3, decoder):SQC_Circuit::TODD_optimize_D3(*this_D3)):SQC_Circuit(*this_D3);
+        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)?(g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_Pp, decoder):SQC_Circuit::TODD_optimize_D3(*this_Pp)):SQC_Circuit(*this_Pp);
         // After implementing new version of optimize_D3, update final_n according to site of step10.n
-        //cout << "HGJAEEFFGFGH" << endl;
-
-		step10.simplify();
+        /*cout << "HGJAEEFFGFGH" << endl;
+        step10.Print();*/
+		//step10.simplify();
 
 		if(!g_algebra_prefix.empty()) {
 			char temp_numstr[10];
@@ -144,7 +144,7 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         step10s[p] = new SQC_Circuit(this_Pp->n,this_Pp->d,this_Pp->p_hads); // step10->n instead of this_Pp->n
         for(int i = 0; i < this_L->m; i++) step10s[p]->AddOperator(this_L->operator_list[i],this_L->n+1);
         for(int i = 0; i < step10.m; i++) step10s[p]->AddOperator(step10.operator_list[i]);
-        for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
+        //for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
         for(int i = 0; i < this_R->m; i++) step10s[p]->AddOperator(this_R->operator_list[i],this_R->n+1);
 
 
@@ -263,7 +263,7 @@ SQC_Circuit SQC_Circuit::convert_Xs(const SQC_Circuit& in) {
     for(int t = 0; t < in.m; t++) {
         int* this_op = in.operator_list[t];
         switch(this_op[0]) {
-            case SQC_OPERATOR_X:
+            /*case SQC_OPERATOR_X:
                 if(!g_remove_pauli_xs) {
                     int this_H[] = {SQC_OPERATOR_HADAMARD, this_op[1]};
                     int this_Z[] = {SQC_OPERATOR_Z, this_op[1]};
@@ -271,7 +271,7 @@ SQC_Circuit SQC_Circuit::convert_Xs(const SQC_Circuit& in) {
                     out.AddOperator(this_Z,2);
                     out.AddOperator(this_H,2);
                 }
-                break;
+                break;*/
             case SQC_OPERATOR_TOFFOLI:
                 {
                     int this_H[] = {SQC_OPERATOR_HADAMARD, this_op[1]};
@@ -486,7 +486,7 @@ SQC_Circuit SQC_Circuit::convert_Daggers(const SQC_Circuit& in) {
 }
 
 void SQC_Circuit::simplify() {
-    // Assumes gate set {Z,S,T,H,CNOT}
+    // Assumes gate set {Z,S,T,H,CNOT,X}
     bool changed = 1;
     while(changed) {
         changed = 0;
@@ -500,6 +500,7 @@ void SQC_Circuit::simplify() {
                     bool cancel_check = 0;
                     bool cancel_check_single = (this_op1[0]==SQC_OPERATOR_Z)&&(this_op2[0]==SQC_OPERATOR_Z);
                     cancel_check_single += (this_op1[0]==SQC_OPERATOR_HADAMARD)&&(this_op2[0]==SQC_OPERATOR_HADAMARD);
+                    cancel_check_single += (this_op1[0]==SQC_OPERATOR_X)&&(this_op2[0]==SQC_OPERATOR_X);
                     cancel_check_single *= (this_op1[1]==this_op2[1]);
                     bool cancel_check_CNOT = (this_op1[0]==SQC_OPERATOR_CNOT)&&(this_op2[0]==SQC_OPERATOR_CNOT);
                     cancel_check_CNOT *= (this_op1[1]==this_op2[1])&&(this_op1[2]==this_op2[2]);
@@ -514,11 +515,23 @@ void SQC_Circuit::simplify() {
                 {
                     switch(this_op1[0]) {
                         case SQC_OPERATOR_Z:
+                            {
+                                switch(this_op2[0]) {
+                                    case SQC_OPERATOR_HADAMARD:
+                                        blocked += (this_op1[1]==this_op2[1]);
+                                        break;
+                                    case SQC_OPERATOR_CNOT:
+                                        blocked += (this_op1[1]==this_op2[1]);
+                                        break;
+                                }
+                            }
+                            break;
                         case SQC_OPERATOR_S:
                         case SQC_OPERATOR_T:
                             {
                                 switch(this_op2[0]) {
                                     case SQC_OPERATOR_HADAMARD:
+                                    case SQC_OPERATOR_X:
                                         blocked += (this_op1[1]==this_op2[1]);
                                         break;
                                     case SQC_OPERATOR_CNOT:
@@ -543,6 +556,9 @@ void SQC_Circuit::simplify() {
                                         blocked += (this_op1[1]==this_op2[2]);
                                         blocked += (this_op1[2]==this_op2[1]);
                                         break;
+                                    case SQC_OPERATOR_X:
+                                        blocked += (this_op1[2]==this_op2[1]);
+                                        break;
                                 }
                             }
                             break;
@@ -552,6 +568,7 @@ void SQC_Circuit::simplify() {
                                     case SQC_OPERATOR_Z:
                                     case SQC_OPERATOR_S:
                                     case SQC_OPERATOR_T:
+                                    case SQC_OPERATOR_X:
                                         blocked += (this_op1[1]==this_op2[1]);
                                         break;
                                     case SQC_OPERATOR_CNOT:
@@ -560,6 +577,21 @@ void SQC_Circuit::simplify() {
                                         break;
                                 }
                             }
+                            break;
+                        case SQC_OPERATOR_X:
+                            {
+                                switch(this_op2[0]) {
+                                    case SQC_OPERATOR_S:
+                                    case SQC_OPERATOR_T:
+                                    case SQC_OPERATOR_HADAMARD:
+                                        blocked +=  (this_op1[1]==this_op2[1]);
+                                        break;
+                                    case SQC_OPERATOR_CNOT:
+                                        blocked += (this_op1[1]==this_op2[2]);
+                                        break;
+                                }
+                            }
+                            break;
                         default:
                             {
 
@@ -632,6 +664,7 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                     case SQC_OPERATOR_Z:
                     case SQC_OPERATOR_S:
                     case SQC_OPERATOR_T:
+                    case SQC_OPERATOR_X:
                         {
                             q_blocked[this_op[1]-1] = 1;
                         }
@@ -708,6 +741,17 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                                 }
                             }
                             break;
+                        case SQC_OPERATOR_X:
+                            {
+                                if(!(seen_hadamard[this_op[1]-1]||seen_D3[this_op[1]-1]||seen_CNOT_control[this_op[1]-1])) {
+                                    inPs[N_Ps]->AddOperator(this_op);
+                                    this_C.DeleteOperator(t);
+                                    t--;
+                                } else {
+                                    seen_CNOT_target[this_op[1]-1] = 1;
+                                }
+                            }
+                            break;
                     }
                     exit = 1;
                     for(int i = 0; i < n; i++) {
@@ -740,6 +784,7 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                 case SQC_OPERATOR_Z:
                 case SQC_OPERATOR_S:
                 case SQC_OPERATOR_T:
+                case SQC_OPERATOR_X:
                     {
                         q_blocked[this_op[1]-1] = 1;
                     }
@@ -830,6 +875,7 @@ void SQC_Circuit::Hadamards_to_Gadgets(const SQC_Circuit& in, SQC_Circuit*& outL
             case SQC_OPERATOR_T:
             case SQC_OPERATOR_T_DAG:
             case SQC_OPERATOR_CNOT:
+            case SQC_OPERATOR_X:
                 {
                     outPp->AddOperator(this_op,n+1);
                 }
@@ -865,10 +911,15 @@ void SQC_Circuit::decompose_C3_to_CNOT_D3(const SQC_Circuit& in, SQC_Circuit*& C
 
 SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) {
     int n = in.n;
-    PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
+    CTX_Circuit ctx = TO_Maps::SQC_Circuit_to_CTX_Circuit(in);
+    //PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
+    PhasePolynomial in_f(ctx.n());
+    in_f = ctx.f_x();
     PhasePolynomial out_f = FullDecoderWrapper(in_f,decoder);
+    ctx.f_x() = out_f;
 	g_out_T_count += out_f.T_count();
-    SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
+    //SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
+    SQC_Circuit out = TO_Maps::CTX_Circuit_to_SQC_Circuit(ctx);
     out.d = in.d;
     out.p_hads = in.p_hads;
     return out;
@@ -876,12 +927,22 @@ SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) 
 
 SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
     int n = in.n;
-    PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
+    CTX_Circuit ctx = TO_Maps::SQC_Circuit_to_CTX_Circuit(in);
+    //PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
+    PhasePolynomial in_f(ctx.n());
+    in_f = ctx.f_x();
+    /*cout << "in_f"<<endl;
+    in_f.print();*/
     PhasePolynomial out_f = TODDWrapper(in_f);
+    /*cout << "out_f"<<endl;
+    out_f.print();*/
+    ctx.f_x() = out_f;
 	g_out_T_count += out_f.T_count();
-    SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
+    //SQC_Circuit out = TO_Maps::PhasePolynomial_to_SQC_Circuit(out_f);
+    SQC_Circuit out = TO_Maps::CTX_Circuit_to_SQC_Circuit(ctx);
     out.d = in.d;
     out.p_hads = in.p_hads;
+    //cout << "TODD OPT END" << endl;
     return out;
 }
 

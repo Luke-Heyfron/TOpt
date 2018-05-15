@@ -12,7 +12,7 @@ using namespace std;
 #include <fstream>
 #include <sstream>
 
-#include "LCL_Int.h"
+#include "LCL/LCL_Int.h"
 
 BMSparse::BMSparse() {
     data = new BM_Data;

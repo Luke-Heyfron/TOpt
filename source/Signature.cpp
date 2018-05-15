@@ -10,10 +10,10 @@ using namespace std;
 #include <cstring>
 #include <cstdlib>
 
-#include "LCL_Bool.h"
-#include "LCL_Int.h"
+#include "LCL/LCL_Bool.h"
+#include "LCL/LCL_Int.h"
 #include "Bool_Signature.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 Signature::Signature(int in_n) {

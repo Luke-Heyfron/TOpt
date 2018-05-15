@@ -7,8 +7,8 @@ using namespace std;
 #include <unordered_set>
 #include <vector>
 
-#include "LCL_Bool.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/LCL_Bool.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 

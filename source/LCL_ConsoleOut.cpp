@@ -1,4 +1,4 @@
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 
 #include <iostream>
 using namespace std;

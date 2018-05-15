@@ -5,7 +5,7 @@ using namespace std;
 
 #include "GateStringSparse.h"
 #include "Signature.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 #include <vector>

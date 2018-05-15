@@ -1,4 +1,4 @@
-#include "LCL_Mat_GF2.h"
+#include "LCL/LCL_Mat_GF2.h"
 
 #include <iostream>
 #include <ostream>

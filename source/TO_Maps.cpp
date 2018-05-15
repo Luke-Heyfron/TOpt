@@ -9,9 +9,9 @@ using namespace std;
 #include "WeightedPolynomial.h"
 
 #include "BoolMat.h"
-#include "LCL_Bool.h"
-#include "LCL_Mat_GF2.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/LCL_Bool.h"
+#include "LCL/LCL_Mat_GF2.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in) {
@@ -531,6 +531,169 @@ Matrix TO_Maps::SQC_Circuit_to_Matrix(const SQC_Circuit& in, int in_n) {
     }
     LOut_Pad--;
     LOut() << "Conversion complete." << endl;
+
+    return out;
+}
+
+CTX_Circuit TO_Maps::SQC_Circuit_to_CTX_Circuit(const SQC_Circuit& in) {
+    // ASSUMES that `in' is a <CNOT,T^k,X> circuit
+    int n = in.n;
+    CTX_Circuit out(n);
+
+    // Allocate a matrix to represent the action of a CNOT on the c.b.s.
+    TO_Matrix r(n,n);
+    int c,d,p,q,k;
+
+    // Iterate through every gate in the input SQC_Circuit
+    for(int t = 0; t < in.m; t++) {
+        //cout << "t = " << t << endl;
+        SQC_Operator this_op = in.operator_list[t];
+
+
+
+        // Query the gate type
+        switch(this_op[0]) {
+            case SQC_OPERATOR_CNOT:
+                {
+                    // The control qubit
+                    c = (this_op[2]-1);
+
+                    // The target qubit
+                    d = (this_op[1]-1);
+
+                    // Set elements of r for this CNOT gate
+                    R(r,c,d);
+
+                    // Apply update rules for E and b
+                    out.E() = (r*out.E());
+                    out.b() = (r*out.b());
+                    //cout << "HADGA" << endl;
+                    //out.E().print();
+                }
+                break;
+            case SQC_OPERATOR_T:
+            case SQC_OPERATOR_S:
+            case SQC_OPERATOR_Z:
+            case SQC_OPERATOR_T_DAG:
+            case SQC_OPERATOR_S_DAG:
+                {
+                    p = (this_op[1]-1);
+                    vector<bool> x(n);
+                    for(int i = 0; i < n; i++) x[i] = out.E()(p,i);
+                    switch(this_op[0]) {
+                        case SQC_OPERATOR_T:
+                            k = 1;
+                            break;
+                        case SQC_OPERATOR_T_DAG:
+                            k = 7;
+                            break;
+                        case SQC_OPERATOR_S:
+                            k = 2;
+                            break;
+                        case SQC_OPERATOR_S_DAG:
+                            k = 6;
+                            break;
+                        case SQC_OPERATOR_Z:
+                            k = 4;
+                            break;
+                        default:
+                            error("Unexpected gate.", "SQC_Circuit_to_CTX_Circuit", "TO_Maps");
+                            LOut() << "Gate Index = " << this_op[0] << endl;
+                            break;
+                    }
+                    out.f_x()[x] += ((int)out.b()(p,0))?(7*k):k;
+                }
+                break;
+            case SQC_OPERATOR_X:
+                {
+                    q = (this_op[1]-1);
+                    out.b()(q,0) += F2(1);
+                }
+                break;
+            default:
+                error("Unexpected gate.", "SQC_Circuit_to_CTX_Circuit", "TO_Maps");
+                LOut() << "Gate Index = " << this_op[0] << endl;
+                break;
+        }
+        /*out.f_x().print();
+        out.E().print();
+        out.b().print();*/
+    }
+
+    return out;
+}
+
+SQC_Circuit TO_Maps::CTX_Circuit_to_SQC_Circuit(const CTX_Circuit& in) {
+    int n = in.n();
+    SQC_Circuit out(n);
+
+    SQC_Circuit D3 = TO_Maps::PhasePolynomial_to_SQC_Circuit(in.f_x());
+    SQC_Circuit CNOTs(n);
+    SQC_Circuit PauliXs(n);
+
+    // Row echelon the E matrix, adding CNOTs to CNOTs as you go
+    TO_Matrix E(n,n);
+    E = in.E();
+    TO_Matrix r(n,n);
+    /*cout << "E before start" << endl;
+    E.print();*/
+    for(int j = 0; j < E.c(); j++) {
+        // Make E(j,j) = 1
+        if((int)E(j,j)!=1) {
+            bool found = 0;
+            for(int i = (j+1); (!found)&&(i < E.r()); i++) {
+                if((int)E(i,j)==1) {
+                    found = 1;
+                    //cout << "Pivot found: Adding row " << i << " to row " << j << endl;
+                    // Perform row addition R(i,j) and add a CNOT(i,j) gate to CNOT1
+                    R(r,i,j);
+                    E = r*E;
+                    /*cout << "E = " << endl;
+                    E.print();*/
+                    int this_gate[] = {SQC_OPERATOR_CNOT,(j+1),(i+1)};
+                    CNOTs.AddOperator(this_gate,3);
+                }
+            }
+        }
+
+        // Now, make all other E(*,j) = 0
+        for(int i = 0; i < E.r(); i++) {
+            if((i!=j)&&((int)E(i,j)==1)) {
+                //cout << "Non-zero found: Adding row " << j << " to row " << i << endl;
+                // Perform row addition R(i,j) and add a CNOT(j,i) gate to CNOT1
+                R(r,j,i);
+                E = r*E;
+                /*cout << "E = " << endl;
+                E.print();*/
+                int this_gate[] = {SQC_OPERATOR_CNOT,(i+1),(j+1)};
+                CNOTs.AddOperator(this_gate,3);
+            }
+        }
+        /*cout << "E at end j = " << j << endl;
+        E.print();*/
+    }
+    /*cout << "THIS E" << endl;
+    E.print();*/
+
+    // Add a Pauli X for each non-zero element of b
+    for(int i = 0; i < n; i++) {
+        if((int)in.b()(i,0)) {
+            int this_gate[] = {SQC_OPERATOR_X, (i+1)};
+            PauliXs.AddOperator(this_gate,2);
+        }
+    }
+
+    for(int t = 0; t < D3.m; t++) {
+        out.AddOperator(D3.operator_list[t]);
+    }
+    for(int t = (CNOTs.m-1); t >= 0; t--) {
+        out.AddOperator(CNOTs.operator_list[t]);
+    }
+    for(int t = 0; t < PauliXs.m; t++) {
+        out.AddOperator(PauliXs.operator_list[t]);
+    }
+
+    out.simplify();
 
     return out;
 }

@@ -2,7 +2,7 @@
 
 #include "Complex.h"
 #include "Utils.h"
-#include "LCL_Bool.h"
+#include "LCL/LCL_Bool.h"
 
 #include <iostream>
 #include <cmath>

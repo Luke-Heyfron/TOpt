@@ -6,18 +6,18 @@ using namespace std;
 #include "GateStringSparse.h"
 #include "Signature.h"
 #include "GateSigInterface.h"
-#include "LCL_Bool.h"
+#include "LCL/LCL_Bool.h"
 #include "BMSparse.h"
 #include "Interface_BMSGSS.h"
 #include "Interface_SigBMS.h"
 #include "PhasePolynomial.h"
-#include "LCL_ConsoleOut.h"
-#include "LCL_Mat_GF2.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
+#include "LCL/LCL_Mat_GF2.h"
 #include "GateSynthesisMatrix.h"
 #include "TO_Maps.h"
 #include "WeightedPolynomial.h"
 #include "Matrix.h"
-#include "LCL_Matrix_Heap_Sparse.h"
+#include "LCL/Maths/Implementations/LCL_Matrix_Heap_Sparse_imp1.h"
 using namespace LCL_ConsoleOut;
 #include <cmath>
 #include <ctime>

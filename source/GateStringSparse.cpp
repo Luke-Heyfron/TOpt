@@ -12,11 +12,11 @@ using namespace std;
 #include <sstream>
 #include <cstring>
 
-#include "LCL_Maths.h"
-#include "LCL_Bool.h"
-#include "LCL_Int.h"
+#include "LCL/Modules/LCL_Maths.h"
+#include "LCL/LCL_Bool.h"
+#include "LCL/LCL_Int.h"
 #include "BoolMat.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 GateStringSparse::GateStringSparse(int in_n) {

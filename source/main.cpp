@@ -1,30 +1,35 @@
 #include <iostream>
 using namespace std;
 
+// TOpt Headers
+#include "TO_Maps.h"
+#include "TO_CircuitGenerators.h"
 #include "TO_Decoder.h"
+#include "TO_Matrix.h"
 #include "Signature.h"
 #include "GateStringSparse.h"
 #include "GateSigInterface.h"
-#include "LCL_Maths.h"
-#include "LCL_Bool.h"
 #include "BoolMat.h"
 #include "BMSparse.h"
 #include "Interface_SigBMS.h"
 #include "Interface_BMSGSS.h"
-#include "LCL_Int.h"
 #include "Bool_Signature.h"
-#include "LCL_Mat_GF2.h"
 #include "GateSynthesisMatrix.h"
 #include "SQC_Circuit.h"
-#include "LCL_ConsoleOut.h"
-using namespace LCL_ConsoleOut;
+#include "CTX_Circuit.h"
 #include "PhasePolynomial.h"
-#include "TO_Maps.h"
 #include "WeightedPolynomial.h"
 #include "Utils.h"
-#include "TO_CircuitGenerators.h"
-#include "tests.h"
 
+// LCL Headers
+#include "LCL/Modules/LCL_Maths.h"
+#include "LCL/LCL_Bool.h"
+#include "LCL/LCL_Int.h"
+#include "LCL/LCL_Mat_GF2.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
+using namespace LCL_ConsoleOut;
+
+// Standard Library Headers
 #include <climits>
 #include <vector>
 #include <cmath>
@@ -35,6 +40,9 @@ using namespace LCL_ConsoleOut;
 #include <ctime>
 #include <utility>
 #include <climits>
+
+// Misc. Headers
+#include "tests.h"
 
 int main(int argc, char* argv[]) {
 
