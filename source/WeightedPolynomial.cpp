@@ -138,6 +138,7 @@ int& WeightedPolynomial::operator()(int a) {
         return _l[i];
     } else {
         cout << "Error!" << endl;
+        throw "Error!";
     }
 }
 
@@ -147,6 +148,7 @@ const int& WeightedPolynomial::operator()(int a) const {
         return _l[i];
     } else {
         cout << "Error!" << endl;
+        throw "Error!";
     }
 }
 
@@ -162,6 +164,7 @@ int& WeightedPolynomial::operator()(int a, int b) {
             return _q[i][j];
         } else {
             cout << "Error!" << endl;
+            throw "Error!";
         }
     }
 }
@@ -178,6 +181,7 @@ const int& WeightedPolynomial::operator()(int a, int b) const {
             return _q[i][j];
         } else {
             cout << "Error!" << endl;
+            throw "Error!";
         }
     }
 }
@@ -199,6 +203,7 @@ int& WeightedPolynomial::operator()(int a, int b, int c) {
             return _c[i][j][k];
         } else {
             cout << "Error!" << endl;
+            throw "Error!";
         }
     }
 }
@@ -220,6 +225,7 @@ const int& WeightedPolynomial::operator()(int a, int b, int c) const {
             return _c[i][j][k];
         } else {
             cout << "Error!" << endl;
+            throw "Error!";
         }
     }
 }

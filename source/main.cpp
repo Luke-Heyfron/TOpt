@@ -381,8 +381,6 @@ int main(int argc, char* argv[]) {
 				}
             }
 
-
-
             // Delete circuits
             if(this_circuit) {
                 delete this_circuit;

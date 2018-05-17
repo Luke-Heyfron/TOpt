@@ -29,9 +29,9 @@ GateStringSparse::~GateStringSparse() {
 }
 
 int GateStringSparse::set(const vector<bool>& in_v) {
-	if(in_v.size()==n) {
+	if((int)in_v.size()==n) {
 		bool found = 0;
-		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+		for(int t = 0; (!found)&&(t<(int)data_us.size()); t++) {
 			found = 1;
 			for(int i = 0; found&&(i < n); i++) {
 				found = (data_us[t][i]==in_v[i]);
@@ -50,18 +50,21 @@ int GateStringSparse::set(const vector<bool>& in_v) {
             LOut() << "n = " << n << endl;
             LOut() << "Input key:" << endl;
             LOut();
-            for(int i = 0; i < in_v.size(); i++) cout << in_v[i];
+            for(int i = 0; i < (int)in_v.size(); i++) cout << in_v[i];
             cout << endl;
 		LOut_Pad--;
+		throw "GateStringSparse key should have length n!";
+
 	}
     //pair<unordered_set<vector<bool>>::iterator,bool> temp = data_us->insert(in_v);
     //return temp.second;
+    return 0;
 }
 
 int GateStringSparse::clear(const vector<bool>& in_v) {
-	if(in_v.size()==n) {
+	if((int)in_v.size()==n) {
 		bool found = 0;
-		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+		for(int t = 0; (!found)&&(t<(int)data_us.size()); t++) {
 			found = 1;
 			for(int i = 0; found&&(i < n); i++) {
 				found = (data_us[t][i]==in_v[i]);
@@ -76,9 +79,12 @@ int GateStringSparse::clear(const vector<bool>& in_v) {
 		}
 	} else {
 		error("GateStringSparse key should have length n!", "clear", "GateStringSparse");
+		throw "GateStringSparse key should have length n!";
+
 	}
     //unordered_set<vector<bool>>::size_type temp = data_us->erase(in_v);
     //return temp;
+    return 0;
 }
 
 /*int GateStringSparse::set(int I) {
@@ -144,7 +150,7 @@ void GateStringSparse::print(ostream& inOS) const {
         c++;
     }*/
 	for(int i = 0; i < n; i++) {
-		for(int j = 0; j < data_us.size(); j++) {
+		for(int j = 0; j < (int)data_us.size(); j++) {
 			inOS << data_us[j][i];
 		}
 		inOS << endl;
@@ -160,9 +166,9 @@ bool GateStringSparse::E(const vector<bool>& in_v) const {
     } else {
         return 1;
     }*/
-	if(in_v.size()==n) {
+	if((int)in_v.size()==n) {
 		bool found = 0;
-		for(int t = 0; (!found)&&(t<data_us.size()); t++) {
+		for(int t = 0; (!found)&&(t<(int)data_us.size()); t++) {
 			found = 1;
 			for(int i = 0; found&&(i < n); i++) {
 				found = (data_us[t][i]==in_v[i]);
@@ -176,7 +182,10 @@ bool GateStringSparse::E(const vector<bool>& in_v) const {
 		}
 	} else {
 		error("GateStringSparse key should have length n!", "E", "GateStringSparse");
+		throw "GateStringSparse key should have length n!";
+
 	}
+	return 0;
 }
 
 /*bool GateStringSparse::E(int I) const {
@@ -307,10 +316,10 @@ GateStringSparse GateStringSparse::add(const GateStringSparse& inGSS) const {
 
 	// Search both GSM's. Add columns if and only if they appear in one GSM but not the other.
 
-	for(int t1 = 0; t1 < data_us.size(); t1++) {
+	for(int t1 = 0; t1 < (int)data_us.size(); t1++) {
 		vector<bool> col1 = data_us[t1];
 		bool found = 0;
-		for(int t2 = 0; (!found)&&(t2 < inGSS.data_us.size()); t2++) {
+		for(int t2 = 0; (!found)&&(t2 < (int)inGSS.data_us.size()); t2++) {
 			vector<bool> col2 = inGSS.data_us[t2];
 			found = 1;
 			for(int i = 0; found&&(i < n); i++) {
@@ -322,10 +331,10 @@ GateStringSparse GateStringSparse::add(const GateStringSparse& inGSS) const {
         }
 	}
 
-	for(int t1 = 0; t1 < inGSS.data_us.size(); t1++) {
+	for(int t1 = 0; t1 < (int)inGSS.data_us.size(); t1++) {
 		vector<bool> col1 = inGSS.data_us[t1];
 		bool found = 0;
-		for(int t2 = 0; (!found)&&(t2 < data_us.size()); t2++) {
+		for(int t2 = 0; (!found)&&(t2 < (int)data_us.size()); t2++) {
 			vector<bool> col2 = data_us[t2];
 			found = 1;
 			for(int i = 0; found&&(i < n); i++) {
@@ -357,7 +366,7 @@ GateStringSparse GateStringSparse::add(const GateStringSparse& inGSS) const {
 }
 
 bool GateStringSparse::E(int i, int j) const {
-    if((0<=i)&&(i<data_us.size())&&(0<=j)&&(j<data_us[i].size())) {
+    if((0<=i)&&(i<(int)data_us.size())&&(0<=j)&&(j<(int)data_us[i].size())) {
         return data_us[i][j];
     } else {
         error("Index out of bounds.", "E", "GateStringSparse");
@@ -369,7 +378,7 @@ bool GateStringSparse::E(int i, int j) const {
 }
 
 bool GateStringSparse::E(int i, int j, bool v) {
-    if((0<=i)&&(i<data_us.size())&&(0<=j)&&(j<data_us[i].size())) {
+    if((0<=i)&&(i<(int)data_us.size())&&(0<=j)&&(j<(int)data_us[i].size())) {
         data_us[i][j] = v;
         return data_us[i][j];
     } else {
@@ -459,7 +468,7 @@ GateStringSparse GateStringSparse::mult2xh(const int h) const {
     }*/
 
     vector<bool> this_x(n);
-    for(int t = 0; t < data_us.size(); t++) {
+    for(int t = 0; t < (int)data_us.size(); t++) {
         this_x = data_us[t];
         int sum = 0;
         for(int i = 0; i < n; i++) sum += this_x[i];
@@ -573,7 +582,7 @@ GateStringSparse GateStringSparse::addxh(const int h) const {
     delete [] this_x;*/
 
     vector<bool> this_x(n);
-    for(int t = 0; t < data_us.size(); t++) {
+    for(int t = 0; t < (int)data_us.size(); t++) {
         int sum = 0;
         for(int i = 0; i < n; i++) sum += data_us[t][i];
         if(sum) {
@@ -612,10 +621,10 @@ GateStringSparse GateStringSparse::randomUpTo3Qu(int n, int in_seed) {
     if(in_seed>0) {
         srand(in_seed);
     }
-    int Ni = n;
-    int Njk = 0.5*n*(n-1);
-    int Nlmp = (1.0/6.0)*n*(n-1)*(n-2);
-    int NI = Ni + Njk + Nlmp;
+    //int Ni = n;
+    //int Njk = 0.5*n*(n-1);
+    //int Nlmp = (1.0/6.0)*n*(n-1)*(n-2);
+    //int NI = Ni + Njk + Nlmp;
     bool* this_x = new bool[n];
     for(int i = 0; i < n; i++) {
         bool this_coin = rand()%2;
@@ -809,8 +818,8 @@ GateStringSparse* GateStringSparse::LoadCSV(const char* in_filename) {
                         row.push_back(b);
 
                     }
-                } while(token = strtok(NULL,", \t"));
-                if(row.size()>n_cols) {
+                } while((token = strtok(NULL,", \t")));
+                if((int)row.size()>n_cols) {
                     n_cols_before = n_cols;
                     n_cols = row.size();
                     if((n_cols_before>0)&&(n_cols>n_cols_before)) {

@@ -50,7 +50,7 @@ BMSparse Interface_BMSGSS::GSSToBMS(const GateStringSparse& inGSS) {
 
     int col = 0;
     vector<vector<bool>> data = inGSS.get_data();
-    for(int j = 0; j < data.size(); j++) {
+    for(int j = 0; j < (int)data.size(); j++) {
         int sum = 0;
         for(int i = 0; i < inGSS.get_n(); i++) sum += data[j][i];
         if(sum) {

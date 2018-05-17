@@ -506,6 +506,7 @@ Complex& Matrix::operator[](int index) {
 			break;
 		default:
 			cout << "ERROR! Can not find length of a non-vector matrix" << endl;
+			throw "ERROR! Can not find length of a non-vector matrix";
 			break;
 	}
 }
@@ -520,6 +521,7 @@ Complex Matrix::operator[](int index) const {
 			break;
 		default:
 			cout << "ERROR! Can not find length of a non-vector matrix" << endl;
+			throw "ERROR! Can not find length of a non-vector matrix";
 			break;
 	}
 }

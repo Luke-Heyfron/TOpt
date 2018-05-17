@@ -152,8 +152,8 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
     bool found = 1;
     int round = 0;
     while(found&&(round<m)) {
-        //cout << "A for round " << round << ":" << endl;
-        //LCL_Mat_GF2::print(A,n,this_m);
+        cout << "A for round " << round << ":" << endl;
+        LCL_Mat_GF2::print((const bool**)A,n,this_m);
         found = 0;
         LOut(); cout << "Round = " << round << endl;
         LCL_Mat_GF2::copy((const bool**)A,n,this_m,A_ext);
@@ -210,9 +210,9 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
             }
         }
         round++;
-        //cout << "Round end" << endl;
+        cout << "Round end" << endl;
     }
-    //cout << "OUT OF LOOP" << endl;
+    cout << "OUT OF LOOP" << endl;
 
     /*LCL_Mat_GF2::print((const bool**)A,n,this_m,"A\n");
     LCL_Mat_GF2::print((const bool**)x,n,1,"x\n");
@@ -221,18 +221,18 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
     LCL_Mat_GF2::print((const bool**)xnv,n,m+1,"xnv\n");
     LCL_Mat_GF2::print((const bool**)A_xnv,n,m+1,"A_xnv\n");*/
 
-    //cout << "Destroying x" << endl;
+    cout << "Destroying x" << endl;
     LCL_Mat_GF2::destruct(x,n,1);
-    //cout << "Destroying A_ext" << endl;
+    cout << "Destroying A_ext" << endl;
     LCL_Mat_GF2::destruct(A_ext,n_ext,m+1);
-    //cout << "Destroying nv" << endl;
+    cout << "Destroying nv" << endl;
     LCL_Mat_GF2::destruct(nv,1,m+1);
-    //cout << "Destroying xnv" << endl;
+    cout << "Destroying xnv" << endl;
     LCL_Mat_GF2::destruct(xnv,n,m+1);
-    //cout << "Destroying A_xnv" << endl;
+    cout << "Destroying A_xnv" << endl;
     LCL_Mat_GF2::destruct(A_xnv,n,m+1);
     omp = this_m;
-    //cout << "END OF LEMPELX" << endl;
+    cout << "END OF LEMPELX" << endl;
 }
 
 void GateSynthesisMatrix::Chi(bool** A, bool** x, int n, int m, bool** Aext) {
@@ -295,7 +295,7 @@ void GateSynthesisMatrix::LempelX2(bool** A, int n, int m, int& omp) {
     // Provisional Anew
     bool** Anew = LCL_Mat_GF2::construct(n,m+1);
     LCL_Mat_GF2::copy((const bool**)A,n,m,Anew);
-    int m_new = m;
+    //int m_new = m;
 
     // Current best A
     bool** Abest = LCL_Mat_GF2::construct(n,m+1);

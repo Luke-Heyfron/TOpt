@@ -137,7 +137,7 @@ void PhasePolynomial::operator%=(const int in_m) {
 int PhasePolynomial::operator[](const vector<bool>& in_v) const {
 	int out = 0;
 
-	if(in_v.size()==n) {
+	if((int)in_v.size()==n) {
 		bool found = 0;
 		for(int t = 0; (!found)&&(t<T()); t++) {
 			found = 1;
@@ -202,7 +202,7 @@ int PhasePolynomial::operator[](const string in_str) const {
 }
 
 int& PhasePolynomial::operator[](const vector<bool>& in_v) {
-    if(in_v.size()==n) {
+    if((int)in_v.size()==n) {
 		bool found = 0;
 		for(int t = 0; (!found)&&(t<T()); t++) {
 			found = 1;
@@ -218,6 +218,7 @@ int& PhasePolynomial::operator[](const vector<bool>& in_v) {
 		return m.back();
 	} else {
 		error("PhasePolynomial key should have length n!", "operator[]", "PhasePolynomial");
+		throw "PhasePolynomial key should have length n!";
 	}
 }
 
@@ -247,11 +248,12 @@ int& PhasePolynomial::operator[](const bool* in_x) {
 }
 
 int& PhasePolynomial::operator[](const string in_str) {
-    int out = 0;
+    //int out = 0;
 
     error("Use of unfinished method.", "operator[]", "PhasePolynomial");
+    throw "Use of unfinished method.";
 
-    return out;
+    //return out;
 }
 
 void PhasePolynomial::clean() {

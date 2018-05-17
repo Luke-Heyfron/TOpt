@@ -52,7 +52,7 @@ bool g_remove_pauli_xs = false;
 
 GateStringSparse ReedMullerSynthesis2(const Signature& inS) {
     int n = inS.get_n();
-    int N = (int)pow(2,n);
+    //int N = (int)pow(2,n);
     GateStringSparse out(n);
 
     /*GateStringSparse daft = GateSigInterface::SigToGSS(inS);
@@ -288,6 +288,8 @@ GateStringSparse TODD(const Signature& inS) {
     BMSparse A_BMS = Interface_BMSGSS::GSSToBMS(A_GSS);
     int n = A_BMS.get_n();
     int m = A_BMS.get_m();
+    cout << "A_BMS" << endl;
+    A_BMS.print();
     bool** A_bool = LCL_Mat_GF2::construct(n,m);
     A_BMS.toBool(A_bool);
     int t;
@@ -328,53 +330,62 @@ GateStringSparse TODD(const Signature& inS) {
 }
 
 GateStringSparse TODD(const GateStringSparse& inGSM) {
-    LOut(); cout << "Gate synthesis begin." << endl;
+    if(inGSM.weight(true)) {
+        LOut(); cout << "Gate synthesis begin." << endl;
+        clock_t start = clock();
 
-    clock_t start = clock();
+        BMSparse A_BMS = Interface_BMSGSS::GSSToBMS(inGSM);
 
-    BMSparse A_BMS = Interface_BMSGSS::GSSToBMS(inGSM);
+        int n = A_BMS.get_n();
+        int m = A_BMS.get_m();
 
-    int n = A_BMS.get_n();
-    int m = A_BMS.get_m();
+        //cout << "A_BMS" << endl;
+        //A_BMS.printFull();
 
-    bool** A_bool = NULL;
-    A_bool = LCL_Mat_GF2::construct(n,m);
-    A_BMS.toBool(A_bool);
+        bool** A_bool = NULL;
+        A_bool = LCL_Mat_GF2::construct(n,m);
+        A_BMS.toBool(A_bool);
 
-    int t=-1;
-    clock_t tic = clock();
+        int t=-1;
+        clock_t tic = clock();
 
-    LOut_Pad++;
+        LOut_Pad++;
 
-    if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X))
-        GateSynthesisMatrix::LempelX(A_bool,n,m,t);
-    else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X_2))
-        GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
-    else
-        GateSynthesisMatrix::LempelX(A_bool,n,m,t);
-    //cout << "BACK IN TODD" << endl;
+        if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X))
+            GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+        else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X_2))
+            GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
+        else
+            GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
+        //cout << "BACK IN TODD" << endl;
 
-    clock_t toc = clock();
-    double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
+        clock_t toc = clock();
+        double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
 
-    BMSparse out_BMS(n,t);
+        BMSparse out_BMS(n,t);
 
-    out_BMS.fromBool((const bool**)A_bool,n,t);
+        out_BMS.fromBool((const bool**)A_bool,n,t);
 
-    GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
+        GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
 
-    //cout << "Before A_bool destruct" << endl;
-    //LCL_Mat_GF2::print((const bool**)A_bool,n,m);
-    LCL_Mat_GF2::destruct(A_bool,n,m);
-    //cout << "After A_bool destruct" << endl;
+        //cout << "Before A_bool destruct" << endl;
+        //LCL_Mat_GF2::print((const bool**)A_bool,n,m);
+        LCL_Mat_GF2::destruct(A_bool,n,m);
+        //cout << "After A_bool destruct" << endl;
 
 
-    LOut() << "TODD executed in " << exec_time << " seconds." << endl;
-    clock_t finish = clock();
-    LOut() << "Total time: " << secs(start,finish) << "s" << endl;
-    LOut_Pad--;
-    LOut() << "Gate synthesis end." << endl;
-    return out;
+        LOut() << "TODD executed in " << exec_time << " seconds." << endl;
+        clock_t finish = clock();
+        LOut() << "Total time: " << secs(start,finish) << "s" << endl;
+        LOut_Pad--;
+        LOut() << "Gate synthesis end." << endl;
+        return out;
+    } else {
+        LOut() << "Input has T-Count zero. Outputting the input." << endl;
+        GateStringSparse out(inGSM.get_n());
+        out = inGSM;
+        return out;
+    }
 }
 
 PhasePolynomial FullDecoderWrapper(const PhasePolynomial& in, TO_Decoder decoder) {
@@ -487,16 +498,16 @@ GateStringSparse TOOL(const Signature& inS, int maxRM, LempelSelector lempelSele
     int n_eff = thisSig.get_N_eff();
 
     cout << "TOOL Optimization begin." << endl;
-    clock_t start_tic = clock();
+    //clock_t start_tic = clock();
     g_h_order_stream.str("");
     while(n_eff>maxRM) {
         int h = lempelSelector(thisSig);
         string stream_contents = g_h_order_stream.str();
         if(!stream_contents.empty()) g_h_order_stream << ", ";
         g_h_order_stream << h;
-        clock_t toc = clock();
-        double perc_done = 100.0*(double)(n-n_eff)/(n-maxRM);
-        double time_remaining = (100.0-perc_done)*perc_done/((double)(toc-start_tic)/CLOCKS_PER_SEC);
+        //clock_t toc = clock();
+        //double perc_done = 100.0*(double)(n-n_eff)/(n-maxRM);
+        //double time_remaining = (100.0-perc_done)*perc_done/((double)(toc-start_tic)/CLOCKS_PER_SEC);
         Signature this_alpha, this_Ap, this_B;
         thisSig.h_decomposition(h,this_alpha,this_Ap,this_B);
         BMSparse this_Ap_BMS = Interface_SigBMS::SigToBMS(this_Ap);
@@ -667,3 +678,4 @@ GateStringSparse TOOL_F_R(const Signature &inS) {
 GateStringSparse TOOL_WF_R(const Signature &inS) {
     return TOOL(inS,g_Reed_Muller_max,LempelSelector_Random,false);
 }
+

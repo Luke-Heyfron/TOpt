@@ -234,7 +234,7 @@ PhasePolynomial TO_Maps::GateStringSparse_to_PhasePolynomial(const GateStringSpa
 
 	vector<vector<bool>> data = in.get_data();
 
-	for(int t = 0; t < data.size(); t++) {
+	for(int t = 0; t < (int)data.size(); t++) {
 		out[data[t]]=1;
 	}
 

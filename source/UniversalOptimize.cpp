@@ -104,75 +104,89 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     int final_n = in.n;
 	int final_p_hads = 0;
     for(int p = 0; p < step6_N_Ps; p++) {
-		g_current_partition = p;
-        SQC_Circuit* this_part = step6_Ps[p];
-        SQC_Circuit* this_L = NULL;
-        SQC_Circuit* this_Pp = NULL;
-        SQC_Circuit* this_R = NULL;
+        /*cout << "Partition " << p << endl;
+        cout << "H" << endl;
+        if(step6_Hs[p]) step6_Hs[p]->Print();
+        cout << "P" << endl;
+        if(step6_Ps[p]) step6_Ps[p]->Print();*/
 
-        tic = clock();
-        SQC_Circuit::Hadamards_to_Gadgets(*this_part,this_L,this_Pp,this_R);
-        toc = clock();
-        step8_time += secs(tic,toc);
+        if(step6_Ps[p]) {
+            g_current_partition = p;
+            SQC_Circuit* this_part = step6_Ps[p];
+            SQC_Circuit* this_L = NULL;
+            SQC_Circuit* this_Pp = NULL;
+            SQC_Circuit* this_R = NULL;
 
-		if(this_Pp->p_hads>final_p_hads) final_p_hads = this_Pp->p_hads;
+            tic = clock();
+            SQC_Circuit::Hadamards_to_Gadgets(*this_part,this_L,this_Pp,this_R);
+            toc = clock();
+            step8_time += secs(tic,toc);
 
-        if(this_Pp->n>final_n) final_n = this_Pp->n;
-        /*SQC_Circuit* this_CNOT = NULL;
-        SQC_Circuit* this_D3 = NULL;*/
+            if(this_L&&this_Pp&&this_R) {
+                if(this_Pp->p_hads>final_p_hads) final_p_hads = this_Pp->p_hads;
 
-        /*tic = clock();
-        SQC_Circuit::decompose_C3_to_CNOT_D3(*this_Pp, this_CNOT, this_D3);
-        toc = clock();
-        step9_time += secs(tic,toc);*/
+                if(this_Pp->n>final_n) final_n = this_Pp->n;
+                /*SQC_Circuit* this_CNOT = NULL;
+                SQC_Circuit* this_D3 = NULL;*/
 
-        tic = clock();
-        SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)?(g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_Pp, decoder):SQC_Circuit::TODD_optimize_D3(*this_Pp)):SQC_Circuit(*this_Pp);
-        // After implementing new version of optimize_D3, update final_n according to site of step10.n
-        /*cout << "HGJAEEFFGFGH" << endl;
-        step10.Print();*/
-		//step10.simplify();
+                /*tic = clock();
+                SQC_Circuit::decompose_C3_to_CNOT_D3(*this_Pp, this_CNOT, this_D3);
+                toc = clock();
+                step9_time += secs(tic,toc);*/
 
-		if(!g_algebra_prefix.empty()) {
-			char temp_numstr[10];
-			sprintf(temp_numstr,"%d",(p+1));
-			string temp_filename = g_algebra_prefix + string(temp_numstr);
-			SaveRepresentationsToFile(step10, temp_filename.c_str());
-		}
+                tic = clock();
+                SQC_Circuit step10 = g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::NONE)?(g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::TODD)?SQC_Circuit::optimize_D3(*this_Pp, decoder):SQC_Circuit::TODD_optimize_D3(*this_Pp)):SQC_Circuit(*this_Pp);
+                // After implementing new version of optimize_D3, update final_n according to site of step10.n
+                /*cout << "HGJAEEFFGFGH" << endl;
+                step10.Print();*/
+                //step10.simplify();
 
-        toc = clock();
-        step10_time += secs(tic,toc);
+                if(!g_algebra_prefix.empty()) {
+                    char temp_numstr[10];
+                    sprintf(temp_numstr,"%d",(p+1));
+                    string temp_filename = g_algebra_prefix + string(temp_numstr);
+                    SaveRepresentationsToFile(step10, temp_filename.c_str());
+                }
 
-        step10s[p] = new SQC_Circuit(this_Pp->n,this_Pp->d,this_Pp->p_hads); // step10->n instead of this_Pp->n
-        for(int i = 0; i < this_L->m; i++) step10s[p]->AddOperator(this_L->operator_list[i],this_L->n+1);
-        for(int i = 0; i < step10.m; i++) step10s[p]->AddOperator(step10.operator_list[i]);
-        //for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
-        for(int i = 0; i < this_R->m; i++) step10s[p]->AddOperator(this_R->operator_list[i],this_R->n+1);
+                toc = clock();
+                step10_time += secs(tic,toc);
 
-        // Cleanup
-        // this_L, this_Pp, this_R
-        if(this_L) {
-            delete this_L;
-            this_L = NULL;
+                step10s[p] = new SQC_Circuit(this_Pp->n,this_Pp->d,this_Pp->p_hads); // step10->n instead of this_Pp->n
+                for(int i = 0; i < this_L->m; i++) step10s[p]->AddOperator(this_L->operator_list[i],this_L->n+1);
+                for(int i = 0; i < step10.m; i++) step10s[p]->AddOperator(step10.operator_list[i]);
+                //for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
+                for(int i = 0; i < this_R->m; i++) step10s[p]->AddOperator(this_R->operator_list[i],this_R->n+1);
+
+                // Cleanup
+                // this_L, this_Pp, this_R
+                //if(this_L) {
+                    delete this_L;
+                    this_L = NULL;
+                //}
+                //if(this_Pp) {
+                    delete this_Pp;
+                    this_Pp = NULL;
+                //}
+                //if(this_R) {
+                    delete this_R;
+                    this_R = NULL;
+                //}
+            }
         }
-        if(this_Pp) {
-            delete this_Pp;
-            this_Pp = NULL;
-        }
-        if(this_R) {
-            delete this_R;
-            this_R = NULL;
-        }
+
     }
     SQC_Circuit out(final_n, in.d, final_p_hads);
 
 
     for(int p = 0; p < step6_N_Ps; p++) {
-        for(int i = 0; i < step6_Hs[p]->m; i++) out.AddOperator(step6_Hs[p]->operator_list[i],step6_Hs[p]->n+1);
-        for(int i = 0; i < step10s[p]->m; i++) out.AddOperator(step10s[p]->operator_list[i],step10s[p]->n+1);
+        if(step6_Hs[p]&&step6_Ps[p]&&step10s[p]) {
+            for(int i = 0; i < step6_Hs[p]->m; i++) out.AddOperator(step6_Hs[p]->operator_list[i],step6_Hs[p]->n+1);
+            for(int i = 0; i < step10s[p]->m; i++) out.AddOperator(step10s[p]->operator_list[i],step10s[p]->n+1);
+        }
     }
-    for(int i = 0; i < step6_Hs[step6_N_Hs-1]->m; i++) out.AddOperator(step6_Hs[step6_N_Hs-1]->operator_list[i],step6_Hs[step6_N_Hs-1]->n+1);
-
+    if(step6_Hs[step6_N_Hs-1]) {
+        for(int i = 0; i < step6_Hs[step6_N_Hs-1]->m; i++) out.AddOperator(step6_Hs[step6_N_Hs-1]->operator_list[i],step6_Hs[step6_N_Hs-1]->n+1);
+    }
 
     clock_t finish = clock();
     /*
@@ -806,7 +820,7 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                     }
                     exit = 1;
                     for(int i = 0; i < n; i++) {
-                        exit *= (seen_hadamard[i])||((seen_D3[i]||seen_CNOT_control)*seen_CNOT_target[i]);
+                        exit *= (seen_hadamard[i])||((seen_D3[i]||seen_CNOT_control[i])*seen_CNOT_target[i]);
                     }
                 }
                 N_Ps++;
@@ -961,7 +975,7 @@ void SQC_Circuit::decompose_C3_to_CNOT_D3(const SQC_Circuit& in, SQC_Circuit*& C
 }
 
 SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) {
-    int n = in.n;
+    //int n = in.n;
     CTX_Circuit ctx = TO_Maps::SQC_Circuit_to_CTX_Circuit(in);
     //PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial in_f(ctx.n());
@@ -977,7 +991,7 @@ SQC_Circuit SQC_Circuit::optimize_D3(const SQC_Circuit& in, TO_Decoder decoder) 
 }
 
 SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
-    int n = in.n;
+    //int n = in.n;
     CTX_Circuit ctx = TO_Maps::SQC_Circuit_to_CTX_Circuit(in);
     //PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial in_f(ctx.n());

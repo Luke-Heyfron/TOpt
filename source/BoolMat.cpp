@@ -63,9 +63,9 @@ bool& BoolMat::E(int i, int j, bool periodic) {
     if(n*m)
         return data[i][j];
     else {
-        bool dummy = false;
-        cout << "ERROR! Attempting to assign elements of a matrix with zero dimension." << endl;
-        return dummy;
+        //bool dummy = false;
+        throw "ERROR! Attempting to assign elements of a matrix with zero dimension.";
+        //return dummy;
     }
 }
 

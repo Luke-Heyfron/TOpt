@@ -13,3 +13,16 @@ TO_Matrix& R(TO_Matrix& mat, int c, int t, int n) {
     mat(t,c) = 1;
     return mat;
 }
+
+TO_Matrix& add_rows(TO_Matrix& A, int i_t, int i_s) {
+    for(int j = 0; j < A.c(); j++) {
+        F2 temp = (A(i_t,j) + A(i_s,j));
+        A(i_t,j) = temp;
+    }
+
+    return A;
+}
+
+/*TO_Matrix& swap_rows(TO_Matrix& A, int r1, int r2) {
+
+}*/

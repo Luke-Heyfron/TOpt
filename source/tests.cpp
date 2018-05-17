@@ -2,6 +2,29 @@
 
 #include "SQC_Circuit.h"
 
+void test_TO_Matrix(int n, int m, double p) {
+    srand(time(NULL));
+    TO_Matrix blah = generate_TO_Matrix(n,m,p);
+    TO_Matrix blee(n,m);
+    int t = 0;
+    int s = 1;
+    /*for(int i = 0; i < blah.r(); i++) {
+        for(int j = 0; j < blah.c(); j++) {
+            cout << blah(i,j);
+        }
+        cout << endl;
+    }*/
+    blah.print();
+    add_rows(blah,t,s);
+    blah.print();
+    /*for(int i = 0; i < blah.r(); i++) {
+        for(int j = 0; j < blah.c(); j++) {
+            cout << blah(i,j);
+        }
+        cout << endl;
+    }*/
+}
+
 void test_circuit(int n, int m, int d, bool v) {
     double weights[] = {40,20,5,35};
     double total_fidelity = 0.0;
@@ -30,7 +53,7 @@ void test_TO_maps() {
     SQC_Circuit* blah = SQC_Circuit::LoadTFCFile("test.tfc");
     blah->ConvertFromToffoli();
     blah->n = 3;
-    int gate[] = {SQC_OPERATOR_T,3};
+    //int gate[] = {SQC_OPERATOR_T,3};
     //blah->AddOperator(gate,2);
     blah->Print();
 
@@ -287,5 +310,15 @@ SQC_Circuit generate_SQC_Clifford_T(int n, int m, double* weights) {
         out.simplify();
     }
 
+    return out;
+}
+
+TO_Matrix generate_TO_Matrix(int n, int m, double p) {
+    TO_Matrix out(n,m);
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            out(i,j) = LCL_Utils::rand_d()<p;
+        }
+    }
     return out;
 }
