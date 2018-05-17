@@ -40,6 +40,7 @@ using namespace LCL_ConsoleOut;
 #include <ctime>
 #include <utility>
 #include <climits>
+#include <cstring>
 
 // Misc. Headers
 #include "tests.h"
@@ -116,12 +117,126 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            // Load circuit depending on filetype
-            if(!this_input_filetype.compare("sqc")) {
-                this_circuit = new SQC_Circuit();
-                this_circuit->Load(circuit_filename.c_str());
-            } else if(!this_input_filetype.compare("tfc")) {
-                this_circuit = SQC_Circuit::LoadTFCFile(circuit_filename.c_str());
+            if(circuit_filename[0]=='*') {
+                // If circuit_filename is of form "*random_<n>_<m>", generate random circuit on n qubits with m gates
+                string circuit_string = circuit_filename.substr(1);
+                char circuit_c_string[circuit_string.length()];
+                strcpy(circuit_c_string,circuit_string.c_str());
+                char* this_tok = strtok(circuit_c_string,"_");
+                if(!strcmp(this_tok,"random")) {
+                    this_tok = strtok(NULL,"_");
+                    int n = -1;
+                    if(this_tok&&strlen(this_tok)) n = atoi(this_tok);
+                    this_tok = strtok(NULL,"_");
+                    int m = -1;
+                    if(this_tok&&strlen(this_tok)) m = atoi(this_tok);
+
+                    double* weights = NULL;
+                    // The penultimate token is of the form {GATENAME1=double, GATENAME2=double,...} and allows the user to set weights. Any non-allocated weights are set to 0 by default.
+                    this_tok = strtok(NULL,"_");
+                    if(this_tok&&strlen(this_tok)) {
+                        string weights_string(this_tok);
+                        if((weights_string[0]=='{')&&(weights_string[weights_string.length()-1=='}'])) {
+                            weights = new double[SQC_OPERATOR_N];
+                            for(int i = 0; i < SQC_OPERATOR_N; i++) {
+                                weights[i] = 0.0;
+                            }
+                            weights_string = weights_string.substr(1,weights_string.length()-2);
+                            // Now tokenize each element separated by ','
+                            char weights_c_string[100];
+                            strcpy(weights_c_string,weights_string.c_str());
+                            char* this_weight = strtok(weights_c_string,",");
+                            do {
+                                string weight_string(this_weight);
+                                string gate_string = weight_string.substr(0,weight_string.find_first_of("="));
+                                double weight = atof(weight_string.substr(weight_string.find_first_of("=")+1).c_str());
+                                if(!gate_string.compare(SQC_OPSTRING_IDENTITY)) {
+                                    weights[SQC_OPERATOR_IDENTITY]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_HADAMARD)) {
+                                    weights[SQC_OPERATOR_HADAMARD]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_CNOT)) {
+                                    weights[SQC_OPERATOR_CNOT]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_T)) {
+                                    weights[SQC_OPERATOR_T]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_T_DAG)) {
+                                    weights[SQC_OPERATOR_T_DAG]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_CS)) {
+                                    weights[SQC_OPERATOR_CS]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_CS_DAG)) {
+                                    weights[SQC_OPERATOR_CS_DAG]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_CZ)) {
+                                    weights[SQC_OPERATOR_CZ]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_CCZ)) {
+                                    weights[SQC_OPERATOR_CCZ]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_S)) {
+                                    weights[SQC_OPERATOR_S]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_S_DAG)) {
+                                    weights[SQC_OPERATOR_S_DAG]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_Z)) {
+                                    weights[SQC_OPERATOR_Z]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_TOFFOLI)) {
+                                    weights[SQC_OPERATOR_TOFFOLI]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_TOFFOLI_N)) {
+                                    weights[SQC_OPERATOR_TOFFOLI_N]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_X)) {
+                                    weights[SQC_OPERATOR_X]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_Y)) {
+                                    weights[SQC_OPERATOR_Y]=weight;
+                                } else if(!gate_string.compare(SQC_OPSTRING_POST_0)) {
+                                    weights[SQC_OPERATOR_POST_0]=weight;
+                                } else if(!gate_string.compare("seed")) {
+                                    srand((unsigned int)weight);
+                                    g_random_circuit_seed = (int)weight;
+                                } else if(!gate_string.compare("all")) {
+                                    for(int i = 0; i < SQC_OPERATOR_N; i++) weights[i]=weight;
+                                } else if(!gate_string.compare("one")) {
+                                    weights[SQC_OPERATOR_X]=weight;
+                                    weights[SQC_OPERATOR_Y]=weight;
+                                    weights[SQC_OPERATOR_Z]=weight;
+                                    weights[SQC_OPERATOR_HADAMARD]=weight;
+                                    weights[SQC_OPERATOR_T]=weight;
+                                    weights[SQC_OPERATOR_T_DAG]=weight;
+                                    weights[SQC_OPERATOR_S]=weight;
+                                    weights[SQC_OPERATOR_S_DAG]=weight;
+                                } else if(!gate_string.compare("two")) {
+                                    weights[SQC_OPERATOR_CNOT]=weight;
+                                    weights[SQC_OPERATOR_CS]=weight;
+                                    weights[SQC_OPERATOR_CS_DAG]=weight;
+                                    weights[SQC_OPERATOR_CZ]=weight;
+                                } else if(!gate_string.compare("three")) {
+                                    weights[SQC_OPERATOR_TOFFOLI]=weight;
+                                    weights[SQC_OPERATOR_CCZ]=weight;
+                                }
+                            } while((this_weight=strtok(NULL,",")));
+                        }
+                    }
+                    if(weights) {
+                        double sum = 0.0;
+                        for(int i = 0; i < SQC_OPERATOR_N; i++) {
+                            sum += weights[i];
+                        }
+                        if(sum == 0.0) {
+                            error("All weights are zero!", "circuit", "main.cpp");
+                            delete [] weights;
+                            weights = NULL;
+                        }
+                    }
+                    if((n>=0)&&(m>=0)) {
+                        this_circuit = new SQC_Circuit(generate_SQC_Clifford_T(n,m,weights));
+                    }
+                    if(weights) {
+                        delete [] weights;
+                        weights = NULL;
+                    }
+                }
+            } else {
+                // Load circuit depending on filetype
+                if(!this_input_filetype.compare("sqc")) {
+                    this_circuit = new SQC_Circuit();
+                    this_circuit->Load(circuit_filename.c_str());
+                } else if(!this_input_filetype.compare("tfc")) {
+                    this_circuit = SQC_Circuit::LoadTFCFile(circuit_filename.c_str());
+                }
             }
 
             // Determine algorithm to be used
@@ -156,6 +271,7 @@ int main(int argc, char* argv[]) {
 		clock_t tic = clock();
                 SQC_Circuit result = SQC_Circuit::UniversalOptimize(*this_circuit,this_decoder);
 		clock_t toc = clock();
+                //cout << "RSHAE!!!^&^&Y%^" << endl;
 
                 LOut() << "Output circuit:" << endl;
                 result.Print();
@@ -176,8 +292,9 @@ int main(int argc, char* argv[]) {
 
 		LOut() << "Execution time: " << LCL_ConsoleOut::secs(tic,toc) << "s" << endl;
 
+                double fidelity = -1.0;
                 if(this_verify) {
-                    VerifyOptimization2(*this_circuit,result);
+                    fidelity = VerifyOptimization2(*this_circuit,result);
                 }
                 if(!g_output_filename.empty()) {
 					ofstream my_file(g_output_filename.c_str(), iostream::out);
@@ -228,7 +345,11 @@ int main(int argc, char* argv[]) {
 						ifstream my_infile(g_csv_filename.c_str(), iostream::in);
 						if(!my_infile.good()) {
 							ofstream my_outfile(g_csv_filename.c_str(), iostream::out);
-							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,FailCount,OutputTCountCheck" << endl;
+							my_outfile << "InputQCFilename,n_data_in,n_toff_in,n_had_in,T_in,AlgorithmUsed,Hcap,n_data_out,n_toff_out,n_had_out,T_out,no_Hparts,exec_time,FailCount,OutputTCountCheck";
+                            if(this_verify) {
+                                my_outfile << ",Fidelity";
+                            }
+							my_outfile << endl;
 							my_outfile.close();
 						}
 						my_infile.close();
@@ -252,7 +373,9 @@ int main(int argc, char* argv[]) {
 						my_file << g_out_no_partitions << ",";
 						my_file << LCL_ConsoleOut::secs(tic,toc) << ",";
 						my_file << g_fail_count << ",";
-						my_file << g_out_T_count << endl;
+						my_file << g_out_T_count;
+						if(this_verify) my_file << "," << fidelity;
+						my_file << endl;
 						my_file.close();
 					}
 				}

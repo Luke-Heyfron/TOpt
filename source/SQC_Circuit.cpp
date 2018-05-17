@@ -1305,6 +1305,60 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
+                                    } else if(!this_tok_str.compare("CS")) {
+									    // CNOT
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_CS;
+
+										int this_nops = 0;
+										while(this_tok = strtok(NULL," ,\t")) {
+											int this_q = 0;
+											for(int i = 0; (this_q==0)&&(i < n); i++) {
+												if(!qubit_strings[i].compare(this_tok)) {
+													this_q = (i+1);
+													this_gate[1+this_nops] = this_q;
+													this_nops++;
+												}
+											}
+											if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+										}
+										if(this_nops==2) {
+                                            swap(this_gate[1],this_gate[2]);
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
+										}
+                                    } else if(!this_tok_str.compare("CS*")) {
+									    // CNOT
+										int this_gate[n+1];
+										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
+										this_gate[0] = SQC_OPERATOR_CS_DAG;
+
+										int this_nops = 0;
+										while(this_tok = strtok(NULL," ,\t")) {
+											int this_q = 0;
+											for(int i = 0; (this_q==0)&&(i < n); i++) {
+												if(!qubit_strings[i].compare(this_tok)) {
+													this_q = (i+1);
+													this_gate[1+this_nops] = this_q;
+													this_nops++;
+												}
+											}
+											if(g_print_load_tfc_debug) g_qubit_hist[this_q]++;
+										}
+										if(this_nops==2) {
+                                            swap(this_gate[1],this_gate[2]);
+											out->AddOperator(this_gate);
+											if(g_print_load_tfc_debug) g_gate_hist[this_gate[0]]++;
+										} else {
+											// Unknown gate
+											if(g_print_load_tfc_debug) g_gate_hist[SQC_OPERATOR_N]++;
+											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
+										}
                                     } else if(this_tok[0]=='t') {
                                         // Toffoli_n gate: n determined from gate name
 										int toff_n = 0;

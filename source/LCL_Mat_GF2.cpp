@@ -9,30 +9,39 @@ using namespace std;
 
 bool** LCL_Mat_GF2::construct(int n, int m) {
     bool** out = NULL;
-    if(n) out = new bool*[n];
+    if(n>0) out = new bool*[n];
     for(int i = 0; i < n; i++) {
-        out[i] = new bool[m];
-        for(int j = 0; j < m; j++) {
-            out[i][j] = 0;
+        if(m>0) {
+            out[i] = new bool[m];
+            for(int j = 0; j < m; j++) {
+                out[i][j] = 0;
+            }
+        } else {
+            out[i] = NULL;
         }
     }
     return out;
 }
 
 void LCL_Mat_GF2::destruct(bool** A, int n, int m) {
-    for(int i = 0; i < n; i++) {
-        if(A[i]) {
-            delete [] A[i];
-            A[i] = NULL;
-        }
-    }
     if(A) {
+        //cout << "Destructing outer" << endl;
+        for(int i = 0; i < n; i++) {
+            if(A[i]) {
+                //for(int j = 0; j < m; j++) cout << A[i][j];
+                //cout << endl << "Destructing inner " << i << endl;
+                delete [] A[i];
+                A[i] = NULL;
+                //cout << "Inner destruction complete" << i << endl;
+            }
+        }
         delete [] A;
         A = NULL;
+        //cout << "Outer destruction complete" << endl;
     }
 }
 
-void LCL_Mat_GF2::copy(bool** A, int n, int m, bool** O) {
+void LCL_Mat_GF2::copy(bool const** A, int n, int m, bool** O) {
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             O[i][j] = A[i][j];
@@ -40,7 +49,7 @@ void LCL_Mat_GF2::copy(bool** A, int n, int m, bool** O) {
     }
 }
 
-void LCL_Mat_GF2::print(bool** A, int n, int m, char* pre, bool header, ostream& inOS) {
+void LCL_Mat_GF2::print(bool const** A, int n, int m, char* pre, bool header, ostream& inOS) {
     if(pre) inOS << pre;
     if(header) inOS << n << " by " << m << " matrix over GF(2):" << endl;
     else if(pre) inOS << endl;
@@ -53,7 +62,7 @@ void LCL_Mat_GF2::print(bool** A, int n, int m, char* pre, bool header, ostream&
     inOS << endl;
 }
 
-void LCL_Mat_GF2::add(bool** A, bool** B, int n, int m, bool** O) {
+void LCL_Mat_GF2::add(bool const** A, bool const** B, int n, int m, bool** O) {
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {
             O[i][j] = (A[i][j]+B[i][j])%2;
@@ -61,7 +70,7 @@ void LCL_Mat_GF2::add(bool** A, bool** B, int n, int m, bool** O) {
     }
 }
 
-void LCL_Mat_GF2::times(bool** A, bool** B, int n, int m, int p, bool** O) {
+void LCL_Mat_GF2::times(bool const** A, bool const** B, int n, int m, int p, bool** O) {
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < p; j++) {
             int sum = 0;
@@ -73,7 +82,7 @@ void LCL_Mat_GF2::times(bool** A, bool** B, int n, int m, int p, bool** O) {
     }
 }
 
-void LCL_Mat_GF2::transpose(bool** A, int n, int m, bool** O) {
+void LCL_Mat_GF2::transpose(bool const** A, int n, int m, bool** O) {
     for(int i = 0; i < n; i++) {void addrow(bool** A, int n, int m, int i_t, int i_s);
         for(int j = 0; j < m; j++) {
             O[j][i] = A[i][j];
@@ -136,14 +145,16 @@ void LCL_Mat_GF2::rowechelon(bool** A, int n, int m) {
     }
 }
 
-bool** LCL_Mat_GF2::nullspace(bool** A, int n, int m, int& out_d) {
+bool** LCL_Mat_GF2::nullspace(bool const** A, int n, int m, int& out_d) {
     bool** out = NULL;
 
-    bool** A_copy = construct(n,m);
+    bool** A_copy = NULL;
+    A_copy = construct(n,m);
     LCL_Mat_GF2::copy(A,n,m, A_copy);
     LCL_Mat_GF2::rowechelon(A_copy, n, m);
 
-    bool* S = new bool[m];
+    bool* S = NULL;
+    S = new bool[m];
     for(int i = 0; i < m; i++) S[i] = 0;
 
     int A_rank = 0;
@@ -164,8 +175,10 @@ bool** LCL_Mat_GF2::nullspace(bool** A, int n, int m, int& out_d) {
 
     int* L = NULL;
     int* F = NULL;
-    int* L_pos = new int[m];
-    int* F_pos = new int[m];
+    int* L_pos = NULL;
+    L_pos = new int[m];
+    int* F_pos = NULL;
+    F_pos = new int[m];
 
     if(d*A_rank) {
         out = LCL_Mat_GF2::construct(m,d);
@@ -210,11 +223,26 @@ bool** LCL_Mat_GF2::nullspace(bool** A, int n, int m, int& out_d) {
 
 
     LCL_Mat_GF2::destruct(A_copy,n,m);
-    delete [] S;
-    if(L) delete [] L;
-    if(F) delete [] F;
-    delete [] L_pos;
-    delete [] F_pos;
+    if(S) {
+        delete [] S;
+        S=NULL;
+    }
+    if(L) {
+        delete [] L;
+        L=NULL;
+    }
+    if(F) {
+        delete [] F;
+        F=NULL;
+    }
+    if(L_pos) {
+        delete [] L_pos;
+        L_pos = NULL;
+    }
+    if(F_pos) {
+        delete [] F_pos;
+        F_pos = NULL;
+    }
 
     out_d = d;
     return out;

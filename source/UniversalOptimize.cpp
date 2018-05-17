@@ -66,8 +66,8 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
     tic = clock();
     SQC_Circuit** step6_Hs = NULL;
     SQC_Circuit** step6_Ps = NULL;
-    int step6_N_Hs, step6_N_Ps;
-    SQC_Circuit::decompose_into_Hadamard_partitions(step5, step6_Hs, step6_N_Hs, step6_Ps, step6_N_Ps);
+    int step6_N_Hs, step6_N_Ps, step6_max_N_P;
+    SQC_Circuit::decompose_into_Hadamard_partitions(step5, step6_Hs, step6_N_Hs, step6_Ps, step6_N_Ps,step6_max_N_P);
     toc = clock();
 
     /*cout << "Pre partition" << endl;
@@ -98,7 +98,9 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 
     g_out_no_partitions = step6_N_Ps;
 
-    SQC_Circuit** step10s = new SQC_Circuit*[step6_N_Ps];
+    SQC_Circuit** step10s = NULL;
+    step10s = new SQC_Circuit*[step6_N_Ps];
+    for(int i = 0; i < step6_N_Ps; i++) step10s[i] = NULL;
     int final_n = in.n;
 	int final_p_hads = 0;
     for(int p = 0; p < step6_N_Ps; p++) {
@@ -147,15 +149,30 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
         //for(int i = 0; i < this_CNOT->m; i++) step10s[p]->AddOperator(this_CNOT->operator_list[i]);
         for(int i = 0; i < this_R->m; i++) step10s[p]->AddOperator(this_R->operator_list[i],this_R->n+1);
 
-
+        // Cleanup
+        // this_L, this_Pp, this_R
+        if(this_L) {
+            delete this_L;
+            this_L = NULL;
+        }
+        if(this_Pp) {
+            delete this_Pp;
+            this_Pp = NULL;
+        }
+        if(this_R) {
+            delete this_R;
+            this_R = NULL;
+        }
     }
     SQC_Circuit out(final_n, in.d, final_p_hads);
+
 
     for(int p = 0; p < step6_N_Ps; p++) {
         for(int i = 0; i < step6_Hs[p]->m; i++) out.AddOperator(step6_Hs[p]->operator_list[i],step6_Hs[p]->n+1);
         for(int i = 0; i < step10s[p]->m; i++) out.AddOperator(step10s[p]->operator_list[i],step10s[p]->n+1);
     }
     for(int i = 0; i < step6_Hs[step6_N_Hs-1]->m; i++) out.AddOperator(step6_Hs[step6_N_Hs-1]->operator_list[i],step6_Hs[step6_N_Hs-1]->n+1);
+
 
     clock_t finish = clock();
     /*
@@ -171,7 +188,41 @@ SQC_Circuit SQC_Circuit::UniversalOptimize(const SQC_Circuit& in, TO_Decoder dec
 
     LOut_Pad--;
 
+    // Clean up
+    // step6_Hs, step6_Ps, step_10s,
+    if(step6_Hs) {
+        for(int i = 0; i < (step6_max_N_P+1); i++) {
+            if(step6_Hs[i]) {
+                delete step6_Hs[i];
+                step6_Hs[i] = NULL;
+            }
+        }
+        delete [] step6_Hs;
+        step6_Hs = NULL;
+    }
+    if(step6_Ps) {
+        for(int i = 0; i < step6_max_N_P; i++) {
+            if(step6_Ps[i]) {
+                delete step6_Ps[i];
+                step6_Ps[i] = NULL;
+            }
+        }
+        delete [] step6_Ps;
+        step6_Ps = NULL;
+    }
+    if(step10s) {
+        for(int i = 0; i < step6_N_Ps; i++) {
+            if(step10s[i]) {
+                delete step10s[i];
+                step10s[i] = NULL;
+            }
+        }
+        delete [] step10s;
+        step10s = NULL;
+    }
+
     LOut() << "UniversalOptimize end." << endl;
+
     return out;
 }
 
@@ -604,7 +655,7 @@ void SQC_Circuit::simplify() {
     }
 }
 
-void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_Circuit**& inHs, int& N_Hs, SQC_Circuit**& inPs, int& N_Ps) {
+void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_Circuit**& inHs, int& N_Hs, SQC_Circuit**& inPs, int& N_Ps, int& max_N_P) {
     int n = in.n;
     int N_H = 0;
     N_Hs = 0;
@@ -615,10 +666,10 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
         if(this_op[0]==SQC_OPERATOR_HADAMARD) N_H++;
     }
     // Calculate maximum number of D3 partitions
-    int max_N_P = 0;
+    max_N_P = 0;
     if(g_Hadamard_ancillas>0) max_N_P = ceil((double)N_H/(double)g_Hadamard_ancillas);
-    else if(g_Hadamard_ancillas==0) max_N_P = (N_H-1);
-    if(!max_N_P) max_N_P = 1;
+    else if(g_Hadamard_ancillas==0) max_N_P = (N_H+1);
+    if(max_N_P<=0) max_N_P = 1;
 
     // Allocate arrays to store the two types of partitions
     inPs = new SQC_Circuit*[max_N_P];
@@ -931,6 +982,8 @@ SQC_Circuit SQC_Circuit::TODD_optimize_D3(const SQC_Circuit& in) {
     //PhasePolynomial in_f = TO_Maps::SQC_Circuit_to_PhasePolynomial(in);
     PhasePolynomial in_f(ctx.n());
     in_f = ctx.f_x();
+    in_f %= 8;
+    //in_f.print();
     /*cout << "in_f"<<endl;
     in_f.print();*/
     PhasePolynomial out_f = TODDWrapper(in_f);

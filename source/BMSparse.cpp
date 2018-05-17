@@ -12,6 +12,9 @@ using namespace std;
 #include <fstream>
 #include <sstream>
 
+#include "LCL/Core/LCL_ConsoleOut.h"
+using namespace LCL_ConsoleOut;
+
 #include "LCL/LCL_Int.h"
 
 BMSparse::BMSparse() {
@@ -1632,14 +1635,22 @@ void BMSparse::to_bool_array(bool* out) const {
 }
 
 void BMSparse::toBool(bool** out) const {
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j < m; j++) {
-            out[i][j] = E(i,j);
+    if(out) {
+        for(int i = 0; i < n; i++) {
+            if(out[i]) {
+                for(int j = 0; j < m; j++) {
+                    out[i][j] = E(i,j);
+                }
+            } else {
+                error("Bad output.", "toBool", "BMSparse");
+            }
         }
+    } else {
+        error("Bad output.", "toBool", "BMSparse");
     }
 }
 
-void BMSparse::fromBool(bool** in, int in_N, int in_M) {
+void BMSparse::fromBool(const bool** in, int in_N, int in_M) {
     resize(in_N, in_M);
     for(int i = 0; i < n; i++) {
         for(int j = 0; j < m; j++) {

@@ -120,7 +120,6 @@ void GateSynthesisMatrix::cleanup(bool** A, int n, int m, int& mp) {
         }
     }
     mp = non_zero_count;
-
 }
 
 void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
@@ -132,12 +131,32 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
     int n_ext = n+((n*(n-1)*(n-2))/6);
     bool** A_ext = LCL_Mat_GF2::construct(n_ext,m+1);
 
+    /*bool __x[n][1];
+    bool __nv[1][m+1];
+    bool __xnv[n][m+1];
+    bool __A_xnv[n][m+1];
+    bool __A_ext[n_ext][m+1];
+
+    bool* _x = (bool*)&__x;
+    bool* _nv = (bool*)&__nv;
+    bool* _xnv = (bool*)&__xnv;
+    bool* _A_xnv = (bool*)&__A_xnv;
+    bool* _A_ext = (bool*)&__A_ext;
+
+    bool** x = (bool**)&_x;
+    bool** nv = (bool**)&_nv;
+    bool** xnv = (bool**)&_xnv;
+    bool** A_xnv = (bool**)&_A_xnv;
+    bool** A_ext = (bool**)&_A_ext;*/
+
     bool found = 1;
     int round = 0;
     while(found&&(round<m)) {
+        //cout << "A for round " << round << ":" << endl;
+        //LCL_Mat_GF2::print(A,n,this_m);
         found = 0;
         LOut(); cout << "Round = " << round << endl;
-        LCL_Mat_GF2::copy(A,n,this_m,A_ext);
+        LCL_Mat_GF2::copy((const bool**)A,n,this_m,A_ext);
 		int col_perm[this_m]; for(int i = 0; i < this_m; i++) col_perm[i]=i;
 		LCL_Int::randperm(col_perm,this_m);
         for(int j1_ind = 0; (!found)&&(j1_ind < (this_m-1)); j1_ind++) {
@@ -158,8 +177,9 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
                         }
                     }
                 }
-                int d;
-                bool** NS = LCL_Mat_GF2::nullspace(A_ext,n_ext,this_m,d);
+                int d=-1;
+                int m_NS = this_m;
+                bool** NS = LCL_Mat_GF2::nullspace((const bool**)A_ext,n_ext,m_NS,d);
                 found = 0;
                 int nsv = -1;
                 for(int h = 0; (!found)&&(h < d); h++) {
@@ -179,26 +199,40 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
                         for(int h = 0; h < n; h++) A[h][this_m]=0;
                         this_m++;
                     }
-                    LCL_Mat_GF2::times(x,nv,n,1,this_m,xnv);
-                    LCL_Mat_GF2::add(A,xnv,n,this_m,A_xnv);
-                    LCL_Mat_GF2::copy(A_xnv,n,this_m,A);
-                    int mp;
+                    LCL_Mat_GF2::times((const bool**)x,(const bool**)nv,n,1,this_m,xnv);
+                    LCL_Mat_GF2::add((const bool**)A,(const bool**)xnv,n,this_m,A_xnv);
+                    LCL_Mat_GF2::copy((const bool**)A_xnv,n,this_m,A);
+                    int mp=-1;
                     GateSynthesisMatrix::cleanup(A,n,this_m,mp);
                     this_m = mp;
                 }
-                if(d) LCL_Mat_GF2::destruct(NS,this_m,d);
-
+                if(NS) LCL_Mat_GF2::destruct(NS,m_NS,d);
             }
         }
         round++;
+        //cout << "Round end" << endl;
     }
+    //cout << "OUT OF LOOP" << endl;
 
+    /*LCL_Mat_GF2::print((const bool**)A,n,this_m,"A\n");
+    LCL_Mat_GF2::print((const bool**)x,n,1,"x\n");
+    LCL_Mat_GF2::print((const bool**)A_ext,n_ext,m+1,"A_ext\n");
+    LCL_Mat_GF2::print((const bool**)nv,1,m+1,"nv\n");
+    LCL_Mat_GF2::print((const bool**)xnv,n,m+1,"xnv\n");
+    LCL_Mat_GF2::print((const bool**)A_xnv,n,m+1,"A_xnv\n");*/
+
+    //cout << "Destroying x" << endl;
     LCL_Mat_GF2::destruct(x,n,1);
+    //cout << "Destroying A_ext" << endl;
     LCL_Mat_GF2::destruct(A_ext,n_ext,m+1);
+    //cout << "Destroying nv" << endl;
     LCL_Mat_GF2::destruct(nv,1,m+1);
+    //cout << "Destroying xnv" << endl;
     LCL_Mat_GF2::destruct(xnv,n,m+1);
+    //cout << "Destroying A_xnv" << endl;
     LCL_Mat_GF2::destruct(A_xnv,n,m+1);
     omp = this_m;
+    //cout << "END OF LEMPELX" << endl;
 }
 
 void GateSynthesisMatrix::Chi(bool** A, bool** x, int n, int m, bool** Aext) {
@@ -260,12 +294,12 @@ void GateSynthesisMatrix::LempelX2(bool** A, int n, int m, int& omp) {
 
     // Provisional Anew
     bool** Anew = LCL_Mat_GF2::construct(n,m+1);
-    LCL_Mat_GF2::copy(A,n,m,Anew);
+    LCL_Mat_GF2::copy((const bool**)A,n,m,Anew);
     int m_new = m;
 
     // Current best A
     bool** Abest = LCL_Mat_GF2::construct(n,m+1);
-    LCL_Mat_GF2::copy(A,n,m,Abest);
+    LCL_Mat_GF2::copy((const bool**)A,n,m,Abest);
     int m_best = m;
 
     bool found = 1;
@@ -289,7 +323,7 @@ void GateSynthesisMatrix::LempelX2(bool** A, int n, int m, int& omp) {
                 GateSynthesisMatrix::Chi(A,x,n,this_m,chi_A);
                 //LCL_Mat_GF2::print(chi_A,n*n*n,this_m);
                 int d = 0;
-                bool** NS = LCL_Mat_GF2::nullspace(chi_A,n_chi_A,this_m,d);
+                bool** NS = LCL_Mat_GF2::nullspace((const bool**)chi_A,n_chi_A,this_m,d);
                 //LCL_Mat_GF2::print(NS,this_m,d,"NS: ");
                 found = 0;
                 int nsv = -1;
@@ -312,7 +346,7 @@ void GateSynthesisMatrix::LempelX2(bool** A, int n, int m, int& omp) {
                     GateSynthesisMatrix::cleanup(Anew,n,this_m,mp);
                     //this_m = mp;
                     if(mp<m_best) {
-                        LCL_Mat_GF2::copy(Anew,n,mp,Abest);
+                        LCL_Mat_GF2::copy((const bool**)Anew,n,mp,Abest);
                         m_best = mp;
                     }
                 } else {
@@ -325,7 +359,7 @@ void GateSynthesisMatrix::LempelX2(bool** A, int n, int m, int& omp) {
                 if(d) LCL_Mat_GF2::destruct(NS,this_m,d);
             }
         }
-        LCL_Mat_GF2::copy(Abest,n,m_best,A);
+        LCL_Mat_GF2::copy((const bool**)Abest,n,m_best,A);
         this_m = m_best;
         round++;
     }

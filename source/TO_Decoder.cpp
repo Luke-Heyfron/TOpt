@@ -32,7 +32,7 @@ ostringstream g_h_order_stream;
 string g_best_random_h_order_f, g_best_random_h_order_nf;
 bool g_error_report = false;
 string g_algorithm = SYNTHESIS_ALGORITHM_TAG::TODD;
-int g_random_circuit_seed = 0;
+int g_random_circuit_seed = -1;
 bool g_lempel_feedback = 1;
 int g_Reed_Muller_max = 6;
 int g_Hadamard_ancillas = -1;
@@ -297,14 +297,20 @@ GateStringSparse TODD(const Signature& inS) {
         GateSynthesisMatrix::LempelX(A_bool,n,m,t);
     else if(!g_algorithm.compare(SYNTHESIS_ALGORITHM_TAG::LEMPEL_X_2))
         GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
-    else
+    else {
+        //cout << "IN TODD" << endl;
         GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+        //cout << "BACK IN TODD" << endl;
+    }
+
     clock_t toc = clock();
     double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
     BMSparse out_BMS(n,t);
-    out_BMS.fromBool(A_bool,n,t);
+    out_BMS.fromBool((const bool**)A_bool,n,t);
     GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
+    //cout << "Destroying A_bool" << endl;
     LCL_Mat_GF2::destruct(A_bool,n,m);
+    //cout << "Destroyed A_bool" << endl;
     LOut() << "TODD executed in " << exec_time << " seconds." << endl;
     clock_t finish = clock();
     LOut() << "Total time: " << secs(start,finish) << "s" << endl;
@@ -331,10 +337,11 @@ GateStringSparse TODD(const GateStringSparse& inGSM) {
     int n = A_BMS.get_n();
     int m = A_BMS.get_m();
 
-    bool** A_bool = LCL_Mat_GF2::construct(n,m);
+    bool** A_bool = NULL;
+    A_bool = LCL_Mat_GF2::construct(n,m);
     A_BMS.toBool(A_bool);
 
-    int t;
+    int t=-1;
     clock_t tic = clock();
 
     LOut_Pad++;
@@ -345,16 +352,22 @@ GateStringSparse TODD(const GateStringSparse& inGSM) {
         GateSynthesisMatrix::LempelX2(A_bool,n,m,t);
     else
         GateSynthesisMatrix::LempelX(A_bool,n,m,t);
+    //cout << "BACK IN TODD" << endl;
 
     clock_t toc = clock();
     double exec_time = ((double)toc-(double)tic)/CLOCKS_PER_SEC;
 
     BMSparse out_BMS(n,t);
-    out_BMS.fromBool(A_bool,n,t);
+
+    out_BMS.fromBool((const bool**)A_bool,n,t);
 
     GateStringSparse out = Interface_BMSGSS::BMSToGSS(out_BMS);
 
+    //cout << "Before A_bool destruct" << endl;
+    //LCL_Mat_GF2::print((const bool**)A_bool,n,m);
     LCL_Mat_GF2::destruct(A_bool,n,m);
+    //cout << "After A_bool destruct" << endl;
+
 
     LOut() << "TODD executed in " << exec_time << " seconds." << endl;
     clock_t finish = clock();
