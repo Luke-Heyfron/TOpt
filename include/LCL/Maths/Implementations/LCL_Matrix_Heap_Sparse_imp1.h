@@ -22,6 +22,7 @@ LCL_Matrix_Heap_Sparse<T>::LCL_Matrix_Heap_Sparse(const LCL_Matrix<T>& in) {
 template <class T>
 LCL_Matrix_Heap_Sparse<T>::LCL_Matrix_Heap_Sparse(LCL_Mat_Size in_r, LCL_Mat_Size in_c) {
     this->resize(in_r, in_c);
+    this->reset();
 }
 
 template <class T>
@@ -43,7 +44,7 @@ void LCL_Matrix_Heap_Sparse<T>::copy(const LCL_Matrix_Heap_Sparse<T>& in) {
     _cleanup = in._cleanup;
     _cleanup_count = in._cleanup_count;
     _last_accessed = in._last_accessed;
-    _block_size - in._block_size;
+    _block_size = in._block_size;
     for(int i = 0; i < _N; i++) {
         get<0>(*_e[i]) = get<0>(*in._e[i]);
         get<1>(*_e[i]) = get<1>(*in._e[i]);
@@ -87,7 +88,7 @@ void LCL_Matrix_Heap_Sparse<T>::resize_storage(LCL_Mat_Size in_N) {
     int N_copied = 0;
     for(int i = 0; (i < temp._N)&&(N_copied<_N); i++) {
         // Only copy if value is non-zero
-        if(get<0>(*(temp._e[i]))!=0) {
+        if(!(get<0>(*(temp._e[i]))==T(0))) {
             get<0>(*_e[N_copied]) = get<0>(*temp._e[i]);
             get<1>(*_e[N_copied]) = get<1>(*temp._e[i]);
             N_copied++;
@@ -112,7 +113,7 @@ template <class T>
 LCL_Mat_Size LCL_Matrix_Heap_Sparse<T>::non_zero() const {
     LCL_Mat_Size out = 0;
     for(int i = 0; i < _N; i++) {
-        if(get<0>(*_e[i])!=0) out++;
+        if(!(get<0>(*_e[i])==T(0))) out++;
     }
     return out;
 }
@@ -128,7 +129,7 @@ void LCL_Matrix_Heap_Sparse<T>::cleanup() {
 // Accessors
 
 template <class T>
-const T& LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const {
+T LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const {
     LCL_Mat_Flat_Index this_I = this->Index_2D_to_Flat(i,j);
 
     return operator()(this_I);
@@ -142,20 +143,27 @@ T& LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j)
 }
 
 template <class T>
-const T& LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_Flat_Index this_I) const {
+T LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_Flat_Index this_I) const {
+    T out = T(0);
+    bool found = 0;
     if((_last_accessed>=0)&&(_last_accessed<_N)) {
         if(get<1>(*_e[_last_accessed])==this_I) {
-            return get<0>(*_e[_last_accessed]);
+            out = get<0>(*(_e[_last_accessed]));
+            found = 1;
         }
     }
 
-    for(int k = 0; k < _N; k++) {
-        int this_index = (k+_last_accessed+1)%_N;
-        if(get<1>(*_e[this_index])==this_I) {
-            return get<0>(*_e[this_index]);
+    if(!found) {
+        for(int k = 0; k < _N; k++) {
+            int this_index = (k+_last_accessed+1)%_N;
+            if(get<1>(*_e[this_index])==this_I) {
+                out = get<0>(*(_e[this_index]));
+                found = 1;
+            }
         }
     }
-    return 0;
+
+    return out;
 }
 
 template <class T>
@@ -170,7 +178,7 @@ T& LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_Flat_Index this_I) {
         }
     }
     if((_last_accessed>=0)&&(_last_accessed<_N)) {
-        if(get<0>(*_e[_last_accessed])==0) {
+        if(get<0>(*_e[_last_accessed])==T(0)) {
             get<1>(*_e[_last_accessed]) = this_I;
             return get<0>(*_e[_last_accessed]);
         }
@@ -179,7 +187,7 @@ T& LCL_Matrix_Heap_Sparse<T>::operator()(LCL_Mat_Flat_Index this_I) {
     }
     for(int k = 0; k < _N; k++) {
         int this_index = (k+_last_accessed+1)%_N;
-        if(get<0>(*_e[this_index])==0) {
+        if(get<0>(*_e[this_index])==T(0)) {
             get<1>(*_e[this_index]) = this_I;
             _last_accessed = this_I;
             return get<0>(*_e[this_index]);
@@ -228,7 +236,7 @@ LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::operator*(const T& b) const
     LCL_Matrix_Heap_Sparse<T> out(this->r(), this->c());
     for(int i = 0; i < _N; i++) {
         T this_val = get<0>(*_e[i])*b;
-        if(this_val!=0) {
+        if(this_val!=T(0)) {
             out(get<1>(*_e[i])) = this_val;
         }
     }
@@ -272,11 +280,11 @@ LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::operator+(const LCL_Matrix_
             LCL_Mat_Flat_Index this_address = get<1>(*_e[i]);
 
             // If we find a non-zero at this storage position
-            if(this_val!=0) {
+            if(!(this_val==T(0))) {
                 // Then we see if B is non-zero at that address
                 T this_B_val = B(this_address);
                 // If so, we set out at this address to this + B
-                if(this_B_val!=0) {
+                if(!(this_B_val==T(0))) {
                     out(this_address) = this_val + this_B_val;
                 }
                 // Otherwise set to just this val
@@ -290,11 +298,11 @@ LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::operator+(const LCL_Matrix_
             LCL_Mat_Flat_Index this_B_address = get<1>(*B._e[i]);
 
             // If we find a non-zero at this storage position
-            if(this_B_val!=0) {
+            if(!(this_B_val==T(0))) {
                 // Then we see if this is zero at that address
                 T this_val = operator()(this_B_address);
                 // If so, we set out at this address to B
-                if(this_val==0) {
+                if(this_val==T(0)) {
                     out(this_B_address) = this_B_val;
                 }
                 // Otherwise we have already accounted for it in previous sum
@@ -316,7 +324,7 @@ LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::operator*(const LCL_Matrix_
             T this_val = get<0>(*_e[i]);
 
             // If we find a non-zero at this storage position
-            if(this_val!=0) {
+            if(!(this_val==T(0))) {
                 LCL_Mat_Flat_Index this_address = get<1>(*_e[i]);
                 LCL_Mat_2D_Index this_i = this->Index_Flat_to_i(this_address);
                 LCL_Mat_2D_Index this_j = this->Index_Flat_to_j(this_address);
@@ -374,6 +382,15 @@ template <class T>
 LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::transpose() const {
     LCL_Matrix_Heap_Sparse<T> out(this->c(),this->r());
     LCL_Matrix<T>::transpose(out,*this);
+    return out;
+}
+
+template <class T>
+LCL_Matrix_Heap_Sparse<T> LCL_Matrix_Heap_Sparse<T>::operator||(const LCL_Matrix<T>& bottom) const {
+    LCL_Matrix_Heap_Sparse<T> out;
+
+    LCL_Matrix<T>::concatenate_vertical(out,*this,bottom);
+
     return out;
 }
 

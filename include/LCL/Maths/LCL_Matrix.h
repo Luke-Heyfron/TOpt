@@ -51,7 +51,7 @@ class LCL_Matrix {
         virtual void copy(const LCL_Matrix<T>& in);
 
         // Accessors
-        virtual const T& operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const = 0;
+        virtual T operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const = 0;
         virtual T& operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) = 0;
 
         // Assignment
@@ -105,6 +105,7 @@ class LCL_Matrix {
 
         // Composition operators
             // Left-right concat
+            static void concatenate_vertical(LCL_Matrix<T>& out, const LCL_Matrix<T>& top, const LCL_Matrix<T>& bottom);
             // Top-bottom concat
 
         // Row/column operators

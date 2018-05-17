@@ -63,7 +63,7 @@ class LCL_Matrix_Heap_Sparse : public LCL_Matrix<T> {
             Search to see if element address (i,j) is in _e, return that element.
             Otherwise, return 0;
         */
-        const T& operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const override;
+        T operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) const override;
         /**
             If element address (i,j) is in _e, return that element.
             Otherwise, if last accessed element was set to zero, set that element address to (i,j) and return it.
@@ -72,7 +72,7 @@ class LCL_Matrix_Heap_Sparse : public LCL_Matrix<T> {
             Set _last_accessed to (i,j).
         */
         T& operator()(LCL_Mat_2D_Index i, LCL_Mat_2D_Index j) override;
-        const T& operator()(LCL_Mat_Flat_Index this_I) const;
+        T operator()(LCL_Mat_Flat_Index this_I) const;
         T& operator()(LCL_Mat_Flat_Index this_I);
 
         // Assignment
@@ -95,6 +95,7 @@ class LCL_Matrix_Heap_Sparse : public LCL_Matrix<T> {
 
         // Matrix operations
         LCL_Matrix_Heap_Sparse<T> transpose() const; /// Matrix transpose
+        LCL_Matrix_Heap_Sparse<T> operator||(const LCL_Matrix<T>& bottom) const; /// Return this matrix (top) vertically concatenated with bottom.
 
         // Static element-setting procedures
         static LCL_Matrix_Heap_Sparse<T>& identity(LCL_Matrix_Heap_Sparse<T>& in, LCL_Mat_Size in_n = -1);

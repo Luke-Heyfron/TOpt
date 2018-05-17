@@ -16,6 +16,7 @@ using namespace std;
 #include "LCL/Core/Implementations/LCL_Array_imp1.h"
 #include "LCL/Maths/LCL_Matrix_Heap_Sparse.h"
 #include "WeightedPolynomial.h"
+#include "TO_Matrix.h"
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
@@ -101,6 +102,7 @@ GateStringSparse ReedMullerSynthesis2(const Signature& inS);
 //TODD synthesis functions
 GateStringSparse TODD(const Signature& inS);
 GateStringSparse TODD(const GateStringSparse& inGSM);
+TO_Matrix TODD(const TO_Matrix& gsm);
 PhasePolynomial TODDWrapper(const PhasePolynomial& in);
 
 //Main Lempel synthesis functions

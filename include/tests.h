@@ -53,6 +53,9 @@ using namespace LCL_ConsoleOut;
 Signature generate_signature(int n, int d);
 GateStringSparse generate_GSS(int n, int d);
 SQC_Circuit generate_SQC_Clifford_T(int n, int m, double* weights = NULL);
+TO_Matrix generate_TO_Matrix(int n, int m, double p);
+
+void test_TO_Matrix(int n=6, int m=20, double p=0.3);
 
 void test_circuit(int n=4, int m=10, int d=1, bool v = true);
 

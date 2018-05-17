@@ -343,7 +343,7 @@ template<class T>
 void LCL_Matrix<T>::print() const {
     for(int i = 0; i < r(); i++) {
         for(int j = 0; j < c(); j++) {
-            cout << operator()(i,j) << " ";
+            cout << (int)operator()(i,j) << " ";
         }
         cout << endl;
     }
@@ -369,14 +369,40 @@ LCL_Mat_2D_Index LCL_Matrix<T>::Index_Flat_to_j(LCL_Mat_Flat_Index in_I) const {
 
 template <class T>
 void LCL_Matrix<T>::transpose(LCL_Matrix<T>& out, const LCL_Matrix<T>& in) {
-    if((out.r()==in.c())&&(out.c()==in.r())) {
-        for(int i = 0; i < in.r(); i++) {
-            for(int j = 0; j < in.c(); j++) {
-                out(i,j)=in(j,i);
+    out.resize(in.c(),in.r());
+    out.reset();
+    for(int i = 0; i < in.r(); i++) {
+        for(int j = 0; j < in.c(); j++) {
+            out(j,i)=in(i,j);
+        }
+    }
+}
+
+template <class T>
+void LCL_Matrix<T>::concatenate_vertical(LCL_Matrix<T>& out, const LCL_Matrix<T>& top, const LCL_Matrix<T>& bottom) {
+    if(top.c()==bottom.c()) {
+        out.resize(top.r()+bottom.r(), top.c());
+        out.reset();
+        for(int j = 0; j < top.c(); j++) {
+            //cout << "j = " << j << endl;
+            //cout << "TOP" << endl;
+            for(int i = 0; i < top.r(); i++) {
+                //cout << "top i = " << i << endl;
+                out(i,j) = top(i,j);
+                //if(!(((int)out(i,j)==0)||((int)out(i,j)==1))) cout << "Bad out val top = " << (int)out(i,j) << endl;
+                //if(!(((int)top(i,j)==0)||((int)top(i,j)==1))) cout << "Bad top val = " << (int)top(i,j) << endl;
+            }
+            //cout << "BOTTOM" << endl;
+            for(int i = 0; i < bottom.r(); i++) {
+                //cout << "bottom i = " << i << endl;
+                out(i+top.r(),j) = bottom(i,j);
+                //if(((int)out(i+top.r(),j)!=0)&&((int)out(i+top.r(),j)!=1)) cout << "Bad out val bottom = " << (int)out(i+top.r(),j) << endl;
+                //if(((int)bottom(i,j)!=0)&&((int)bottom(i,j)!=1)) cout << "Bad bottom val = " << (int)bottom(i,j) << endl;
             }
         }
+
     } else {
-        error("Output dimensions must be the input dimensions swapped.", "transpose", "LCL_Matrix");
+        error("Top and bottom matrices should have same column number.", "concatenate_vertical", "LCL_Matrix");
     }
 }
 

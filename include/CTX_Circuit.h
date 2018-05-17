@@ -27,12 +27,14 @@ class CTX_Circuit {
         // Accessors
         const PhasePolynomial& f_x() const {
             if(_f_x) return (*_f_x); error("Attempt to access non-initialized object of type PhasePolynomial", "f_x", "CTX_Circuit");
+            throw "Attempt to access non-initialized object of type PhasePolynomial";
         }
         const TO_Matrix& E() const {return _E;}
         const TO_Matrix& b() const {return _b;}
 
         PhasePolynomial& f_x(){
             if(_f_x) return (*_f_x); error("Attempt to access non-initialized object of type PhasePolynomial", "f_x", "CTX_Circuit");
+            throw "Attempt to access non-initialized object of type PhasePolynomial";
         }
         TO_Matrix& E() {return _E;}
         TO_Matrix& b() {return _b;}
