@@ -33,7 +33,7 @@ static SQC_Circuit convert_Daggers(const SQC_Circuit& in);
 void simplify(); // Assumes gate set is {Z,S,T,H,CNOT} only
 
 // 7. Strip external Hadamards / 6. Partition internal circuit such that each partition contains no more than n_H Hadamards
-static void decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_Circuit**& inHs, int& N_Hs, SQC_Circuit**& inPs, int& N_Ps); // U = H_NP P_NP ... H_1 P_1 H_0. Assumes gate set {Z,S,T,H,CNOT}
+static void decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_Circuit**& inHs, int& N_Hs, SQC_Circuit**& inPs, int& N_Ps, int& max_N_P); // U = H_NP P_NP ... H_1 P_1 H_0. Assumes gate set {Z,S,T,H,CNOT}
 //int N_max_Hadamards() const;
 
 // 8. Convert internal Hadamards of each partition to external Hadamards and postselection

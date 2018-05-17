@@ -68,7 +68,7 @@ class BMSparse {
 
         void to_bool_array(bool* out) const;
         void toBool(bool** out) const;
-        void fromBool(bool** in, int in_N, int in_M);
+        void fromBool(const bool** in, int in_N, int in_M);
 
         // Begin TOptimizeRM specific methods
         void LQUPDecomposition(BMSparse& outL, BMSparse& outQ, BMSparse& outU, BMSparse& outP, const char* calledby = NULL, bool verbose = false) const;

@@ -9,7 +9,7 @@ using namespace std;
 #include "BMSparse.h"
 #include "Matrix.h"
 #include "TO_Decoder.h"
-#include "LCL_ConsoleOut.h"
+#include "LCL/Core/LCL_ConsoleOut.h"
 using namespace LCL_ConsoleOut;
 
 typedef int* SQC_Operator; // 0^th element = Operator type, rest of elements = qubit labels
@@ -36,26 +36,26 @@ enum SQC_HadamardMode {
 };
 
 enum SQC_Operator_Label {
-        SQC_OPERATOR_IDENTITY,
-        SQC_OPERATOR_X,
-        SQC_OPERATOR_Y,
-        SQC_OPERATOR_HADAMARD,
-        SQC_OPERATOR_CNOT,
-        SQC_OPERATOR_T,
-        SQC_OPERATOR_T_DAG,
-        SQC_OPERATOR_CS,
-        SQC_OPERATOR_CS_DAG,
-        SQC_OPERATOR_CZ,
-        SQC_OPERATOR_CCZ,
-        SQC_OPERATOR_S,
-        SQC_OPERATOR_S_DAG,
-        SQC_OPERATOR_Z,
-        SQC_OPERATOR_TOFFOLI,
-        SQC_OPERATOR_TOFFOLI_4,
-        SQC_OPERATOR_TOFFOLI_N,
-        SQC_OPERATOR_PARTITION,
-        SQC_OPERATOR_POST_0, // Measures a single qubit in Pauli-Z basis and post-selects +1 outcome (projects qubit onto |0>)
-        SQC_OPERATOR_N
+        SQC_OPERATOR_IDENTITY,  // 0
+        SQC_OPERATOR_X,         // 1
+        SQC_OPERATOR_Y,         // 2
+        SQC_OPERATOR_HADAMARD,  // 3
+        SQC_OPERATOR_CNOT,      // 4
+        SQC_OPERATOR_T,         // 5
+        SQC_OPERATOR_T_DAG,     // 6
+        SQC_OPERATOR_CS,        // 7
+        SQC_OPERATOR_CS_DAG,    // 8
+        SQC_OPERATOR_CZ,        // 9
+        SQC_OPERATOR_CCZ,       // 10
+        SQC_OPERATOR_S,         // 11
+        SQC_OPERATOR_S_DAG,     // 12
+        SQC_OPERATOR_Z,         // 13
+        SQC_OPERATOR_TOFFOLI,   // 14
+        SQC_OPERATOR_TOFFOLI_4, // 15
+        SQC_OPERATOR_TOFFOLI_N, // 16
+        SQC_OPERATOR_PARTITION, // 17
+        SQC_OPERATOR_POST_0,    // 18 Measures a single qubit in Pauli-Z basis and post-selects +1 outcome (projects qubit onto |0>)
+        SQC_OPERATOR_N          // 19
 
 // To add operator, update:
 //  Print, AddOperator, GetPartition

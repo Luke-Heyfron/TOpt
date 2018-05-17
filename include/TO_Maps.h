@@ -7,6 +7,7 @@
 #include "WeightedPolynomial.h"
 #include "Signature.h"
 #include "Matrix.h"
+#include "CTX_Circuit.h"
 
 namespace TO_Maps {
     // PhasePolynomial <-> SQC_Circuit
@@ -27,6 +28,10 @@ namespace TO_Maps {
 
     // SQC_Circuit -> Matrix
     Matrix SQC_Circuit_to_Matrix(const SQC_Circuit& in, int in_n = -1);
+
+    // SQC_Circuit <-> CTX_Circuit
+    CTX_Circuit SQC_Circuit_to_CTX_Circuit(const SQC_Circuit& in); /// ASSUMES that `in' is a <CNOT,T^k,X> circuit
+    SQC_Circuit CTX_Circuit_to_SQC_Circuit(const CTX_Circuit& in);
 
 }
 

@@ -1,0 +1,32 @@
+#ifndef LCL_FIELD_HEADER
+#define LCL_FIELD_HEADER
+
+#include <iostream>
+using namespace std;
+
+class LCL_Field {
+    private:
+
+    public:
+        // Assignment
+        virtual LCL_Field& operator=(const LCL_Field& b) = 0;
+        virtual LCL_Field& operator+=(const LCL_Field& b) {return ((*this)=(*this)+b);}
+        virtual LCL_Field& operator*=(const LCL_Field& b) {return ((*this)=(*this)*b);}
+        virtual LCL_Field& operator-=(const LCL_Field& b) {return ((*this)=(*this)-b);}
+        virtual LCL_Field& operator/=(const LCL_Field& b) {return ((*this)=(*this)/b);}
+
+        // Arithmetic Operators
+        virtual const LCL_Field& operator+(const LCL_Field& b) const = 0;
+        virtual const LCL_Field& operator-() const = 0;
+        virtual const LCL_Field& operator-(const LCL_Field& b) const {return (*this) + (-b);}
+        virtual const LCL_Field& operator*(const LCL_Field& b) const = 0;
+        virtual const LCL_Field& operator~() const = 0;    /// Multiplicative inverse
+        virtual const LCL_Field& operator/(const LCL_Field& b) const {return (*this) * (~b);}
+
+        // Comparison Operators
+        virtual bool operator==(const LCL_Field& b) const = 0;
+};
+
+ostream& operator<<(ostream& os, const LCL_Field& f);
+
+#endif // LCL_FIELD_HEADER
