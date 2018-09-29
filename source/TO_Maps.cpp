@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -69,7 +66,8 @@ PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in) {
             case SQC_OPERATOR_S_DAG:
                 {
                     int q = in.operator_list[t][1]-1;
-                    bool x[n];
+                    //bool x[n];
+                    bool* x = new bool[n];
                     for(int j = 0; j < n; j++) x[j] = E_mat.E(q,j);
                     int m = 0;
                     switch(in.operator_list[t][0]) {
@@ -94,6 +92,8 @@ PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial(const SQC_Circuit& in) {
 					for(int j = 0; j < n; j++) cout << x[j];
 					cout << endl;
 					cout << endl;*/
+					delete [] x;
+					x = NULL;
                 }
                 break;
             default:
@@ -144,7 +144,8 @@ PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial2(const SQC_Circuit& in) 
             case SQC_OPERATOR_S_DAG:
                 {
                     int q = in.operator_list[t][1]-1;
-                    bool x[n];
+                    //bool x[n];
+                    bool* x = new bool[n];
                     for(int j = 0; j < n; j++) x[j] = E_mat.E(q,j);
                     int m = 0;
                     switch(in.operator_list[t][0]) {
@@ -165,6 +166,8 @@ PhasePolynomial TO_Maps::SQC_Circuit_to_PhasePolynomial2(const SQC_Circuit& in) 
                             break;
                     }
                     out[x] += m;
+                    delete [] x;
+                    x = NULL;
                 }
                 break;
             default:
@@ -182,7 +185,8 @@ SQC_Circuit TO_Maps::PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in) {
     int n = in.get_n();
     SQC_Circuit out(n);
 
-    bool x[n];
+    //bool x[n];
+    bool* x = new bool[n];
     for(int t = 0; t < in.T(); t++) {
         int this_m_t = in.get_m_at(t);
         while(this_m_t<0) this_m_t += 8;
@@ -221,6 +225,9 @@ SQC_Circuit TO_Maps::PhasePolynomial_to_SQC_Circuit(const PhasePolynomial& in) {
             }
         }
     }
+
+    delete [] x;
+    x = NULL;
 
     return out;
 }
@@ -277,7 +284,8 @@ WeightedPolynomial TO_Maps::PhasePolynomial_to_WeightedPolynomial(const PhasePol
         m += this_m;
     }
     bool** A = LCL_Mat_GF2::construct(n,m);
-    bool x[n];
+    //bool x[n];
+    bool* x = new bool[n];
     int j = 0;
 
     for(int t = 0; t < in.T(); t++) {
@@ -317,6 +325,9 @@ WeightedPolynomial TO_Maps::PhasePolynomial_to_WeightedPolynomial(const PhasePol
 
     out %= 8;
 
+    delete [] x;
+    x = NULL;
+
     return out;
 }
 
@@ -325,7 +336,8 @@ PhasePolynomial TO_Maps::WeightedPolynomial_to_PhasePolynomial(const WeightedPol
     int n = in.get_n();
     PhasePolynomial out(n);
 
-    bool x[n];
+    //bool x[n];
+    bool* x = new bool[n];
 
     {
         int N_i;
@@ -394,6 +406,9 @@ PhasePolynomial TO_Maps::WeightedPolynomial_to_PhasePolynomial(const WeightedPol
 
 
     out %= 8;
+
+    delete [] x;
+    x = NULL;
 
     return out;
 }

@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -138,7 +135,8 @@ int main(int argc, char* argv[]) {
             if(circuit_filename[0]=='*') {
                 // If circuit_filename is of form "*random_<n>_<m>", generate random circuit on n qubits with m gates
                 string circuit_string = circuit_filename.substr(1);
-                char circuit_c_string[circuit_string.length()];
+                //char circuit_c_string[circuit_string.length()];
+                char* circuit_c_string = new char[circuit_string.length()];
                 strcpy(circuit_c_string,circuit_string.c_str());
                 char* this_tok = strtok(circuit_c_string,"_");
                 if(!strcmp(this_tok,"random")) {
@@ -247,6 +245,8 @@ int main(int argc, char* argv[]) {
                         weights = NULL;
                     }
                 }
+                delete [] circuit_c_string;
+                circuit_c_string = NULL;
             } else {
                 // Load circuit depending on filetype
                 if(!this_input_filetype.compare("sqc")) {

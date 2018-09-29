@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -245,7 +242,10 @@ GateStringSparse GateStringSparse::expandQuad(int in_n, int in_x1, int in_x2) {
     in_x1--;
     in_x2--;
     GateStringSparse out(in_n);
-    bool x1x2[in_n], x1[in_n], x2[in_n];
+    //bool x1x2[in_n], x1[in_n], x2[in_n];
+    bool* x1x2 = new bool[in_n];
+    bool* x1 = new bool[in_n];
+    bool* x2 = new bool[in_n];
     for(int i = 0; i < in_n; i++) {
         if((i==in_x1)||(i==in_x2)) x1x2[i] = 1;
         else x1x2[i] = 0;
@@ -259,6 +259,14 @@ GateStringSparse GateStringSparse::expandQuad(int in_n, int in_x1, int in_x2) {
     out.set(x1x2);
     out.set(x1);
     out.set(x2);
+
+    delete [] x1x2;
+    x1x2 = NULL;
+    delete [] x1;
+    x1 = NULL;
+    delete [] x2;
+    x2 = NULL;
+
     return out;
 }
 
@@ -267,7 +275,14 @@ GateStringSparse GateStringSparse::expandCube(int in_n, int in_x1, int in_x2, in
     in_x2--;
     in_x3--;
     GateStringSparse out(in_n);
-    bool x1x2x3[in_n], x1x2[in_n], x2x3[in_n], x1x3[in_n], x1[in_n], x2[in_n], x3[in_n];
+    //bool x1x2x3[in_n], x1x2[in_n], x2x3[in_n], x1x3[in_n], x1[in_n], x2[in_n], x3[in_n];
+    bool* x1x2x3 = new bool[in_n];
+    bool* x1x2 = new bool[in_n];
+    bool* x2x3 = new bool[in_n];
+    bool* x1x3 = new bool[in_n];
+    bool* x1 = new bool[in_n];
+    bool* x2 = new bool[in_n];
+    bool* x3 = new bool[in_n];
     for(int i = 0; i < in_n; i++) {
         if((i==in_x1)||(i==in_x2)||(i==in_x3)) x1x2x3[i] = 1;
         else x1x2x3[i] = 0;
@@ -297,18 +312,29 @@ GateStringSparse GateStringSparse::expandCube(int in_n, int in_x1, int in_x2, in
     out.set(x1);
     out.set(x2);
     out.set(x3);
+
+    delete [] x1x2x3; x1x2x3 = NULL;
+    delete [] x1x2; x1x2 = NULL;
+    delete [] x1x3; x1x3 = NULL;
+    delete [] x2x3; x2x3 = NULL;
+    delete [] x1; x1 = NULL;
+    delete [] x2; x2 = NULL;
+    delete [] x3; x3 = NULL;
+
     return out;
 }
 
 GateStringSparse GateStringSparse::expandLin(int in_n, int in_x1) {
     in_x1--;
     GateStringSparse out(in_n);
-    bool x1[in_n];
+    //bool x1[in_n];
+    bool* x1 = new bool[in_n];
     for(int i = 0; i < in_n; i++) {
         if(i==in_x1) x1[i] = 1;
         else x1[i] = 0;
     }
     out.set(x1);
+    delete [] x1; x1 = NULL;
     return out;
 }
 
@@ -428,7 +454,8 @@ vector<GateStringSparse*> GateStringSparse::ReedMullerGenerators(int in_r, int i
 
     for(int r = 0; r <= in_r; r++) {
         BoolMat monvec_BM = BoolMat::AllUniqueBinaryPerms(in_m, r);
-        bool this_monvec[in_m];
+        //bool this_monvec[in_m];
+        bool* this_monvec = new bool[in_m];
         for(int i = 0; i < monvec_BM.N(); i++) {
             for(int j = 0; j < in_m; j++) {
                 this_monvec[j] = monvec_BM.E(i,j);
@@ -436,8 +463,8 @@ vector<GateStringSparse*> GateStringSparse::ReedMullerGenerators(int in_r, int i
             GateStringSparse* this_monBF = new GateStringSparse(in_m);
             this_monBF->assign(GateStringSparse::MonomialBF(this_monvec,in_m));
             out.push_back(this_monBF);
-
         }
+        delete [] this_monvec; this_monvec = NULL;
     }
 	//error("Use of unimplemented function", "ReedMullerGenerators", "GateStringSparse");
 
@@ -447,18 +474,22 @@ vector<GateStringSparse*> GateStringSparse::ReedMullerGenerators(int in_r, int i
 GateStringSparse GateStringSparse::MonomialBF(bool* in_monvec, int in_m) {
     int N = pow(2,in_m);
     GateStringSparse out(in_m);
-    bool B_i[in_m];
+    //bool B_i[in_m];
+    bool* B_i = new bool[in_m];
     int r = 0;
     for(int i = 0; i < in_m; i++) r += in_monvec[i];
     for(int i = 0; i < N; i++) {
         LCL_Bool::IntToBoolVec(B_i,i,in_m);
         if(LCL_Bool::Inner(B_i,in_monvec,in_m)==r) {
-            bool x[in_m];
+            //bool x[in_m];
+            bool* x = new bool[in_m];
             LCL_Bool::IntToBoolVec(x,i,in_m);
             out.set(x);
+            delete [] x; x = NULL;
         }
     }
 	//error("Use of unimplemented function", "MonomialBF", "GateStringSparse");
+	delete [] B_i; B_i = NULL;
     return out;
 }
 
@@ -856,11 +887,13 @@ GateStringSparse* GateStringSparse::LoadCSV(const char* in_filename) {
 
         out = new GateStringSparse(n_rows);
         for(int j = 0; j < n_cols; j++) {
-            bool x[n_rows];
+            //bool x[n_rows];
+            bool* x = new bool[n_rows];
             for(int i = 0; i < n_rows; i++) {
                 x[i] = data[i][j];
             }
             out->add(x);
+            delete [] x; x = NULL;
         }
     }
 

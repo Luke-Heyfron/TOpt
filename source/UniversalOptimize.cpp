@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -725,7 +722,8 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
             bool exit = 0;
 
             // For each qubit line, we need to track whether the left-to-right search for Hadamards is blocked by a CNOT or T^n gate. To do this we store whether we have found such a gate in q_blocked.
-            bool q_blocked[n];
+            //bool q_blocked[n];
+            bool* q_blocked = new bool[n];
             for(int i = 0; i < n; i++) q_blocked[i] = 0;
 
             // Search left-to-right through circuit and exit if we reach then end or if all qubit lines are blocked
@@ -765,6 +763,8 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                 }
             }
             N_Hs++;
+            delete [] q_blocked;
+            q_blocked = NULL;
         }
         // Find next D3 partition. Similar process as for H-parts but (roughly) swapped roles for H's and {CNOT,T^k}'s.
         if(this_C.m>0) {
@@ -787,7 +787,11 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                     this_C.DeleteOperator(0);
                 }
                 bool exit = 0;
-                bool seen_hadamard[n],seen_D3[n],seen_CNOT_target[n], seen_CNOT_control[n];
+                //bool seen_hadamard[n],seen_D3[n],seen_CNOT_target[n], seen_CNOT_control[n];
+                bool* seen_hadamard = new bool[n];
+                bool* seen_D3 = new bool[n];
+                bool* seen_CNOT_target = new bool[n];
+                bool* seen_CNOT_control = new bool[n];
                 for(int i = 0; i < n; i++) seen_hadamard[i] = seen_D3[i] = seen_CNOT_target[i] = seen_CNOT_control[i] = 0;
                 for(int t = 0; (!exit)&&(t < this_C.m); t++) {
                     int* this_op = this_C.operator_list[t];
@@ -842,6 +846,14 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
                     }
                 }
                 N_Ps++;
+                delete [] seen_CNOT_control;
+                delete [] seen_CNOT_target;
+                delete [] seen_D3;
+                delete [] seen_hadamard;
+                seen_CNOT_control = NULL;
+                seen_CNOT_target = NULL;
+                seen_D3 = NULL;
+                seen_hadamard = NULL;
             }
         } else {
             final_H = 0;
@@ -851,7 +863,8 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
     if(final_H) {
         inHs[N_Hs] = new SQC_Circuit(n,in.d);
         bool exit = 0;
-        bool q_blocked[n];
+        //bool q_blocked[n];
+        bool* q_blocked = new bool[n];
         for(int i = 0; i < n; i++) q_blocked[i] = 0;
         for(int t = (inPs[N_Ps-1]->m-1); (!exit)&&(t >= 0); t--) {
             int* this_op = inPs[N_Ps-1]->operator_list[t];
@@ -885,6 +898,8 @@ void SQC_Circuit::decompose_into_Hadamard_partitions(const SQC_Circuit& in, SQC_
             }
         }
         N_Hs++;
+        delete [] q_blocked;
+        q_blocked = NULL;
     }
 }
 

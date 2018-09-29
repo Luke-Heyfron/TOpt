@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -27,6 +24,7 @@ using namespace std;
 #include <utility>
 #include <cmath>
 #include <cstdlib>
+#include <vector>
 
 #include "Signature.h"
 #include "BMSparse.h"
@@ -43,6 +41,9 @@ using namespace LCL_ConsoleOut;
 #include "Utils.h"
 using namespace Utils;
 #include "TO_Decoder.h"
+
+#define max_line 1000
+#define max_qubits 100
 
 
 SQC_Circuit::SQC_Circuit() {
@@ -1162,8 +1163,8 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
     SQC_Circuit* out = NULL;
     ifstream my_file(inFilename);
     if(my_file.good()) {
-        int max_line = 1000;
-        int max_qubits = 100;
+        //int max_line = 1000;
+        //int max_qubits = 100;
         char this_line_commented[max_line];
 
         // Search for 1st string .v <var 1> <var 2> ... <var n>
@@ -1269,7 +1270,8 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 									string this_tok_str(this_tok);
 									if((!this_tok_str.compare("t"))||(!this_tok_str.compare("tof"))) {
                                         // Toffoli_n gate: n determined from argument count
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
 										for(int i = 0; i < n; i++) this_gate[i+1] = 0;
 										int q_count = 0;
@@ -1299,9 +1301,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else if(!this_tok_str.compare("CNOT")) {
 									    // CNOT
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_CNOT;
 
@@ -1329,9 +1334,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											}
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
+										delete [] this_gate;
+										this_gate = NULL;
                                     } else if(!this_tok_str.compare("CS")) {
 									    // CNOT
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_CS;
 
@@ -1359,9 +1367,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											}
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
+										delete [] this_gate;
+										this_gate = NULL;
                                     } else if(!this_tok_str.compare("CS*")) {
 									    // CNOT
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_CS_DAG;
 
@@ -1389,12 +1400,15 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											}
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
+										delete [] this_gate;
+										this_gate = NULL;
                                     } else if(this_tok[0]=='t') {
                                         // Toffoli_n gate: n determined from gate name
 										int toff_n = 0;
 										toff_n = atoi(this_tok+1);
 										if(toff_n>0) {
-											int this_gate[n+1];
+											//int this_gate[n+1];
+											int* this_gate = new int[n+1];
 											this_gate[0] = SQC_OPERATOR_TOFFOLI_N;
 											for(int i = 0; i < n; i++) this_gate[i+1] = 0;
 											int q_count = 0;
@@ -1426,10 +1440,13 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 }
 												//cout << "SQC_OPERATOR_N = " << SQC_OPERATOR_N << endl;
 											}
+											delete [] this_gate;
+											this_gate = NULL;
 										}
 									} else if((!this_tok_str.compare("Z"))||(!this_tok_str.compare("z"))) {
 									    // Z, CZ, CCZ: Gate determined from argument count
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_CCZ;
 
@@ -1464,9 +1481,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
 											}
 											//LCL_ConsoleOut::warning("Z/CCZ not added. Wrong argument count.", "LoadTFCFile","SQC_Circuit");
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else if(!this_tok_str.compare("H")) {
 									    // Hadamard gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_HADAMARD;
 										int q_count = 0;
@@ -1495,9 +1515,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else if(!this_tok_str.compare("T")) {
 									    // T gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_T;
 										int q_count = 0;
@@ -1526,9 +1549,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									}  else if(!this_tok_str.compare("T*")) {
 									    // T^dagger gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_T_DAG;
 										int q_count = 0;
@@ -1557,9 +1583,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									}  else if((!this_tok_str.compare("S"))||(!this_tok_str.compare("P"))) {
 									    // Phase gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_S;
 										int q_count = 0;
@@ -1588,9 +1617,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else if((!this_tok_str.compare("S*"))||(!this_tok_str.compare("P*"))) {
 									    // Phase^dagger gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_S_DAG;
 										int q_count = 0;
@@ -1619,9 +1651,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else if(!this_tok_str.compare("X")) {
 									    // Pauli X gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_X;
 										int q_count = 0;
@@ -1651,9 +1686,12 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									}  else if(!this_tok_str.compare("Y")) {
 									    // Pauli Y gate
-										int this_gate[n+1];
+										//int this_gate[n+1];
+										int* this_gate = new int[n+1];
 										for(int i = 0; i < (n+1); i++) this_gate[i] = 0;
 										this_gate[0] = SQC_OPERATOR_Y;
 										int q_count = 0;
@@ -1682,6 +1720,8 @@ SQC_Circuit* SQC_Circuit::LoadTFCFile(const char* inFilename) {
                                                 LOut() << "Gate text: " << this_tok_str << endl;
 											}
 										}
+										delete [] this_gate;
+										this_gate = NULL;
 									} else {
 										// Unknown gate
 										if(g_print_load_tfc_debug) {

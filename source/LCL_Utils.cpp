@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -106,7 +103,8 @@ int LCL_Utils::factorize(int inC, int* inFactors) {
 	bool found = false;
 	int out = 0;
 	int N = (int)ceil(sqrt(inC));
-	bool guessTracker[N];
+	//bool guessTracker[N];
+	bool* guessTracker = new bool[N];
 	for(int i = 0; i < N; i++) guessTracker[i] = false;
 	while(!found&&(out<(N-3))) {
 		out++;
@@ -125,5 +123,7 @@ int LCL_Utils::factorize(int inC, int* inFactors) {
 			cout << "CLASSICAL FACTORING COMPLETE (Guess): Factors = {" << inFactors[0] << ", " << inFactors[1] << "}" << endl;
 		}
 	}
+	delete [] guessTracker;
+	guessTracker = NULL;
 	return out;
 }

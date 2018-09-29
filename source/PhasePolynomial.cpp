@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -184,13 +181,15 @@ int PhasePolynomial::operator[](const int in_I) const {
         }
     }*/
 
-	bool x[n];
+	//bool x[n];
+	bool* x = new bool[n];
 	LCL_Bool::IntToBoolVec(x,in_I,n);
 	vector<bool> v;
 	v.resize(n);
 	for(int i = 0; i < n; i++) v[i] = x[i];
 	out = operator[](v);
-
+    delete [] x;
+    x = NULL;
     return out;
 }
 
@@ -250,11 +249,14 @@ int& PhasePolynomial::operator[](const int in_I) {
     m.push_back(0);
     a.push_back(in_I);
     return m.back();*/
-	bool x[n];
+	//bool x[n];
+	bool* x = new bool[n];
 	LCL_Bool::IntToBoolVec(x,in_I,n);
 	vector<bool> v;
 	v.resize(n);
 	for(int i = 0; i < n; i++) v[i] = x[i];
+	delete [] x;
+	x = NULL;
 	return operator[](v);
 }
 

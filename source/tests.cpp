@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -97,9 +94,12 @@ void test_TO_maps() {
 void test_GSS_set_boolvec(int n, int d) {
     GateStringSparse blah(n);
     for(int i = 0; i < d; i++) {
-        bool x[n];
+        //bool x[n];
+        bool* x = new bool[n];
         for(int j = 0; j < n; j++) x[j] = Utils::rand_i(2);
         blah.set(x);
+        delete [] x;
+        x = NULL;
     }
     blah.print();
 }
@@ -222,10 +222,12 @@ SQC_Circuit generate_SQC_Clifford_T(int n, int m, double* weights) {
         SQC_OPERATOR_POST_0};
     int n_gates = SQC_OPERATOR_N;
 
-    int this_gate[n];
+    //int this_gate[n];
+    int* this_gate = new int[n];
 
     // Copy weights
-    double w[n_gates];
+    //double w[n_gates];
+    double* w = new double[n_gates];
 
     if(weights) {
         for(int i = 0; i < n_gates; i++) {
@@ -327,6 +329,12 @@ SQC_Circuit generate_SQC_Clifford_T(int n, int m, double* weights) {
         }
         out.simplify();
     }
+
+    delete [] this_gate;
+    this_gate = NULL;
+
+    delete [] w;
+    w = NULL;
 
     return out;
 }

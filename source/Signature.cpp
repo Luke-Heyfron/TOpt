@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -479,13 +476,16 @@ Signature Signature::SigFromFile(const char* inFilename) {
             myfile.getline(filetext[linecount],linewidth);
             if((!myfile.eof())&&(strlen(filetext[linecount]))) {
                 char* thistok = NULL;
-                char temp[linewidth];
+                //char temp[linewidth];
+                char* temp = new char[linewidth];
                 strcpy(temp,filetext[linecount]);
                 thistok = strtok(temp," ");
                 if(!strcmp(thistok,"n")) {
                     thistok = strtok(NULL," ");
                     this_n = atoi(thistok);
                 }
+                delete [] temp;
+                temp = NULL;
             }
             linecount++;
         }
@@ -499,7 +499,8 @@ Signature Signature::SigFromFile(const char* inFilename) {
             for(int i = 0; i < linecount; i++) {
                 if(strlen(filetext[i])>0) {
                     char* thistok = NULL;
-                    char temp[linewidth];
+                    //char temp[linewidth];
+                    char* temp = new char[linewidth];
                     strcpy(temp,filetext[i]);
                     thistok = strtok(temp," ");
                     if(!strcmp(thistok,"a")) {
@@ -521,6 +522,8 @@ Signature Signature::SigFromFile(const char* inFilename) {
                         int this_p = atoi(thistok);
                         out.set(this_l,this_m,this_p);
                     }
+                    delete [] temp;
+                    temp = NULL;
                 }
             }
         }

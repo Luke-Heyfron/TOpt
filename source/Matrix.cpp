@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -741,12 +738,14 @@ Matrix Matrix::CNOT(int Nbit, int cbit, int obit) {
 	Matrix out(N,N);
 	Matrix tempCNOT = Matrix::CNOT();
 	for(int i = 0; i < N; i++) {
-		bool binRows[Nbit];
+		//bool binRows[Nbit];
+		bool* binRows = new bool[Nbit];
 		for(int k = 0; k < Nbit; k++) {
 			binRows[k] = Utils::Bn(i,k);
 		}
 		for(int j = 0; j < N; j++) {
-			bool binCols[Nbit];
+			//bool binCols[Nbit];
+			bool* binCols = new bool[Nbit];
 			for(int k = 0; k < Nbit; k++) {
 				binCols[k] = Utils::Bn(j,k);
 			}
@@ -757,7 +756,11 @@ Matrix Matrix::CNOT(int Nbit, int cbit, int obit) {
 				}
 			}
 			out.E(i, j, thisE);
+            delete [] binCols;
+            binCols = NULL;
 		}
+		delete [] binRows;
+		binRows = NULL;
 	}
 	return out;
 }
@@ -855,7 +858,8 @@ Matrix Matrix::CNOT(int Nbit, int* quargs, int nargs) {
 
     // First translate into t_ind and c_vec
     int t_ind = quargs[0]-1;
-    bool c_vec[Nbit];
+    //bool c_vec[Nbit];
+    bool* c_vec = new bool[Nbit];
     for(int i = 0; i < Nbit; i++) c_vec[i] = 0;
     for(int i = 1; i < nargs; i++) {
         if(quargs[i]) {
@@ -864,7 +868,8 @@ Matrix Matrix::CNOT(int Nbit, int* quargs, int nargs) {
     }
 
     for(int i = 0; i < N; i++) {
-        bool b[Nbit];
+        //bool b[Nbit];
+        bool* b = new bool[Nbit];
 
         for(int k = 0; k < Nbit; k++) {
             b[k] = Utils::Bn(i,k);
@@ -880,8 +885,11 @@ Matrix Matrix::CNOT(int Nbit, int* quargs, int nargs) {
         }
         int this_i = LCL_Bool::BoolVecToInt(b,Nbit);
         out.E(this_i,i,1);
+        delete [] b;
+        b = NULL;
     }
-
+    delete [] c_vec;
+    c_vec = NULL;
     return out;
 }
 
@@ -890,7 +898,8 @@ Matrix Matrix::CS(int Nbit, int c1, int c2) {
     Matrix out = Matrix::identity(N);
 
     for(int i = 0; i < N; i++) {
-        bool b[Nbit];
+        //bool b[Nbit];
+        bool* b = new bool[Nbit];
         for(int k = 0; k < Nbit; k++) {
             b[k] = Utils::Bn(i,k);
         }
@@ -900,6 +909,8 @@ Matrix Matrix::CS(int Nbit, int c1, int c2) {
         if(b[c1-1]&&b[c2-1]) {
             out.E(i,i,0.0,1.0);
         }
+        delete [] b;
+        b = NULL;
     }
 
     return out;
@@ -910,7 +921,8 @@ Matrix Matrix::CZ(int Nbit, int c1, int c2) {
     Matrix out = Matrix::identity(N);
 
     for(int i = 0; i < N; i++) {
-        bool b[Nbit];
+        //bool b[Nbit];
+        bool* b = new bool[Nbit];
         for(int k = 0; k < Nbit; k++) {
             b[k] = Utils::Bn(i,k);
         }
@@ -920,6 +932,8 @@ Matrix Matrix::CZ(int Nbit, int c1, int c2) {
         if(b[c1-1]&&b[c2-1]) {
             out.E(i,i,-1.0,0.0);
         }
+        delete [] b;
+        b = NULL;
     }
 
     return out;
@@ -930,7 +944,8 @@ Matrix Matrix::CCZ(int Nbit, int c1, int c2, int c3) {
     Matrix out = Matrix::identity(N);
 
     for(int i = 0; i < N; i++) {
-        bool b[Nbit];
+        //bool b[Nbit];
+        bool* b = new bool[Nbit];
         for(int k = 0; k < Nbit; k++) {
             b[k] = Utils::Bn(i,k);
         }
@@ -940,6 +955,8 @@ Matrix Matrix::CCZ(int Nbit, int c1, int c2, int c3) {
         if(b[c1-1]&&b[c2-1]&&b[c3-1]) {
             out.E(i,i,-1.0);
         }
+        delete [] b;
+        b = NULL;
     }
 
     return out;

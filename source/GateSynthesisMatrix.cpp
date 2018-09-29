@@ -1,17 +1,14 @@
 /*
 	TOpt: An Efficient Quantum Compiler that Reduces the T Count
-	Copyright (C) 2018  Luke Heyfron
-
+	Copyright (C) 2018  Luke E. Heyfron, Earl T. Campbell
 	This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
@@ -175,7 +172,9 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
         found = 0;
         LOut(); cout << "Round = " << round << endl;
         LCL_Mat_GF2::copy((const bool**)A,n,this_m,A_ext);
-		int col_perm[this_m]; for(int i = 0; i < this_m; i++) col_perm[i]=i;
+		//int col_perm[this_m];
+		int* col_perm = new int[this_m];
+		for(int i = 0; i < this_m; i++) col_perm[i]=i;
 		LCL_Int::randperm(col_perm,this_m);
         for(int j1_ind = 0; (!found)&&(j1_ind < (this_m-1)); j1_ind++) {
             for(int j2_ind = (j1_ind+1); (!found)&&(j2_ind < this_m); j2_ind++) {
@@ -229,6 +228,8 @@ void GateSynthesisMatrix::LempelX(bool** A, int n, int m, int& omp) {
         }
         round++;
         cout << "Round end" << endl;
+        delete [] col_perm;
+        col_perm = NULL;
     }
     cout << "OUT OF LOOP" << endl;
 

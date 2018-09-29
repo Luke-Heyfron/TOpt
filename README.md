@@ -4,8 +4,7 @@ Implementation of T gate optimization algorithm in reference https://arxiv.org/a
 
 ## Installation:
 
-1) Create a folder called "bin" in the directory of this readme file.
-2) Make sure GCC is installed and run "make all" in the TOpt directory. 
+Make sure GCC is installed and run "make all" in the TOpt directory. 
 
 ### Usage:
 
