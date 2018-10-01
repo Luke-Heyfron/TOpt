@@ -56,6 +56,7 @@ public:
     void print(ostream& inOS = cout) const;
     void printString(const char* pre = NULL) const;
     void printMatrix(ostream& inOS = cout) const;
+	void save(const char* filename) const;
 
     //int x_to_I(const bool* x) const;
     //void I_to_x(int I, bool* out) const;
