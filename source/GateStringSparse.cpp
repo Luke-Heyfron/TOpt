@@ -901,3 +901,17 @@ GateStringSparse* GateStringSparse::LoadCSV(const char* in_filename) {
 
     return out;
 }
+
+void GateStringSparse::save(const char* filename) const {
+	ofstream f(filename);
+	
+	for(int i = 0; i < n; i++) {
+		for(int j = 0; j < (int)data_us.size(); j++) {
+			f << data_us[j][i];
+			if(j!=((int)data_us.size()-1)) f << " ";
+		}
+		f << endl;
+	}
+	
+	f.close();
+}

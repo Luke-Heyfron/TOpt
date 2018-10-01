@@ -608,7 +608,7 @@ int main(int argc, char* argv[]) {
 
                         if(!g_output_filename.empty()) {
                             // Check if file setup is necessary
-                            bool setup_necessary = true;
+                            /*bool setup_necessary = true;
                             {
                                 ifstream f(g_output_filename.c_str());
                                 if(f.good()) {
@@ -632,11 +632,14 @@ int main(int argc, char* argv[]) {
                             f << tcount_pre << ",";
                             f << tcount_post << ",";
                             f << exec_time << ",";
-                            f << success  << endl;
+                            f << success  << endl;*/
+							
+							result->save(g_output_filename.c_str());
                         }
 
                         delete result;
                         result = NULL;
+						
                     }
                 } else {
                     error("Could not load GSM file.", "gsm", "main.cpp");
